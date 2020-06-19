@@ -1,10 +1,20 @@
-
+--[[
+    Functions:
+        SV       GM.StartWave()
+        SV       GM.EndWave()
+        SV       GM.SetWaveNumber( int )
+        SH  bool GM.HasWaveStarted()
+        SH  int  GM.GetWaveNumber()
+    Hooks:
+        SH  yawd_wavestart
+        SH  yawd_waveend
+]]
 local wave_started = false
 local wave = 0
 function GM.HasWaveStarted()
     return wave_started
 end
-function GM.WaveNumber()
+function GM.GetWaveNumber()
     return wave
 end
 if SERVER then
@@ -26,6 +36,14 @@ if SERVER then
         net.Start("yawd_wave")
             net.WriteBit(false) -- Not a full update
             net.WriteBit(false) -- InWave
+        net.Broadcast()
+    end
+    function GM.SetWaveNumber( num )
+        wave = num
+        net.Start("yawd_wave")
+            net.WriteBit(true) -- full update
+            net.WriteBit(wave_started) -- InWave
+            net.WriteUInt(wave, 32) -- wave
         net.Broadcast()
     end
     -- Tell the client the wave-data
