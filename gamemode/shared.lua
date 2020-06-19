@@ -52,4 +52,4 @@ hook.Run("YAWD.PreLoad")
 HandleFolder("yawd")
 hook.Run("YAWD.Loaded")
 
-MsgC(GM.Name .. " loaded.")
+MsgC(GM.Name .. " loaded.\n")
