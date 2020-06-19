@@ -1,0 +1,19 @@
+"yawd"
+{
+	"base"		"base"
+	"title"		"Yet Another Wave Defence"
+	"maps"		""
+	"menusystem"	"1"
+
+	"settings"
+	{
+		1
+		{
+			"name"		"yawd_debug"
+			"text"		"Load sandbox-content and other debug functions."
+			"type"		"CheckBox"
+			"default"	"1"
+		}
+	}
+
+}

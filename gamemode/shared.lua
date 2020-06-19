@@ -3,6 +3,12 @@ GM.Name 	= "Yet Another Wave Defence"
 GM.Version = "0.1"
 GM.Author 	= "SneakySquid & Nak"
 
+-- Include sandbox
+local debug_var = GetConVar("yawd_debug")
+if debug_var:GetBool() then
+	DeriveGamemode("sandbox")
+end
+
 -- Include/Run the lua-file
 local function HandleFile(str)
 	local c = SysTime()
@@ -27,11 +33,11 @@ local function HandleLocalFolder(str, bIgnoreSubFolders)
 	local files,folders = file.Find(str .. "/*.lua","LUA")
 	if not bIgnoreSubFolders then
 		for _,fol in ipairs(folders or {}) do
-			HandleLocalFolder(GM.FolderName .. "/gamemode/" .. str .. "/" .. fol)
+			HandleLocalFolder(str .. "/" .. fol)
 		end
 	end
 	for _,fil in ipairs(files) do
-		HandleFile(GM.FolderName .. "/gamemode/" .. str .. "/" .. fil)
+		HandleFile(str .. "/" .. fil)
 	end
 end
 local function HandleFolder(str)
