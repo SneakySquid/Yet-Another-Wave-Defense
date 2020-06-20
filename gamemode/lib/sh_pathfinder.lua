@@ -18,6 +18,7 @@ local lookup = {}
 		:IsFollowingEntity() 		Returns true if goal is an entity.
 		:GetPosition( num_joint )	Returns a position on the path. Paths start at max and ends at 1.
 		:GetPositions() 			Returns the number of positions on the path.
+		:FindClosestPosition( vec )	Returns the closest position-number to the given position.
 		:DebugOverlay(lifetime)		Renders the path using DebugOverlay.
 
 	NodeObjects:
@@ -327,7 +328,7 @@ local function PathFind(node_start, node_goal, max_distance, max_jump, max_jumpd
 			local newCostSoFar = current:GetCostSoFar() + heuristic_cost_estimate( current, neighbor )
 
 			-- Filter
-			if ( ( neighbor:IsOpen() || neighbor:IsClosed() ) && neighbor:GetCostSoFar() <= newCostSoFar ) then
+			if ( ( neighbor:IsOpen() or neighbor:IsClosed() ) and neighbor:GetCostSoFar() <= newCostSoFar ) then
 				continue
 			else
 				neighbor:SetCostSoFar( newCostSoFar );
@@ -396,6 +397,17 @@ function path_meta:DebugOverlay( lifetime )
 		
 	end
 end
+function path_meta:FindClosestPosition( vec )
+	local c,n = -1
+	for i = 1, self:GetPositions() do
+		local dis = self:GetPosition( i ):DistToSqr( vec )
+		if c < 0 or dis < c then
+			c = dis
+			n = i
+		end
+	end
+	return n
+end
 -- Creates a new path to a point or entity. Note max_jumpdown is negative.
 function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, max_distance, max_jump, max_jumpdown)
 	local t
@@ -417,6 +429,14 @@ end
 -- Locates the closest node
 function PathFinder.FindClosestNode( vec )
 	return FindClosestNode( vec )
+end
+-- Returns all nodes on the map
+function PathFinder.GetNodes()
+	return nodes
+end
+-- Returns the node matching the id
+function PathFinder.GetNode(id)
+	return nodes[id]
 end
 
 -- Load the AIN and setup the links.
