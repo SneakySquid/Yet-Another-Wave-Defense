@@ -10,7 +10,7 @@ local lookup = {}
 
 --[[ Description
 	PathFinder.CreateNewPath(v_From, v_To, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL) 	Returns a pathobject. Returns false if not found a path.
-	PathFinder.FindClosestNode( vec, NODE_TYPE, bIgnoreTrace )										Returns nearest nodeobject.	
+	PathFinder.FindClosestNode( vec, NODE_TYPE, bIgnoreTrace )										Returns nearest nodeobject.
 	PathFinder.GetNodes( NODE_TYPE = NODE_TYPE_ANY ) Returns a list of all nodes on the map.
 	PathFinder.GetNode( id ) 		Returns the given node by id.
 	PathFinder.HasScannedMapNodes() Returns true if we have scanned the map for "map nodes".
@@ -71,7 +71,7 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 	if not HULL then HULL = 1 end
 	if not max_jumpdown then max_jumpdown = 0 end
 	if not max_jump then max_jump = 0 end
-	
+
 	local t = {}
 	for k, v in ipairs(links[self] or {}) do
 		local deltaheight = v[2][HULL]
@@ -323,7 +323,7 @@ local function LoadAin()
 	f:Close()
 	print("AIN loaded. "  .. #nodes .. " nodes. " .. num_link .. " links.")
 end
--- Pathfinder. 
+-- Pathfinder.
 local function heuristic_cost_estimate( start, goal )
 	// Perhaps play with some calculations on which corner is closest/farthest or whatever
 	return start:GetPos():Distance( goal:GetPos() )
@@ -431,7 +431,7 @@ function path_meta:DebugOverlay( lifetime )
 			debugoverlay.Text(self:GetPosition(i), i, lifetime)
 			debugoverlay.Text(self.start, "Start", lifetime)
 		end
-		
+
 	end
 end
 function path_meta:FindClosestPosition( vec )
@@ -461,7 +461,7 @@ function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distan
 		table.insert(t, 1, vec_or_ent_to) -- Add the last point
 	end
 	setmetatable(t,path_meta)
-	return t 
+	return t
 end
 -- Locates the closest node
 function PathFinder.FindClosestNode( vec, NODE_TYPE )
@@ -574,15 +574,17 @@ function PathFinder.HasScannedMapNodes()
 	return scanned
 end
 
-function Pathfinder.GetMapNodes()
+function PathFinder.GetMapNodes()
 	return table.GetKeys(valid_mapnodes)
 end
 
 -- Debug
 if CLIENT then
+	local debug_paths = CreateClientConVar("yawd_debug_paths", "0", false)
+
 	local min,max = Vector(-15,-15,-10),Vector(15,15,10)
 	hook.Add("PostDrawOpaqueRenderables", "debugrender", function()
-		if true then return end
+		if not debug_paths:GetBool() then return end
 		render.SetColorMaterial()
 		if #nodes < 1 then return end
 		local p = LocalPlayer():GetPos()
