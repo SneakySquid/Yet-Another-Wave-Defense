@@ -9,8 +9,12 @@ local links = {}
 local lookup = {}
 
 --[[ Description
-	PathFinder.CreateNewPath(v_From, v_To, n_max_distance, max_jump, max_jumpdown) 	Returns a pathobject. Returns false if not found a path.
-	PathFinder.FindClosestNode( vec ) 												Returns nearest nodeobject.	
+	PathFinder.CreateNewPath(v_From, v_To, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL) 	Returns a pathobject. Returns false if not found a path.
+	PathFinder.FindClosestNode( vec, NODE_TYPE, bIgnoreTrace )										Returns nearest nodeobject.	
+	PathFinder.GetNodes( NODE_TYPE = NODE_TYPE_ANY ) Returns a list of all nodes on the map.
+	PathFinder.GetNode( id ) 		Returns the given node by id.
+	PathFinder.HasScannedMapNodes() Returns true if we have scanned the map for "map nodes".
+	Pathfinder.GetMapNodes() 		Returns a table of nodes connected with a playerspawn.
 
 	PathObjects:
 		:IsValid() 					If the goal is an entity, will check to see if it is valid.
@@ -28,12 +32,21 @@ local lookup = {}
 		:GetZone() 		Returns the nodezone.
 		:GetConnectedNodes( max_jump, max_jumpdown, HULL ) 	Returns a list of valid nodes
 		:GetID() 		Returns the node-id.
+		:IsMapNode() 	Returns true if it is connected with the playerspawn. (Walkable connections)
+		:IsNearSpawn() 	Returns true if this node is closest to a playerspawn.
 		:<A few path-related functions>
+
+	Hooks:
+		yawd.loaded_nodes 		Called when the script has scanned the map for nodes, connecting with the player-spawns.
 ]]
 
---------------- TODO :: Add airnode support ---------------
+--------------- TODO :: Check MVM map spawn ---------------
+--------------- TODO :: Some maps might have crazy nodes --
+--------------- TODO :: Spawnpoints don't get networked ---
 
-NODE_TYPE_INVALID = 1
+NODE_TYPE_INVALID = -1
+NODE_TYPE_ANY = 0 		-- Used to specify any type of node (for search)
+NODE_TYPE_DELETED = 1 	-- Used in wc_edit mode to remove nodes during runtime
 NODE_TYPE_GROUND = 2
 NODE_TYPE_AIR = 3
 NODE_TYPE_CLIMB = 4
@@ -60,7 +73,7 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 	if not max_jump then max_jump = 0 end
 	
 	local t = {}
-	for k, v in ipairs(links[self]) do
+	for k, v in ipairs(links[self] or {}) do
 		local deltaheight = v[2][HULL]
 		if deltaheight == -1 then -- Invalid
 			continue
@@ -81,6 +94,11 @@ function node_meta:GetID()
 end
 function node_meta:__tostring()
 	return "Node [" .. self:GetID() .. "]"
+end
+function node_meta:IsNodeType( node_type )
+	if self.nodeType <= NODE_TYPE_INVALID or self.nodeType > NODE_TYPE_WATER then return false end
+	if node_type == NODE_TYPE_ANY then return true end
+	return self.nodeType == node_type
 end
 -- Node_meta path
 local close_list = {}
@@ -124,6 +142,10 @@ local total_cost_list = {}
 	function node_meta:GetTotalCost()
 		return total_cost_list[self]
 	end
+
+
+
+local valid_mapnodes = {}
 function node_meta:ClearSearchLists()
 	open_list = {}
 	close_list = {}
@@ -172,14 +194,24 @@ local function GetNodesFromGrid(vec)
 	local y = floor(vec.y / gridSize)
 	return Grid[x][y]
 end
-local function FindClosestNode(vec)
+local function ET(vec1, vec2)
+	return util.TraceLine( {
+		start = vec1,
+		endpos = vec2,
+		mask = MASK_PLAYERSOLID_BRUSHONLY
+	} )
+end
+local function FindClosestNode(vec, NODE_TYPE, bIgnoreTrace)
 	-- Search the nodes in the nearest grid.
 	local g_nodes = GetNodesFromGrid(vec)
 	if g_nodes and #g_nodes > 0 then
 		local d,c = -1
 		for k, v in ipairs( g_nodes ) do
-			if v:GetType() ~= NODE_TYPE_GROUND then continue end 	-- :: TODO Add airnode support.
+			if not v:IsNodeType(NODE_TYPE) then continue end
 			local dis = vec:Distance(v:GetPos())
+			if not bIgnoreTrace and ET(vec, v:GetPos() + Vector(0,0,30) ).Hit then
+				continue
+			end
 			if d < 0 or dis < d then
 				d = dis
 				c = v
@@ -191,6 +223,7 @@ local function FindClosestNode(vec)
 	-- Search all nodes and return the closest result.
 	local d,c = -1
 	for k, v in ipairs( nodes ) do
+		if not v:IsNodeType(NODE_TYPE) then continue end
 		local dis = vec:Distance(v:GetPos())
 		if d < 0 or dis < d then
 			d = dis
@@ -220,8 +253,10 @@ local function ReadNode(f)
 	n.zone = f:ReadShort()										-- Short
 	setmetatable(n, node_meta)
 	-- Mark invalid nodes
-	if n.nodeType > 5 or n.nodeType < 1 then
+	if n.nodeType > NODE_TYPE_WATER or n.nodeType <= NODE_TYPE_ANY then -- NODE_TYPE_ANY too
 		n.nodeType = NODE_TYPE_INVALID
+	elseif n.nodeType == NODE_TYPE_DELETED then -- Well it should had been deleted, but NPC's use it anyway.
+		n.nodeType = NODE_TYPE_GROUND
 	end
 	return n
 end
@@ -286,6 +321,7 @@ local function LoadAin()
 		lookup[i] = f:ReadLong()
 	end
 	f:Close()
+	print("AIN loaded. "  .. #nodes .. " nodes. " .. num_link .. " links.")
 end
 -- Pathfinder. 
 local function heuristic_cost_estimate( start, goal )
@@ -303,7 +339,7 @@ local function reconstruct_path( cameFrom, current, reached_limit )
 	return total_path
 end
 -- Pathfinmds and returns true if we're at goal. Will returns a uncomplete path if given a max_distance.
-local function PathFind(node_start, node_goal, max_distance, max_jump, max_jumpdown, HULL)
+local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL)
 	if not node_start or not node_goal then return false end -- Invalid
 	if node_start == node_goal then return true end	-- We're already there
 
@@ -328,6 +364,7 @@ local function PathFind(node_start, node_goal, max_distance, max_jump, max_jumpd
 			local newCostSoFar = current:GetCostSoFar() + heuristic_cost_estimate( current, neighbor )
 
 			-- Filter
+			if not neighbor:IsNodeType(NODE_TYPE) then continue end
 			if ( ( neighbor:IsOpen() or neighbor:IsClosed() ) and neighbor:GetCostSoFar() <= newCostSoFar ) then
 				continue
 			else
@@ -409,14 +446,14 @@ function path_meta:FindClosestPosition( vec )
 	return n
 end
 -- Creates a new path to a point or entity. Note max_jumpdown is negative.
-function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, max_distance, max_jump, max_jumpdown)
+function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown)
 	local t
 	if type(vec_or_ent_to) == "Entity" then
-		t = PathFind( FindClosestNode(vec_from) , FindClosestNode(vec_or_ent_to), max_distance, max_jump, max_jumpdown)
+		t = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown)
 		if not t then return false end
 		t.ent_goal = true
 	else
-		t,reached_limit = PathFind( FindClosestNode(vec_from) , FindClosestNode(vec_or_ent_to), max_distance, max_jump, max_jumpdown)
+		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown)
 		if not t then return false end
 	end
 	t.start = vec_from
@@ -427,12 +464,19 @@ function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, max_distance, max_jum
 	return t 
 end
 -- Locates the closest node
-function PathFinder.FindClosestNode( vec )
-	return FindClosestNode( vec )
+function PathFinder.FindClosestNode( vec, NODE_TYPE )
+	return FindClosestNode( vec, NODE_TYPE )
 end
 -- Returns all nodes on the map
-function PathFinder.GetNodes()
-	return nodes
+function PathFinder.GetNodes( NODE_TYPE )
+	if not NODE_TYPE then return nodes end
+	local t = {}
+	for k,node in ipairs(nodes) do
+		if node:IsNodeType( NODE_TYPE ) then
+			table.insert(t, node)
+		end
+	end
+	return t
 end
 -- Returns the node matching the id
 function PathFinder.GetNode(id)
@@ -442,8 +486,99 @@ end
 -- Load the AIN and setup the links.
 LoadAin()
 
+--	Locate the nodes connecting with the player spawn. We call these "mapnodes".
+local spawnpoints = {"info_player_start", "info_player_deathmatch", "info_player_combine","info_player_rebel", "info_player_counterterrorist", "info_player_terrorist",
+"info_player_axis", "info_player_allies", "gmod_player_start","info_player_teamspawn", "ins_spawnpoint", "aoc_spawnpoint",
+"dys_spawn_point", "info_player_pirate", "info_player_viking","info_player_knight", "diprip_start_team_blue", "diprip_start_team_red",
+"info_player_red", "info_player_blue", "info_player_coop","info_player_human", "info_player_zombie", "info_player_zombiemaster",
+"info_player_fof", "info_player_desperado", "info_player_vigilante","info_survivor_rescue"}
+
+-- I miss my BSP reader
+-- Scan the map for spawn entites and scan the connected nodes.
+local scanned = false
+local starting_nodes = {}
+local function scan_map(starting_nodes)
+	valid_mapnodes = {}
+	for k,v in ipairs(starting_nodes) do
+		valid_mapnodes[ v ] = true
+		print( v:GetID() )
+	end
+	-- For each of those nodes, find the connected nodes and add them to a list.
+	local n = #nodes
+	print("Starting nodes: " .. table.Count(starting_nodes))
+	for i = 1, n * 2 do
+		local node = table.remove(starting_nodes, 1)
+		if not node then print("done") break end -- Done scanning
+		for k, v in ipairs(node:GetConnectedNodes()) do
+			if valid_mapnodes[ v ] then continue end -- Already scanned
+			table.insert(starting_nodes, v) -- Scan this node next
+			valid_mapnodes[ v ] = true -- Add it to the list of valid nodes
+		end
+	end
+	MsgN("[Yawd] Map-nodes scanned. Found [" .. table.Count(valid_mapnodes) .. "] valid nodes.")
+	hook.Run("yawd.loaded_nodes")
+	scanned = true
+end
+if SERVER then -- Serverside (We look at the spawn-entities)
+	util.AddNetworkString("yawd.pathfind.init")
+	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
+		local nodes_to_scan = {}
+		-- Locate nodes near spawn
+		for _,ent in ipairs( ents.GetAll() ) do
+			if not table.HasValue(spawnpoints, ent:GetClass()) then continue end
+			local node = FindClosestNode(ent:GetPos() + Vector(0,0,30), NODE_TYPE_GROUND)
+			if not node then continue end
+			nodes_to_scan[node] = true
+		end
+		starting_nodes = table.GetKeys(nodes_to_scan) -- For the clients
+		scan_map(table.GetKeys(nodes_to_scan)) -- Scan the rest of the map
+	end)
+	local t = {}
+	net.Receive("yawd.pathfind.init", function(len,ply)
+		if t[ply] then return end
+		net.Start("yawd.pathfind.init")
+			net.WriteInt(#starting_nodes, 32)
+			for k,v in ipairs(starting_nodes) do
+				net.WriteInt(v:GetID(), 16)
+			end
+		net.Send(ply)
+		t[ply] = true
+	end)
+else 	-- Clientside (We ask for the starting nodes from the server)
+	-- Ask for starting nodes
+	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
+		net.Start("yawd.pathfind.init")
+		net.SendToServer()
+	end)
+	net.Receive("yawd.pathfind.init", function()
+		starting_nodes = {}
+		local t = {}
+		for i = 1,net.ReadInt(32) do
+			local node = PathFinder.GetNode( net.ReadInt(16))
+			table.insert(starting_nodes, node)
+			table.insert(t, node)
+		end
+		scan_map(t)
+	end)
+end
+
+function node_meta:IsMapNode()
+	return valid_mapnodes[ self ] or false
+end
+
+function node_meta:IsNearSpawn()
+	return table.HasValue(starting_nodes, self)
+end
+
+function PathFinder.HasScannedMapNodes()
+	return scanned
+end
+
+function Pathfinder.GetMapNodes()
+	return table.GetKeys(valid_mapnodes)
+end
+
 -- Debug
---[[
 if CLIENT then
 	local min,max = Vector(-15,-15,-10),Vector(15,15,10)
 	hook.Add("PostDrawOpaqueRenderables", "debugrender", function()
@@ -457,12 +592,18 @@ if CLIENT then
 			if v.nodeType == NODE_TYPE_AIR then
 				c = Color(0,0,255)
 			elseif v.nodeType == NODE_TYPE_GROUND then
-				c = Color(0,255,0)
+				if v:IsMapNode() then
+					c = Color(0,255,0)
+				else
+					c = Color(55,55,55)
+				end
+			elseif v.nodeType == NODE_TYPE_INVALID then
+				c = Color(255,0,0)
 			end
-			render.DrawBox(v.pos, Angle(0,v.yaw,0), min,max, c )
+			render.DrawBox(v.pos, Angle(0,v.yaw,0), min,max, c)
 			for k, c2 in ipairs( v:GetConnectedNodes() ) do
 				render.DrawLine(v:GetPos(), c2:GetPos(), c)
 			end
 		end
 	end)
-end]]
+end

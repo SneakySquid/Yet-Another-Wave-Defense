@@ -80,12 +80,7 @@ end
 -- WIP Spawns a spawner at one of the corners of the map.
 
 if SERVER then
-	-- Spawner and objective
-	local function SpawnSpawnerAtNode(node_id)
-		local e = ents.Create("yawd_npc_spawner")
-		e:SetPos(PathFinder.GetNode(node_id):GetPos())
-		return e
-	end
+	
 	local function SpawnSpawners()
 		-- Delete old spawners
 		for k,v in ipairs(ents.FindByClass("yawd_npc_spawner")) do
@@ -99,7 +94,7 @@ if SERVER then
 			table.insert(t, {node:GetID(),node:GetPos():Distance(c)})
 		end
 		table.sort( t, function(a, b) return a[2] > b[2] end ) -- [Node:ID, Distance]
-		SpawnSpawnerAtNode(t[1][1])
+		--SpawnSpawnerAtNode(t[1][1])
 	end
 	SpawnSpawners()
 end
