@@ -100,6 +100,26 @@ function node_meta:IsNodeType( node_type )
 	if node_type == NODE_TYPE_ANY then return true end
 	return self.nodeType == node_type
 end
+local cache = {}
+-- Returns the higest hull for the given node.
+function node_meta:GetHigestHull()
+	if cache[self] then return cache[self] end
+	local n = 1
+	local t = 1 -- We need two nodes with the higest number
+	for k, v in ipairs(links[self] or {}) do
+		local l_n = 1
+		for i = 1, 10 do
+			if v[2][i] ~= 0 then break end
+			l_n = i
+		end
+		if t > n and l_n >= t then
+			n = t
+		end
+		t = math.max(t,l_n) -- Set the current temp
+	end
+	cache[self] = n
+	return n
+end
 -- Node_meta path
 local close_list = {}
 	function node_meta:AddToClosedList()
@@ -257,6 +277,13 @@ local function ReadNode(f)
 		n.nodeType = NODE_TYPE_INVALID
 	elseif n.nodeType == NODE_TYPE_DELETED then -- Well it should had been deleted, but NPC's use it anyway.
 		n.nodeType = NODE_TYPE_GROUND
+	end
+	-- Trace down
+	if n.nodeType == NODE_TYPE_GROUND then
+		local t = ET( n.pos + Vector(0,0,30), n.pos - Vector(0,0,30) )
+		if t.HitPos then
+			n.pos = t.HitPos
+		end
 	end
 	return n
 end
@@ -503,6 +530,7 @@ local function scan_map(starting_nodes)
 		valid_mapnodes[ v ] = true
 		print( v:GetID() )
 	end
+	local higest = -1 -- Accept any size node at the start
 	-- For each of those nodes, find the connected nodes and add them to a list.
 	local n = #nodes
 	print("Starting nodes: " .. table.Count(starting_nodes))
@@ -511,6 +539,11 @@ local function scan_map(starting_nodes)
 		if not node then print("done") break end -- Done scanning
 		for k, v in ipairs(node:GetConnectedNodes()) do
 			if valid_mapnodes[ v ] then continue end -- Already scanned
+			local n = v:GetHigestHull()
+			if n <= higest then continue end
+			if n > higest and higest < 4 then
+				higest = math.min(n, 4)
+			end
 			table.insert(starting_nodes, v) -- Scan this node next
 			valid_mapnodes[ v ] = true -- Add it to the list of valid nodes
 		end
@@ -574,8 +607,13 @@ function PathFinder.HasScannedMapNodes()
 	return scanned
 end
 
-function Pathfinder.GetMapNodes()
-	return table.GetKeys(valid_mapnodes)
+local cache
+function PathFinder.GetMapNodes()
+	if not scanned then return {} end
+	if not cache then
+		cache = table.GetKeys(valid_mapnodes)
+	end
+	return cache
 end
 
 -- Debug
