@@ -1,9 +1,42 @@
-
-Furture Ideas:
-
 Ideas:
+	Classes:
+		Runner/Scout:
+			Small damage output, most mobile of the classes, gains health from picking up money.
+			Could have a way to slow enemies down or do small amounts damage over time (bleeding, corrosion)?
+
+		Constructor/Builder:
+			Medium damage output, can place and repair buildings.
+			Can buy buildings cheaper by using resources?
+
+		Fighter/Brawler:
+			High burst damage, melee only weapons, high health and speed.
+
+		Gunner/Rifleman:
+			High damage output, can use most ranged weapons, low health and medium speed.
+			Can buy armour for more protection?
+
+		Healer/Medic:
+			No damage output, heals players (SWEP or AoE?), creates portable ballistic shields.
+			Maybe they can make certain players invulnerable for a short while?
+
+		Bomber:
+			High AoE burst damage, uses a grenades and rockets, can lay explosive traps.
+
+	Buildings:
+		Spawnpoint:
+			A location to spawn players faster, each spawner reduces spawn times by 5% for a maximum of 50%, price increases 50% for each spawnpoint.
+
+		Ammo Dispenser:
+			A destructible container that generates resources and ammo over time.
+			Can be upgraded to increase range and ammo capacity?
+
+		Tar Traps:
+			Slows enemies down considerably (-80% move speed?) when they walk over it, only covers a small area.
+			Could be a one use SWEP for the runner to throw?
+
+		Weapon Upgrader:
+			Can be used to upgrade weapon damage, range, or ammo capacity for large amounts of currency.
 
 Todo:
 
 Done:
-

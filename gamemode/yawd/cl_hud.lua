@@ -1,5 +1,4 @@
-
-surface.CreateFont( "yawd_hudoutline", {
+surface.CreateFont("HUD.WaveOutlined", {
 	font = "Arial",
 	size = 22,
 	weight = 1500,
@@ -11,15 +10,25 @@ surface.CreateFont( "yawd_hudoutline", {
 	outline = true,
 })
 
-hook.Add("HUDPaint", "yawd.hud", function()
-    local wave = GAMEMODE.GetWaveNumber()
-    local wave_started = GAMEMODE.HasWaveStarted()
+local Statuses = {
+	[WAVE_WAITING] = "Waiting",
+	[WAVE_ACTIVE] = "Active",
+	[WAVE_POST] = "Finished",
+}
 
-    -- Draw wave number
-    surface.SetTextColor(255,255,255)
-    surface.SetFont("yawd_hudoutline")
-    local txt = "Wave: " .. wave
-    local tw,th = surface.GetTextSize(txt)
-    surface.SetTextPos(ScrW() - tw / 2 - 100, 20)
-    surface.DrawText(txt)
-end)
+function GM:WaveStatus(ply, w, h)
+	if not hook.Run("HUDShouldDraw", "HUD.WaveStatus") then return end
+
+	local wave_no = self:GetWaveNumber()
+	local wave_stat = Statuses[self:GetWaveStatus()]
+
+	local _, th = draw.SimpleText(string.format("Wave: %i", wave_no), "HUD.WaveOutlined", w - 20, 20, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+	draw.SimpleText(string.format("Status: %s", wave_stat), "HUD.WaveOutlined", w - 20, 20 + th, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+end
+
+function GM:HUDPaint()
+	local ply = LocalPlayer()
+	local w, h = ScrW(), ScrH()
+
+	self:WaveStatus(ply, w, h)
+end
