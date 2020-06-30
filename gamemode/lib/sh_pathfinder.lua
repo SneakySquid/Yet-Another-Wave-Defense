@@ -214,8 +214,9 @@ local function GetNodesFromGrid(vec)
 	local y = floor(vec.y / gridSize)
 	return Grid[x][y]
 end
+local TraceLine = util.TraceLine
 local function ET(vec1, vec2)
-	return util.TraceLine( {
+	return TraceLine( {
 		start = vec1,
 		endpos = vec2,
 		mask = MASK_PLAYERSOLID_BRUSHONLY
@@ -510,15 +511,11 @@ function PathFinder.GetNode(id)
 	return nodes[id]
 end
 
--- Load the AIN and setup the links.
-LoadAin()
-
 --	Locate the nodes connecting with the player spawn. We call these "mapnodes".
-local spawnpoints = {"info_player_start", "info_player_deathmatch", "info_player_combine","info_player_rebel", "info_player_counterterrorist", "info_player_terrorist",
-"info_player_axis", "info_player_allies", "gmod_player_start","info_player_teamspawn", "ins_spawnpoint", "aoc_spawnpoint",
-"dys_spawn_point", "info_player_pirate", "info_player_viking","info_player_knight", "diprip_start_team_blue", "diprip_start_team_red",
-"info_player_red", "info_player_blue", "info_player_coop","info_player_human", "info_player_zombie", "info_player_zombiemaster",
-"info_player_fof", "info_player_desperado", "info_player_vigilante","info_survivor_rescue"}
+local spawnpoints = {"info_player_start", "info_player_deathmatch", "info_player_combine", "info_player_rebel", "info_player_counterterrorist", "info_player_terrorist",
+"info_player_axis", "info_player_allies", "gmod_player_start", "info_player_teamspawn", "ins_spawnpoint", "aoc_spawnpoint", "dys_spawn_point", "info_player_pirate", 
+"info_player_viking", "info_player_knight", "diprip_start_team_blue", "diprip_start_team_red","info_player_red", "info_player_blue", "info_player_coop","info_player_human", 
+"info_player_zombie", "info_player_zombiemaster", "info_player_fof", "info_player_desperado", "info_player_vigilante", "info_survivor_rescue"}
 
 -- I miss my BSP reader
 -- Scan the map for spawn entites and scan the connected nodes.
@@ -555,6 +552,8 @@ end
 if SERVER then -- Serverside (We look at the spawn-entities)
 	util.AddNetworkString("yawd.pathfind.init")
 	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
+		-- Load the AIN and setup the links.
+		LoadAin()
 		local nodes_to_scan = {}
 		-- Locate nodes near spawn
 		for _,ent in ipairs( ents.GetAll() ) do
@@ -580,6 +579,8 @@ if SERVER then -- Serverside (We look at the spawn-entities)
 else 	-- Clientside (We ask for the starting nodes from the server)
 	-- Ask for starting nodes
 	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
+		-- Load the AIN and setup the links.
+		LoadAin()
 		net.Start("yawd.pathfind.init")
 		net.SendToServer()
 	end)
