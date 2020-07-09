@@ -8,9 +8,9 @@ GM:Accessor("WaveNumber", 0, function(self, old, new)
 	net.Broadcast()
 end)
 
-GM:Accessor("WaveStatus", WAVE_WAITING, function(self, old, new)
+GM:Accessor("WaveStatus", WAVE_VOTE, function(self, old, new)
 	net.Start("Wave.UpdateStatus")
-		net.WriteUInt(new, 2)
+		net.WriteUInt(new, 3)
 	net.Broadcast()
 end)
 
@@ -32,14 +32,35 @@ function GM:EndWave()
 	return true
 end
 
+function GM:StartCoreVote()
+	self:SetWaveStatus( WAVE_VOTE )
+	hook.Run("Wave.VoteStart")
+	print("Start core vote")
+end
+
+function GM:EndCoreVote()
+	if not self:IsVoteWave() then return false end
+	self:SetWaveStatus( WAVE_WAITING )
+	hook.Run("Wave.VoteFinished")
+	print("Ends core vote")
+end
+
 net.Receive("Wave.RequestInfo", function(_, ply)
 	local wave = GAMEMODE:GetWaveNumber()
 	local status = GAMEMODE:GetWaveStatus()
+	net.Start("Wave.RequestInfo")
+		net.WriteUInt(wave, 32)
+		net.WriteUInt(status, 3)
+	net.Send(ply)
+end)
 
-	if (status ~= WAVE_WAITING) then
-		net.Start("Wave.RequestInfo")
-			net.WriteUInt(wave, 32)
-			net.WriteUInt(status, 2)
-		net.Send(ply)
+-- Check if the map has a building core.
+hook.Add("YAWDPostEntity", "Wave.CheckMap", function()
+	local core = ents.FindByClass( "yawd_building_core" )
+	if #core > 0 then
+		GAMEMODE:SetWaveStatus( WAVE_WAITING )
+		GAMEMODE.Building_Core = core[1]
+	else
+		GAMEMODE:StartCoreVote()
 	end
 end)

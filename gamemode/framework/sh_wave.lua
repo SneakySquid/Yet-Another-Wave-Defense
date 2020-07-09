@@ -1,4 +1,10 @@
 --[[
+	Hooks:
+		SH:
+			Wave.VoteStart			Called when the vote for the core location start.
+			Wave.VoteFinished		Called when the vote for the core location is done.
+			Wave.Started			Called when the wave start.
+			Wave.Finished			Called wehn the wave end.
 
 	Functions:
 		SV:
@@ -10,7 +16,7 @@
 
 		SH:
 			GM:HasWaveStarted, returns true if wave status is WAVE_ACTIVE, false otherwise.
-
+			GM:IsVoteWave 	   returns true if wave status is WAVE_VOTE, false otherwise.
 			GM:SetWaveNumber, returns nil.
 			GM:GetWaveNumber, returns wave number.
 
@@ -19,12 +25,17 @@
 
 ]]
 
-WAVE_WAITING = 0
-WAVE_ACTIVE = 1
-WAVE_POST = 2
+WAVE_VOTE = 0 		// Vote to place the core.
+WAVE_WAITING = 1
+WAVE_ACTIVE = 2
+WAVE_POST = 3
 
 function GM:HasWaveStarted()
 	return self:GetWaveStatus() == WAVE_ACTIVE
+end
+
+function GM:IsVoteWave()
+	return self:GetWaveStatus() == WAVE_VOTE
 end
 
 if SERVER then
@@ -32,25 +43,4 @@ if SERVER then
 	include("wave/sv_wave.lua")
 else
 	include("wave/cl_wave.lua")
-end
-
--- WIP Spawns a spawner at one of the corners of the map.
-
-if SERVER then
-	local function SpawnSpawners()
-		-- Delete old spawners
-		for k,v in ipairs(ents.FindByClass("yawd_npc_spawner")) do
-			SafeRemoveEntity(v)
-		end
-		-- Create a list of all points, furthest from the center of the map.
-		local c = Vector(0,0,0)
-		local t = {}
-		for id,node in ipairs(PathFinder.GetNodes()) do
-			if node:GetType() ~= NODE_TYPE_GROUND then continue end
-			table.insert(t, {node:GetID(),node:GetPos():Distance(c)})
-		end
-		table.sort( t, function(a, b) return a[2] > b[2] end ) -- [Node:ID, Distance]
-		--SpawnSpawnerAtNode(t[1][1])
-	end
-	SpawnSpawners()
 end

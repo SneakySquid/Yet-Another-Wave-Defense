@@ -525,7 +525,6 @@ local function scan_map(starting_nodes)
 	valid_mapnodes = {}
 	for k,v in ipairs(starting_nodes) do
 		valid_mapnodes[ v ] = true
-		print( v:GetID() )
 	end
 	local higest = -1 -- Accept any size node at the start
 	-- For each of those nodes, find the connected nodes and add them to a list.
@@ -533,7 +532,7 @@ local function scan_map(starting_nodes)
 	print("Starting nodes: " .. table.Count(starting_nodes))
 	for i = 1, n * 2 do
 		local node = table.remove(starting_nodes, 1)
-		if not node then print("done") break end -- Done scanning
+		if not node then break end -- Done scanning
 		for k, v in ipairs(node:GetConnectedNodes()) do
 			if valid_mapnodes[ v ] then continue end -- Already scanned
 			local n = v:GetHigestHull()
@@ -579,10 +578,12 @@ if SERVER then -- Serverside (We look at the spawn-entities)
 else 	-- Clientside (We ask for the starting nodes from the server)
 	-- Ask for starting nodes
 	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
-		-- Load the AIN and setup the links.
-		LoadAin()
-		net.Start("yawd.pathfind.init")
-		net.SendToServer()
+		timer.Simple(1, function()
+			-- Load the AIN and setup the links.
+			LoadAin()
+			net.Start("yawd.pathfind.init")
+			net.SendToServer()
+		end)
 	end)
 	net.Receive("yawd.pathfind.init", function()
 		starting_nodes = {}

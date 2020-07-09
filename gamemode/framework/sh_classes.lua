@@ -1,3 +1,4 @@
+CLASS_ANY = -1 	// Used for buildings and class checks
 CLASS_BASE = 0
 CLASS_BOMBER = 1
 CLASS_CONSTRUCTOR = 2

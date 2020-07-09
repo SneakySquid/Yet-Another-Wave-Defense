@@ -5,7 +5,7 @@ GM.Author 	= "SneakySquid & Nak"
 
 -- Include sandbox
 local debug_var = GetConVar("yawd_debug")
-if debug_var:GetBool() then
+if true then
 	DeriveGamemode("sandbox")
 end
 
@@ -16,6 +16,7 @@ local function HandleFile(str)
 	if string.find(str,"/") then
 		path = string.GetFileFromFilename(str)
 	end
+	print(str)
 	local _type = string.sub(path,0,3)
 	if SERVER then
 		if _type == "cl_" or _type == "sh_" then

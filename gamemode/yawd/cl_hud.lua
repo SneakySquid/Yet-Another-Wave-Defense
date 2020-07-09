@@ -5,6 +5,12 @@ do
 		weight = 1500,
 	})
 
+		surface.CreateFont("HUD.VoteStatus", {
+		font = "Tahoma",
+		size = 32,
+		weight = 1500,
+	})
+
 	surface.CreateFont("HUD.Status", {
 		font = "Arial",
 		size = 32,
