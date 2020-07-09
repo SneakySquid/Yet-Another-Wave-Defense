@@ -2,6 +2,12 @@
 local building_size = Vector(95, 95, 1.7)
 local cos,sin,rad,max = math.cos, math.sin, math.rad, math.max
 Building = {}
+
+local cores = ents.FindByClass( "yawd_building_core" )
+if #cores > 0 then
+    gmod.GetGamemode().Building_Core = cores[1]
+end
+
 local buildings = {}
 local building_meta = {}
 local default_building = {}

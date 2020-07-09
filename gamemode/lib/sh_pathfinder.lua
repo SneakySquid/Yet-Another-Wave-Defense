@@ -37,7 +37,7 @@ local lookup = {}
 		:<A few path-related functions>
 
 	Hooks:
-		yawd.loaded_nodes 		Called when the script has scanned the map for nodes, connecting with the player-spawns.
+		Nodes.Loaded 		Called when the script has scanned the map for nodes, connecting with the player-spawns.
 ]]
 
 --------------- TODO :: Check MVM map spawn ---------------
@@ -544,13 +544,13 @@ local function scan_map(starting_nodes)
 			valid_mapnodes[ v ] = true -- Add it to the list of valid nodes
 		end
 	end
-	MsgN("[Yawd] Map-nodes scanned. Found [" .. table.Count(valid_mapnodes) .. "] valid nodes.")
-	hook.Run("yawd.loaded_nodes")
 	scanned = true
+	MsgN("[Yawd] Map-nodes scanned. Found [" .. table.Count(valid_mapnodes) .. "] valid nodes.")
+	hook.Run("Nodes.Loaded")
 end
 if SERVER then -- Serverside (We look at the spawn-entities)
 	util.AddNetworkString("yawd.pathfind.init")
-	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
+	hook.Add("YAWDPostEntity", "MapInit", function()
 		-- Load the AIN and setup the links.
 		LoadAin()
 		local nodes_to_scan = {}
@@ -577,7 +577,7 @@ if SERVER then -- Serverside (We look at the spawn-entities)
 	end)
 else 	-- Clientside (We ask for the starting nodes from the server)
 	-- Ask for starting nodes
-	hook.Add("YAWDPostEntity", "yawd.mapinit", function()
+	hook.Add("YAWDPostEntity", "MapInit", function()
 		timer.Simple(1, function()
 			-- Load the AIN and setup the links.
 			LoadAin()

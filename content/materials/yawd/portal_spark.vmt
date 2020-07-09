@@ -1,0 +1,6 @@
+"Sprite"
+{
+	"$spriteorigin" "[ 0.50 0.50 ]"
+	"$basetexture" "effects/energysplash"
+	"$spriterendermode" 5
+}

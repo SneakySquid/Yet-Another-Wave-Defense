@@ -54,12 +54,12 @@ net.Receive("Wave.RequestInfo", function(_, ply)
 	net.Send(ply)
 end)
 
--- Check if the map has a building core.
+-- Check if the map has a building core, else we have to vote on a location.
 hook.Add("YAWDPostEntity", "Wave.CheckMap", function()
 	local core = ents.FindByClass( "yawd_building_core" )
 	if #core > 0 then
+		GAMEMODE.Building_Core = core[1] -- Just in case
 		GAMEMODE:SetWaveStatus( WAVE_WAITING )
-		GAMEMODE.Building_Core = core[1]
 	else
 		GAMEMODE:StartCoreVote()
 	end
