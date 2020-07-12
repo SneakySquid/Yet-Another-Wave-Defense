@@ -7,6 +7,7 @@ local map_version = 0
 local nodes = {}
 local links = {}
 local lookup = {}
+PathFinder = {}
 
 --[[ Description
 	PathFinder.CreateNewPath(v_From, v_To, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL) 	Returns a pathobject. Returns false if not found a path.
@@ -15,6 +16,9 @@ local lookup = {}
 	PathFinder.GetNode( id ) 		Returns the given node by id.
 	PathFinder.HasScannedMapNodes() Returns true if we have scanned the map for "map nodes".
 	Pathfinder.GetMapNodes() 		Returns a table of nodes connected with a playerspawn.
+	PathFinder.FindHULL(radius, tall)	Returns a HULL that fits the arguments.
+	PathFinder.FindEntityHULL( ent )	Returns a hull that fits the entity.
+	PathFinder.GetHULLs()				Returns all valid hulls.
 
 	PathObjects:
 		:IsValid() 					If the goal is an entity, will check to see if it is valid.
@@ -51,6 +55,45 @@ NODE_TYPE_GROUND = 2
 NODE_TYPE_AIR = 3
 NODE_TYPE_CLIMB = 4
 NODE_TYPE_WATER = 5
+
+--[[ Hulls
+HULL_HUMAN 			= 0		30w, 73t
+HULL_SMALL_CENTERED = 1		40w, 40t
+HULL_WIDE_HUMAN		= 2		?
+HULL_TINY			= 3		24w, 24t
+HULL_WIDE_SHORT		= 4		?
+HULL_MEDIUM			= 5		36w, 65t
+HULL_TINY_CENTERED	= 6		16w, 8t
+HULL_LARGE			= 7		80w, 100t
+HULL_LARGE_CENTERED = 8		?
+HULL_MEDIUM_TALL	= 9		36w, 100t
+]]
+function PathFinder.GetHULLs()
+	return {HULL_TINY_CENTERED, HULL_TINY, HULL_SMALL_CENTERED, HULL_MEDIUM, HULL_HUMAN, HULL_MEDIUM_TALL, HULL_LARGE}
+end
+function PathFinder.FindHULL(wide, tall)
+	if wide <= 16 and tall <= 8 then
+		return HULL_TINY_CENTERED
+	elseif wide <= 24 and tall <= 24 then
+		return HULL_TINY
+	elseif wide <= 40 and tall <= 40 then
+		return HULL_SMALL_CENTERED
+	elseif wide <= 36 and tall <= 65 then
+		return HULL_MEDIUM
+	elseif wide <= 32 and tall <= 73 then
+		return HULL_HUMAN
+	elseif wide <= 36 and tall <= 100 then
+		return HULL_MEDIUM_TALL
+	else
+		return HULL_LARGE
+	end
+end
+function PathFinder.FindEntityHULL( ent )
+	local s = ent:OBBMaxs() - ent:OBBMins()
+	return PathFinder.FindHULL(math.max(s.x, s.y) / 2, s.z)
+end
+
+local scanned = false -- Will be true after the map got scanned
 
 -- Node meta
 local node_meta = {}
@@ -417,7 +460,6 @@ local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jum
 end
 
 -- Pathfinder meta
-PathFinder = {}
 local path_meta = {}
 path_meta.__index = path_meta
 function path_meta:__tostring()
@@ -473,18 +515,26 @@ function path_meta:FindClosestPosition( vec )
 	end
 	return n
 end
+function path_meta:GetDistance()
+	return self.distance or 0
+end
 -- Creates a new path to a point or entity. Note max_jumpdown is negative.
-function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown)
+function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
+	if not scanned then return false end
 	local t
 	if type(vec_or_ent_to) == "Entity" then
-		t = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown)
+		t = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
 		if not t then return false end
 		t.ent_goal = true
 	else
-		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown)
+		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
 		if not t then return false end
 	end
 	t.start = vec_from
+	t.distance = 0
+	for i = 1, #t - 1 do
+		t.distance = t.distance + t[i]:GetPos():Distance(t[i + 1]:GetPos())
+	end
 	if not t.reached_limit then
 		table.insert(t, 1, vec_or_ent_to) -- Add the last point
 	end
@@ -519,7 +569,6 @@ local spawnpoints = {"info_player_start", "info_player_deathmatch", "info_player
 
 -- I miss my BSP reader
 -- Scan the map for spawn entites and scan the connected nodes.
-local scanned = false
 local starting_nodes = {}
 local function scan_map(starting_nodes)
 	valid_mapnodes = {}
@@ -643,7 +692,21 @@ if CLIENT then
 				c = Color(255,0,0)
 			end
 			render.DrawBox(v.pos, Angle(0,v.yaw,0), min,max, c)
+			local c = Color(155,155,155)
 			for k, c2 in ipairs( v:GetConnectedNodes() ) do
+				if v.nodeType == NODE_TYPE_AIR or c2.nodeType == NODE_TYPE_AIR then
+					c = Color(0,0,255)
+				elseif v.nodeType == NODE_TYPE_GROUND then
+					if v:IsMapNode() and c2:IsMapNode() then
+						c = Color(0,255,0)
+					else
+						c = Color(55,55,55)
+					end
+				elseif v.nodeType == NODE_TYPE_INVALID then
+					c = Color(255,0,0)
+				else
+					c = Color(155,155,155)
+				end
 				render.DrawLine(v:GetPos(), c2:GetPos(), c)
 			end
 		end
