@@ -35,14 +35,12 @@ end
 function GM:StartCoreVote()
 	self:SetWaveStatus( WAVE_VOTE )
 	hook.Run("Wave.VoteStart")
-	print("Start core vote")
 end
 
 function GM:EndCoreVote()
 	if not self:IsVoteWave() then return false end
 	self:SetWaveStatus( WAVE_WAITING )
 	hook.Run("Wave.VoteFinished")
-	print("Ends core vote")
 end
 
 net.Receive("Wave.RequestInfo", function(_, ply)
