@@ -24,23 +24,74 @@ function ENT:Initialize()
 	self:DrawShadow(false)
 end
 
-function ENT:OnRemove()
-	self:StopSound(snd)
-end
-
 function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
 end
 
 if SERVER then 
-	function ENT:Think()
+	function ENT:OnRemove()
+		self:StopSound(snd)
 	end
-	return 
+	return
+end
+-- Clientside effects --
+
+function ENT:OnRemove()
+	self:StopSound(snd)
+	for k,v in ipairs(self.tab_wisp or {}) do
+		SafeRemoveEntity(v)
+	end
 end
 
 function ENT:Draw()
  --   self:DrawModel()
 end
+
+local function CanGeneratePath()
+	if not PathFinder.HasScannedMapNodes() then return false end
+	if not IsValid(Building.GetCore()) then return false end
+	return true
+end
+
+-- Wisp
+function ENT:GetIdleWisp()
+	for k,v in ipairs(self.tab_wisp) do
+		if not v:IsActive() then 
+			return v 
+		end
+	end
+end
+function ENT:WispThink()
+	if GAMEMODE:HasWaveStarted() then return end
+	if (self.next_wisp or 0) > CurTime() then return end
+	if not CanGeneratePath() then
+		self.next_wisp = CurTime() + 2
+		return 
+	end
+	if not self.tab_wisp then 
+		self.tab_wisp = {}
+		for i = 1, 5 do
+			local e = ents.CreateClientside( "yawd_wisp" )
+			e:SetPos(self:GetPos())
+			e:Spawn()
+			table.insert(self.tab_wisp, e)
+		end
+	end
+	local idle_wisp = self:GetIdleWisp()
+	if not idle_wisp then
+		self.next_wisp = CurTime() + 2
+		return 
+	end
+	local path = PathFinder.CreateNewPath(self:GetPos() + Vector(0,0,50), Building.GetCore():GetPos() + Vector(0,0,50), NODE_TYPE_GROUND, nil, 0, 0, HULL_TINY)
+	if not path then -- This shouldn't happen, try again in 10 seconds
+		self.next_wisp = CurTime() + 10
+		print("NO PATH")
+		return
+	end
+	idle_wisp:SetPath( path )
+	self.next_wisp = CurTime() + 7
+end
+
 
 local m = Material("effects/splashwake1")
 local m2 = Material("effects/splashwake3")
@@ -51,6 +102,8 @@ local m5 = Material("effects/blueflare1")
 local rndSnd = {Sound("ambient/energy/zap1.wav"),Sound("ambient/energy/zap2.wav"),Sound("ambient/energy/zap3.wav"),Sound("ambient/energy/zap5.wav"),Sound("ambient/energy/zap6.wav"),Sound("ambient/energy/zap7.wav"),Sound("ambient/energy/zap8.wav"),Sound("ambient/energy/zap9.wav")}
 function ENT:Think()
 	local d = LocalPlayer():GetPos():Distance(self:GetPos())
+	-- Spawn wisps
+	self:WispThink()
 	-- Play sound
 	if not (self._nsnd and self._nsnd > CurTime()) and d < 100 then
 		self._nsnd = CurTime() + 4
@@ -61,7 +114,6 @@ function ENT:Think()
 	if GAMEMODE:HasWaveStarted() then return end
 	if d > 1000 then return end
 	if self._cpart and self._cpart > CurTime() then return end
-	
 	self._cpart = CurTime() + 0.05
 	local p_r = math.random(math.pi * 2)
 	local p_l = math.random(47)
