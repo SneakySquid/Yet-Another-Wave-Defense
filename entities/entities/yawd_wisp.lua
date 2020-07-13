@@ -112,6 +112,7 @@ hook.Add("Think", "yawd.wispsnd", function()
 	end
 	local c_dis,cur = 600
 	for k,v in ipairs(wisps) do
+		if not IsValid(v) then continue end
 		local dis = v:GetPos():Distance(LocalPlayer():GetPos())
 		if dis < c_dis then
 			cur = v
