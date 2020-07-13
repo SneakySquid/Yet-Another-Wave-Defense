@@ -25,6 +25,7 @@ end)
 net.Receive("Wave.RequestInfo", function()
 	GAMEMODE:SetWaveNumber(net.ReadUInt(32))
 	GAMEMODE:SetWaveStatus(net.ReadUInt(3))
+	hook.Run("Wave.InfoReceived")
 end)
 
 -- Check if the map has a building core.
