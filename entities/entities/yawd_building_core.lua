@@ -18,3 +18,7 @@ function ENT:Initialize()
 		Controller.TrySpawnSpawners()
 	end
 end
+
+function ENT:UpdateTransmitState()
+	return TRANSMIT_ALWAYS
+end
