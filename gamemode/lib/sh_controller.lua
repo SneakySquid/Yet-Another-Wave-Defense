@@ -12,6 +12,7 @@ NPC_TYPE_ALL = 4
 
 -- Handles the spawning of spawners on the map
 if SERVER then
+    util.AddNetworkString("yawd_mainpath")
     local spawners = {} -- holds the locations of spawners.
     -- Finds the furthest node from start_node in the general direction of yaw.
     local function LocateSpawnerNode( start_node, yaw )
@@ -29,6 +30,17 @@ if SERVER then
         end
         table.sort(t, function(a,b) return a[2] > b[2] end)
         return t[1][1]
+    end
+    local function AddPath(ent_spawner, HULL)
+        if not PathFinder.HasScannedMapNodes() then return false end
+        if not IsValid(Building.GetCore()) then return false end
+        local core = Building.GetCore()
+        local path = PathFinder.CreateNewPath(ent_spawner:GetPos(), core:GetPos(), NODE_TYPE_GROUND, nil, 0, 0, HULL)
+        if not path then return end
+        table.remove(path, 1) -- Remove the first point as it is a vector
+        if not paths[ent_spawner] then paths[ent_spawner] = {} end
+        paths[ent_spawner][HULL] = path
+        return true
     end
     -- Locates and (re)spawns all spawners on the map
     local function SpawnSpawners()
@@ -53,25 +65,38 @@ if SERVER then
                 endpos = pos - Vector(0,0,50),
                 mask = MASK_PLAYERSOLID_BRUSHONLY
             } )
-
             local e = ents.Create("yawd_npc_spawner")
             e:SetPos( tr.Hit and (tr.HitPos + tr.HitNormal * 0.03) or pos )
             local a = tr.Hit and tr.HitNormal:Angle() or Angle(0,0,0)
             a:RotateAroundAxis(Vector(0,1,0), 90)
             e:SetAngles(a)
             e:Spawn()
+            AddPath(e,4) -- Add a path back
         end
-        print("Spawned")
+        net.Start("yawd_mainpath")
+            
+        net.Broadcast()
     end
-    -- Check to see if we can spawn spawners.
+    -- Check to see if we can spawn spawners. (This gets called by the [Ent Core]:Init too)
+    local spawned = false
     function Controller.TrySpawnSpawners()
-        print("Checking spawner..")
+        if spawned then return end
         -- Check to see if the nodes have been scanned.
         if not PathFinder.HasScannedMapNodes() then return false end
         -- Check to see if the map has a core.
         if not IsValid(Building.GetCore()) then return false end
         SpawnSpawners()
+        spawned = true
         return true
     end
     hook.Add("Nodes.Loaded", "YAWD.SpawnSpawners", Controller.TrySpawnSpawners)
+end
+
+-- Create a path
+
+function Controller.GetPath(ent_spawner)
+    return paths[ent_spawner]
+end
+function Controller.GetPaths()
+    return paths
 end
