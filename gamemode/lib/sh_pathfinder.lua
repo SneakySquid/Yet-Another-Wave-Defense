@@ -28,6 +28,7 @@ PathFinder = {}
 		:GetPositions() 			Returns the number of positions on the path.
 		:FindClosestPosition( vec )	Returns the closest position-number to the given position.
 		:DebugOverlay(lifetime)		Renders the path using DebugOverlay.
+		:GetDistance()				Returns the distance for the path.
 
 	NodeObjects:
 		:GetPos() 		Returns the position of the node.
