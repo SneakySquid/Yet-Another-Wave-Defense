@@ -27,6 +27,18 @@ function GM:RegisterClass(name, tbl, base)
 	player_manager.RegisterClass(name, tbl, base or "player_yawd")
 end
 
+function GM:YAWDCanSwitchClass(ply, class)
+	if class == 0 then
+		return false, "Can't switch to the base class."
+	elseif not self.PlayerClasses[class] then
+		return false, "Can't switch to non-existant classes."
+	elseif self:GetWaveStatus() ~= WAVE_WAITING then
+		return false, "Can't switch class while waves are active."
+	end
+
+	return true
+end
+
 if SERVER then
 	AddCSLuaFile("classes/class_base.lua")
 	AddCSLuaFile("classes/class_bomber.lua")
@@ -36,6 +48,23 @@ if SERVER then
 	AddCSLuaFile("classes/class_healer.lua")
 	AddCSLuaFile("classes/class_juggernaut.lua")
 	AddCSLuaFile("classes/class_runner.lua")
+
+	function GM:UpdateClass(ply, class)
+		local able, reason = hook.Run("YAWDCanSwitchClass", ply, class)
+		if not able then return false, reason end
+
+		ply:SetTeam(TEAM_DEFENDER)
+		ply:SetPlayerClass(class)
+
+		class = self.PlayerClasses[class]
+		player_manager.SetPlayerClass(ply, class)
+
+		hook.Run("YAWDPlayerSwitchedClass", ply, class)
+
+		ply:Spawn()
+
+		return true
+	end
 end
 
 include("classes/class_base.lua")
