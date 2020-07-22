@@ -15,6 +15,12 @@ do
 		font = "Arial",
 		size = 32,
 	})
+
+	surface.CreateFont("HUD.Building", {
+		font = "Tahoma",
+		size = 32,
+		weight = 1500,
+	})
 end
 
 local HUD = {
@@ -166,6 +172,53 @@ HUD.Status = {
 		local goal = GAMEMODE:GetEndGoal()
 		-- do stuff
 	end,
+
+	Building = function(ply, sw, sh)
+		local t = ply:GetEyeTrace()
+		if not t.Entity or not IsValid( t.Entity ) then return end
+		if not string.match(t.Entity:GetClass(),"^yawd_building") then return end
+		local ent = t.Entity
+
+		local max_hp, hp = ent:GetMaxHealth(), ent:Health()
+		local ex_p = 0
+		if max_hp > 0  then
+			local bw, bh = sw * 0.20, 20
+			local bx, by = sw * 0.5 - bw / 2, 70
+		
+			surface.SetDrawColor(HUD.Colours.Main)
+			surface.DrawRect(bx, by, bw, bh)
+
+			local p = math.min(1, hp / max_hp)
+			local lp = health_lerp(hp, max_hp)
+
+			surface.SetDrawColor(HUD.Colours.Damage)
+			surface.DrawRect(bx, by, bw * lp, bh)
+
+			surface.SetDrawColor(HUD.Colours.Health)
+			surface.DrawRect(bx, by, bw * p, bh)
+			ex_p = 30
+		end
+		if ent.TrapTriggerTime >= 0 and ent.TrapResetTime >= 0 and ent.TrapDurationTime >= 0 then
+			local bw, bh = sw * 0.20, 20
+			local bx, by = sw * 0.5 - bw / 2, 70 + ex_p
+		
+			surface.SetDrawColor(HUD.Colours.Main)
+			surface.DrawRect(bx, by, bw, bh)
+			
+			local n = ent:DurationProcent()
+			local p = math.min(1, n <= 0 and ent:ResetProcent() or n)
+			local lp = health_lerp(hp, max_hp)
+
+			surface.SetDrawColor(HUD.Colours.Damage)
+			surface.DrawRect(bx, by, bw * lp, bh)
+
+			surface.SetDrawColor(HUD.Colours.Overheal)
+			surface.DrawRect(bx, by, bw * p, bh)
+		end
+		surface.SetFont("HUD.Building")
+		draw.DrawText(ent:GetBuildingName() or "Unknown Building", "HUD.Building", sw / 2, 20, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER)
+	
+	end,
 }
 
 HUD.Wave = {
@@ -202,6 +255,10 @@ function GM:HUDPaint()
 
 			if CanDraw("HUD.Status.PlayerAmmo") then
 				HUD.Status.PlayerAmmo(ply, sw, sh)
+			end
+
+			if CanDraw("HUD.Status.Building") then
+				HUD.Status.Building(ply, sw, sh)
 			end
 		end
 
