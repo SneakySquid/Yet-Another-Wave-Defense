@@ -1,0 +1,14 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "yawd/models/trap_lava"
+	"$model" 1
+	"$nocull" 0
+//	"$selfillum" 1
+//	"$selfillummask" "yawd/models/trap_lava_selfillum"
+//	"$selfillummaskscale" 1
+//	"$selfillumtint" "[1 1 0.2]"
+	"$detail" "yawd/models/trap_lava_selfillum"
+	"$detailscale" 1
+	"$detailblendfactor" 1
+	"$detailblendmode" 5
+}

@@ -1,4 +1,12 @@
-"UnlitGeneric"
+"VertexLitGeneric"
 {
 	"$basetexture" "yawd/models/trap_tar"
+	"$model" 1
+	"$nocull" 0
+	"$detail" "yawd/models/trap_tar"
+	"$detailscale" 1
+	"$detailblendfactor" 0.1
+	"$detailblendmode" 5
 }
+
+

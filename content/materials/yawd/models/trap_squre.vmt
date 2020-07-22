@@ -7,5 +7,6 @@
 	"$detailscale" 1
 	"$detailblendfactor" 0.1
 	"$detailblendmode" 5
+	"$basetexturetransform" "center 0 0 scale 0.4 1 rotate 0 translate 0 0"
 }
 
