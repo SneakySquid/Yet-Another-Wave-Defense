@@ -4,9 +4,16 @@ GM.Version = "0.1"
 GM.Author 	= "SneakySquid & Nak"
 
 -- Include sandbox
-local debug_var = GetConVar("yawd_debug")
-if true then
+local yawd_debug = GetConVar("yawd_debug")
+if yawd_debug:GetBool() then
 	DeriveGamemode("sandbox")
+end
+
+function DebugMessage(msg)
+	if not yawd_debug:GetBool() then return end
+
+	local src_info = debug.getinfo(2, "lS")
+	print(string.format("[YAWD] %s (%s:%i)", msg, src_info.short_src, src_info.currentline))
 end
 
 -- Include/Run the lua-file
@@ -16,7 +23,7 @@ local function HandleFile(str)
 	if string.find(str,"/") then
 		path = string.GetFileFromFilename(str)
 	end
-	print(str)
+	DebugMessage(str)
 	local _type = string.sub(path,0,3)
 	if SERVER then
 		if _type == "cl_" or _type == "sh_" then
@@ -48,9 +55,9 @@ end
 -- Load order
 HandleFolder("lib")
 HandleFolder("framework")
-hook.Run("YAWD.PreLoad")
+hook.Run("YAWDPreLoaded")
 
 HandleFolder("yawd")
-hook.Run("YAWD.Loaded")
+hook.Run("YAWDPostLoaded")
 
 MsgC(GM.Name .. " loaded.\n")

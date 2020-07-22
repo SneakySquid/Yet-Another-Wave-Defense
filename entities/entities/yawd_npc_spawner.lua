@@ -28,7 +28,7 @@ function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
 end
 
-if SERVER then 
+if SERVER then
 	function ENT:OnRemove()
 		self:StopSound(snd)
 	end
@@ -56,8 +56,8 @@ end
 -- Wisp
 function ENT:GetIdleWisp()
 	for k,v in ipairs(self.tab_wisp) do
-		if not v:IsActive() then 
-			return v 
+		if v and v.IsActive and not v:IsActive() then
+			return v
 		end
 	end
 end
@@ -66,9 +66,9 @@ function ENT:WispThink()
 	if (self.next_wisp or 0) > CurTime() then return end
 	if not CanGeneratePath() then
 		self.next_wisp = CurTime() + 2
-		return 
+		return
 	end
-	if not self.tab_wisp then 
+	if not self.tab_wisp then
 		self.tab_wisp = {}
 		for i = 1, 5 do
 			local e = ents.CreateClientside( "yawd_wisp" )
@@ -80,12 +80,12 @@ function ENT:WispThink()
 	local idle_wisp = self:GetIdleWisp()
 	if not idle_wisp then
 		self.next_wisp = CurTime() + 2
-		return 
+		return
 	end
 	local path = PathFinder.CreateNewPath(self:GetPos() + Vector(0,0,50), Building.GetCore():GetPos() + Vector(0,0,50), NODE_TYPE_GROUND, nil, 0, 0, HULL_TINY)
 	if not path then -- This shouldn't happen, try again in 10 seconds
 		self.next_wisp = CurTime() + 10
-		print("NO PATH")
+		DebugMessage("NO PATH")
 		return
 	end
 	idle_wisp:SetPath( path )
@@ -152,7 +152,7 @@ function ENT:DrawTranslucent()
 	render.SetMaterial(m)
 	render.DrawQuadEasy(r_pos, self:GetUp(), 24, 24, r_col, CurTime() * -45 % 360)
 	end
-	
+
 	-- Glow
 	render.SetMaterial(m5)
 	render.DrawQuadEasy(r_pos, self:GetUp(), 90, 90, r_col, 0)

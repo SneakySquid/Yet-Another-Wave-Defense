@@ -12,7 +12,7 @@ PathFinder = {}
 --[[ Description
 	PathFinder.CreateNewPath(v_From, v_To, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL) 	Returns a pathobject. Returns false if not found a path.
 	PathFinder.FindClosestNode( vec, NODE_TYPE, bIgnoreTrace )										Returns nearest nodeobject.
-	PathFinder.GetNodes( NODE_TYPE = NODE_TYPE_ANY ) Returns a list of all nodes on the map.
+	PathFinder.GetNodes( NODE_TYPE = NODE_TYPE_ANY ) Returns table of found nodes and count.
 	PathFinder.GetNode( id ) 		Returns the given node by id.
 	PathFinder.HasScannedMapNodes() Returns true if we have scanned the map for "map nodes".
 	Pathfinder.GetMapNodes() 		Returns a table of nodes connected with a playerspawn.
@@ -393,7 +393,7 @@ local function LoadAin()
 		lookup[i] = f:ReadLong()
 	end
 	f:Close()
-	print("AIN loaded. "  .. #nodes .. " nodes. " .. num_link .. " links.")
+	DebugMessage(string.format("AIN loaded. %i nodes. %i links.", #nodes, num_link))
 end
 -- Pathfinder.
 local function heuristic_cost_estimate( start, goal )
@@ -546,16 +546,22 @@ end
 function PathFinder.FindClosestNode( vec, NODE_TYPE )
 	return FindClosestNode( vec, NODE_TYPE )
 end
--- Returns all nodes on the map
-function PathFinder.GetNodes( NODE_TYPE )
-	if not NODE_TYPE then return nodes end
-	local t = {}
-	for k,node in ipairs(nodes) do
-		if node:IsNodeType( NODE_TYPE ) then
-			table.insert(t, node)
+local type_cache = {}
+function PathFinder.GetNodes(NODE_TYPE)
+	if not scanned then return {}, 0 end
+	NODE_TYPE = NODE_TYPE or NODE_TYPE_ANY
+	if not type_cache[NODE_TYPE] then
+		local found, count = {}, 0
+		for i, node in ipairs(nodes) do
+			if node:IsNodeType(NODE_TYPE) then
+				count = count + 1
+				found[count] = node
+			end
 		end
+		type_cache[NODE_TYPE] = {found, count}
 	end
-	return t
+	local cache = type_cache[NODE_TYPE]
+	return cache[1], cache[2]
 end
 -- Returns the node matching the id
 function PathFinder.GetNode(id)
@@ -564,8 +570,8 @@ end
 
 --	Locate the nodes connecting with the player spawn. We call these "mapnodes".
 local spawnpoints = {"info_player_start", "info_player_deathmatch", "info_player_combine", "info_player_rebel", "info_player_counterterrorist", "info_player_terrorist",
-"info_player_axis", "info_player_allies", "gmod_player_start", "info_player_teamspawn", "ins_spawnpoint", "aoc_spawnpoint", "dys_spawn_point", "info_player_pirate", 
-"info_player_viking", "info_player_knight", "diprip_start_team_blue", "diprip_start_team_red","info_player_red", "info_player_blue", "info_player_coop","info_player_human", 
+"info_player_axis", "info_player_allies", "gmod_player_start", "info_player_teamspawn", "ins_spawnpoint", "aoc_spawnpoint", "dys_spawn_point", "info_player_pirate",
+"info_player_viking", "info_player_knight", "diprip_start_team_blue", "diprip_start_team_red","info_player_red", "info_player_blue", "info_player_coop","info_player_human",
 "info_player_zombie", "info_player_zombiemaster", "info_player_fof", "info_player_desperado", "info_player_vigilante", "info_survivor_rescue"}
 
 -- I miss my BSP reader
@@ -579,7 +585,7 @@ local function scan_map(starting_nodes)
 	local higest = -1 -- Accept any size node at the start
 	-- For each of those nodes, find the connected nodes and add them to a list.
 	local n = #nodes
-	print("Starting nodes: " .. table.Count(starting_nodes))
+	DebugMessage("Starting nodes: " .. table.Count(starting_nodes))
 	for i = 1, n * 2 do
 		local node = table.remove(starting_nodes, 1)
 		if not node then break end -- Done scanning
@@ -596,7 +602,7 @@ local function scan_map(starting_nodes)
 	end
 	scanned = true
 	MsgN("[Yawd] Map-nodes scanned. Found [" .. table.Count(valid_mapnodes) .. "] valid nodes.")
-	hook.Run("Nodes.Loaded")
+	hook.Run("YAWDPathFinderNodesLoaded")
 end
 if SERVER then -- Serverside (We look at the spawn-entities)
 	util.AddNetworkString("yawd.pathfind.init")
@@ -659,13 +665,13 @@ function PathFinder.HasScannedMapNodes()
 	return scanned
 end
 
-local cache
+local node_cache
 function PathFinder.GetMapNodes()
 	if not scanned then return {} end
-	if not cache then
-		cache = table.GetKeys(valid_mapnodes)
+	if not node_cache then
+		node_cache = table.GetKeys(valid_mapnodes)
 	end
-	return cache
+	return node_cache
 end
 
 -- Debug
