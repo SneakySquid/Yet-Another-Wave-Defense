@@ -3,6 +3,9 @@ GM.Name 	= "Yet Another Wave Defence"
 GM.Version = "0.1"
 GM.Author 	= "SneakySquid & Nak"
 
+-- Ensure the convar is created - wasn't created for me clientside on 64-bit Linux
+CreateConVar("yawd_debug", 0, FCVAR_ARCHIVE)
+
 -- Include sandbox
 local yawd_debug = GetConVar("yawd_debug")
 if yawd_debug:GetBool() then
