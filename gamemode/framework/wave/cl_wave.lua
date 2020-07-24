@@ -1,13 +1,8 @@
 local function WaveHandler(GM, old, new)
-	if old == WAVE_VOTE and old ~= new then
-		hook.Run("Wave.VoteFinished")
-	end
 	if new == WAVE_ACTIVE then
-		hook.Run("Wave.Started")
+		hook.Run("YAWDWaveStarted")
 	elseif new == WAVE_POST then
-		hook.Run("Wave.Finished")
-	elseif new == WAVE_VOTE then
-		hook.Run("Wave.VoteStart")
+		hook.Run("YAWDWaveFinished")
 	end
 end
 
@@ -24,11 +19,11 @@ end)
 
 net.Receive("Wave.RequestInfo", function()
 	GAMEMODE:SetWaveNumber(net.ReadUInt(32))
-	GAMEMODE:SetWaveStatus(net.ReadUInt(3))
-	hook.Run("Wave.InfoReceived")
+	GAMEMODE:SetWaveStatus(net.ReadUInt(2))
+
+	hook.Run("YAWDWaveInfoReceived")
 end)
 
--- Check if the map has a building core.
 hook.Add("YAWDPostEntity", "Wave.RequestInfo", function()
 	net.Start("Wave.RequestInfo")
 	net.SendToServer()

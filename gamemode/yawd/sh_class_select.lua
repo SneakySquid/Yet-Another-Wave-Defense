@@ -56,4 +56,10 @@ else
 	concommand.Add("yawd_select_class", function()
 		GAMEMODE:OpenSelectionMenu()
 	end)
+
+	hook.Add("YAWDVoteFinished", "Class.Select", function(vote_type)
+		if vote_type == VOTE_TYPE_CORE then
+			GAMEMODE:OpenSelectionMenu()
+		end
+	end)
 end

@@ -8,15 +8,15 @@ GM:Accessor("WaveNumber", 0, function(self, old, new)
 	net.Broadcast()
 end)
 
-GM:Accessor("WaveStatus", WAVE_VOTE, function(self, old, new)
+GM:Accessor("WaveStatus", WAVE_WAITING, function(self, old, new)
 	net.Start("Wave.UpdateStatus")
-		net.WriteUInt(new, 3)
+		net.WriteUInt(new, 2)
 	net.Broadcast()
 end)
 
 function GM:StartWave()
 	if self:HasWaveStarted() then return false end
-	if not hook.Run("Wave.Started") then return false end
+	if not hook.Run("YAWDWaveStarted") then return false end
 
 	self:SetWaveStatus(WAVE_ACTIVE)
 
@@ -25,30 +25,20 @@ end
 
 function GM:EndWave()
 	if not self:HasWaveStarted() then return false end
-	if not hook.Run("Wave.Finished") then return false end
+	if not hook.Run("YAWDWaveFinished") then return false end
 
 	self:SetWaveStatus(WAVE_POST)
 
 	return true
 end
 
-function GM:StartCoreVote()
-	self:SetWaveStatus( WAVE_VOTE )
-	hook.Run("Wave.VoteStart")
-end
-
-function GM:EndCoreVote()
-	if not self:IsVoteWave() then return false end
-	self:SetWaveStatus( WAVE_WAITING )
-	hook.Run("Wave.VoteFinished")
-end
-
 net.Receive("Wave.RequestInfo", function(_, ply)
 	local wave = GAMEMODE:GetWaveNumber()
 	local status = GAMEMODE:GetWaveStatus()
+
 	net.Start("Wave.RequestInfo")
 		net.WriteUInt(wave, 32)
-		net.WriteUInt(status, 3)
+		net.WriteUInt(status, 2)
 	net.Send(ply)
 end)
 

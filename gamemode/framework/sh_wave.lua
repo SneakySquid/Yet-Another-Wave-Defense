@@ -25,17 +25,12 @@
 
 ]]
 
-WAVE_VOTE = 0 		// Vote to place the core.
-WAVE_WAITING = 1
-WAVE_ACTIVE = 2
-WAVE_POST = 3
+WAVE_WAITING = 0
+WAVE_ACTIVE = 1
+WAVE_POST = 2
 
 function GM:HasWaveStarted()
 	return self:GetWaveStatus() == WAVE_ACTIVE
-end
-
-function GM:IsVoteWave()
-	return self:GetWaveStatus() == WAVE_VOTE
 end
 
 if SERVER then
