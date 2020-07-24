@@ -22,7 +22,11 @@ SWEP.WorldModel = ""
 SWEP.HoldType = "pistol"
 
 SWEP.PrimaryDelay = 0.4
-SWEP.PrimaryDamage = 10
+SWEP.PrimarySpread = Vector(0.03, 0.01, 0)
+SWEP.PrimaryDamage = {
+	min = 7,
+	max = 14,
+}
 SWEP.PrimaryForce = 1
 SWEP.PrimaryMaxDistance = 56756
 SWEP.PrimarySound = "weapons/pistol/pistol_fire3.wav"
@@ -59,12 +63,12 @@ function SWEP:PrimaryAttack()
 	local owner = self:GetOwner()
 	local bullet_info = {
 		Attacker = owner,
-		Damage = self.PrimaryDamage,
+		Damage = math.random(self.PrimaryDamage.min, self.PrimaryDamage.max),
 		Force = self.PrimaryForce,
 		Distance = self.PrimaryMaxDistance,
 		Num = 1,
 		Dir = owner:GetAimVector(),
-		Spread = Vector(0, 0, 0),
+		Spread = self.PrimarySpread,
 		Src = owner:GetShootPos(),
 	}
 
