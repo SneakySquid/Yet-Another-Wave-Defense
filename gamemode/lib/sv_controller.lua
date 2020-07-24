@@ -1,4 +1,4 @@
-
+do return end
 --[[ Controls the PATHs and NPC directions
 	Controller.CreatePathController( ent, ent_spawner, HULL, nJumpDown, nJumpUp )		Returns an npc_path object. Will generate its own path if given nJumpDown or nJumpUp.
 
@@ -6,33 +6,42 @@
 		:IsValidPath()		Returns true if the path is valid.
 		:NewPath()			Returns true if generated a new path.
 		:GetCursor()		Returns the current goal.
-		:NextCursor()		Returns the next goal. False if reached the end.	
+		:NextCursor()		Returns the next goal. False if reached the end.
 		:GetCursorAge()		Returns the age of the current Cursor.
 --]]
 
 
 Controller = {}
 local meta_npc = {}
+meta_npc.__index = meta_npc
 local paths = {}
-local function RequestPath( self, ent_spawner, HULL )
+local core = NULL
+local function RequestPath(self, spawn_pos, target_pos)
+	if not core:IsValid() then return false end
+
 	HULL = HULL or PathFinder.FindEntityHULL( self )
 	if ent_spawner and paths[ent_spawner] and paths[ent_spawner][HULL] then
 		return paths[ent_spawner][HULL]
 	end
-	return PathFinder.CreateNewPath(ent_spawner:GetPos() + Vector(0,0,60), core:GetPos() + Vector(0,0,60), NODE_TYPE_GROUND, nil, 0, 0, HULL)
+	return PathFinder.CreateNewPath(spawn_pos, target_pos, NODE_TYPE_GROUND, nil, 0, 0, HULL)
 end
 
-function Controller.CreatePathController( ent, ent_spawner, HULL, nJumpDown, nJumpUp )
-	HULL = HULL or PathFinder.FindEntityHULL( self )
+function Controller.CreatePathController(ent, spawn_pos, target_pos, nJumpDown, nJumpUp)
+	HULL = HULL or PathFinder.FindEntityHULL( ent )
 	local t = {}
 	setmetatable(t, meta_npc)
 	if not (nJumpDown and nJumpDown > 0) and not (nJumpUp and nJumpUp > 0) then
-		t.path = RequestPath( ent, ent_spawner, HULL )
+		t.path = RequestPath(ent, spawn_pos, target_pos)
+
+		if not t.path then
+			DebugMessage("Failed to request path, no core?")
+			return false
+		end
 	else
-		t.path = PathFinder.CreateNewPath(self.ent:GetPos() + self.ent:OBBCenter(), core:GetPos() + Vector(0,0,60), NODE_TYPE_GROUND, nil, nJumpDown, nJumpUp, HULL)
+		t.path = PathFinder.CreateNewPath(t.ent:GetPos() + t.ent:OBBCenter(), core:GetPos() + Vector(0,0,60), NODE_TYPE_GROUND, nil, nJumpDown, nJumpUp, HULL)
 	end
 	if t.path then
-		t.pathpoint = #self.path
+		t.pathpoint = #t.path
 	else
 		t.pathpoint = -1
 	end
@@ -45,7 +54,7 @@ end
 -- Meta
 -- Returns true if the path is valid
 function meta_npc:IsValidPath()
-	return self.path and true
+	return self.path and true or false
 end
 -- Returns true if generated new path
 function meta_npc:NewPath()
@@ -153,6 +162,7 @@ function Controller.TrySpawnSpawners()
 	if not IsValid(Building.GetCore()) then return false end
 	SpawnSpawners()
 	spawned = true
+	core = Building.GetCore()
 	return true
 end
-hook.Add("Nodes.Loaded", "YAWD.SpawnSpawners", Controller.TrySpawnSpawners)
+hook.Add("YAWDPathFinderNodesLoaded", "YAWD.SpawnSpawners", Controller.TrySpawnSpawners)

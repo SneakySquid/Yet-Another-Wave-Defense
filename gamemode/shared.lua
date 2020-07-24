@@ -13,7 +13,7 @@ function DebugMessage(msg)
 	if not yawd_debug:GetBool() then return end
 
 	local src_info = debug.getinfo(2, "lS")
-	print(string.format("[YAWD] %s (%s:%i)", msg, src_info.short_src, src_info.currentline))
+	print(string.format("[YAWD] %s - (%s:%i)", msg, src_info.short_src, src_info.currentline))
 end
 
 -- Include/Run the lua-file

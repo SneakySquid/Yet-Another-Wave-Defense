@@ -42,7 +42,7 @@ PathFinder = {}
 		:<A few path-related functions>
 
 	Hooks:
-		Nodes.Loaded 		Called when the script has scanned the map for nodes, connecting with the player-spawns.
+		YAWDPathFinderNodesLoaded 		Called when the script has scanned the map for nodes, connecting with the player-spawns.
 ]]
 
 --------------- TODO :: Check MVM map spawn ---------------

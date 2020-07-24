@@ -65,13 +65,19 @@ end
 
 do
 	local function VoteStarted(GM, old, new)
-		if new ~= true then return end
+		if new == true then
+			vote_info.Voters = {}
+			vote_info.VoteCount = {}
+			vote_info.TotalVotes = 0
 
-		vote_info.Voters = {}
-		vote_info.VoteCount = {}
-		vote_info.TotalVotes = 0
+			hook.Run("YAWDVoteStarted", GM.m_VoteType, GM.m_VoteLength)
+		else
+			hook.Run("YAWDVoteFinished", GM.m_VoteType)
 
-		hook.Run("YAWDVoteStarted", GM.m_VoteType, GM.m_VoteLength)
+			vote_info.Voters = {}
+			vote_info.VoteCount = {}
+			vote_info.TotalVotes = 0
+		end
 	end
 
 	GM:Accessor("VoteStarted", false, VoteStarted)

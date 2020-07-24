@@ -1,7 +1,5 @@
 DEFINE_BASECLASS("gamemode_base")
 
-GM.CurrencyCache = {}
-
 function GM:PlayerInitialSpawn(ply)
 	player_manager.SetPlayerClass(ply, "player_yawd")
 end
@@ -37,9 +35,9 @@ function GM:PlayerSelectSpawn(ply, transition)
 		end
 	end
 
-	if (false) then
-		return self:GetEndGoal()
-	else
-		return BaseClass.PlayerSelectSpawn(self, ply, transition)
-	end
+	return BaseClass.PlayerSelectSpawn(self, ply, transition)
+end
+
+function GM:PlayerDisconnected(ply)
+	self:RemoveVote(ply)
 end

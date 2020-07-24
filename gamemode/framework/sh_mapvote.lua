@@ -261,7 +261,9 @@ local function RenderNodes(_, drawing_skybox)
 		end
 
 		local delta = (pos + node_offset) - shootpos
-		local fov = aimvec:Dot(delta) / delta:Length()
+		delta:Normalize()
+
+		local fov = aimvec:Dot(delta)
 
 		if fov > best_fov then
 			closest_node = node
