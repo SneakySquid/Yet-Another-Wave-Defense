@@ -109,6 +109,10 @@ function GM:EndVote()
 
 	hook.Run("YAWDVoteFinished", self.m_VoteType, winners, highest_vote, winner_count)
 
+	vote_info.Voters = {}
+	vote_info.VoteCount = {}
+	vote_info.TotalVotes = 0
+
 	return winners, highest_vote, winner_count
 end
 

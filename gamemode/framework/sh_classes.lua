@@ -34,6 +34,8 @@ function GM:YAWDCanSwitchClass(ply, class)
 		return false, "Can't switch to non-existant classes."
 	elseif self:GetWaveStatus() ~= WAVE_WAITING then
 		return false, "Can't switch class while waves are active."
+	elseif self.m_VoteStarted and self.m_VoteType == VOTE_TYPE_CORE then
+		return false, "Can't change class while the core vote is active."
 	end
 
 	return true
