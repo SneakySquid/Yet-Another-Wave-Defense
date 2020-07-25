@@ -23,7 +23,7 @@ SWEP.HoldType = "shotgun"
 SWEP.ViewModelFlip = true
 
 SWEP.Primary = {
-	Ammo = "BuckshotHL1",
+	Ammo = "Buckshot",
 	ClipSize = 8,
 	DefaultClip = 32,
 	Automatic = false,
@@ -34,7 +34,7 @@ SWEP.PrimarySpread = Vector(0.1, 0.1, 0)
 SWEP.PrimaryBulletsPerFire = 8
 SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
-SWEP.PrimaryMaxDistance = 8092
+SWEP.PrimaryMaxDistance = 128
 SWEP.PrimarySound = "weapons/xm1014/xm1014-1.wav"
 SWEP.PrimaryDamage = {
 	min = 14,
