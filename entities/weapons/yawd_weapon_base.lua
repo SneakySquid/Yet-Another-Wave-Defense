@@ -32,6 +32,7 @@ SWEP.Primary = {
 SWEP.PrimaryDelay = 1
 SWEP.PrimarySpread = Vector(0, 0, 0)
 SWEP.PrimaryBulletsPerFire = 1
+SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
 SWEP.PrimaryMaxDistance = 56756
 SWEP.PrimarySound = ""
@@ -92,7 +93,7 @@ function SWEP:PrimaryAttack()
 		Src = owner:GetShootPos(),
 	}
 
-	self:TakePrimaryAmmo(self.PrimaryBulletsPerFire)
+	self:TakePrimaryAmmo(self.PrimaryBulletsTakenPerShot)
 	self:FireBullets(bullet_info)
 	self:EmitSound(self.PrimarySound, 75, 100, 1, CHAN_WEAPON)
 	self:ViewPunch()

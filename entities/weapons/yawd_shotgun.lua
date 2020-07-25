@@ -1,5 +1,5 @@
 SWEP.Base = "yawd_weapon_base"
-SWEP.PrintName = "Pistol"
+SWEP.PrintName = "Shotgun"
 SWEP.Author = "YAWD Team"
 SWEP.Category = "YAWD"
 SWEP.Spawnable = true
@@ -17,39 +17,39 @@ SWEP.ViewModelFOV = 62
 SWEP.ViewModelFlip = false
 
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_pist_fiveseven.mdl"
-SWEP.WorldModel = "models/weapons/w_pist_fiveseven.mdl"
-SWEP.HoldType = "pistol"
+SWEP.ViewModel = "models/weapons/v_shot_xm1014.mdl"
+SWEP.WorldModel = "models/weapons/w_shot_xm1014.mdl"
+SWEP.HoldType = "shotgun"
 SWEP.ViewModelFlip = true
 
 SWEP.Primary = {
-	Ammo = "Pistol",
-	ClipSize = 12,
-	DefaultClip = 48,
+	Ammo = "BuckshotHL1",
+	ClipSize = 8,
+	DefaultClip = 32,
 	Automatic = false,
 }
 
-SWEP.PrimaryDelay = 0.15
-SWEP.PrimarySpread = Vector(0.03, 0.01, 0)
-SWEP.PrimaryBulletsPerFire = 1
+SWEP.PrimaryDelay = 0.32
+SWEP.PrimarySpread = Vector(0.1, 0.1, 0)
+SWEP.PrimaryBulletsPerFire = 8
 SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
-SWEP.PrimaryMaxDistance = 56756
-SWEP.PrimarySound = "weapons/fiveseven/fiveseven-1.wav"
+SWEP.PrimaryMaxDistance = 8092
+SWEP.PrimarySound = "weapons/xm1014/xm1014-1.wav"
 SWEP.PrimaryDamage = {
-	min = 7,
-	max = 14,
+	min = 14,
+	max = 32,
 }
 SWEP.PrimaryViewPunch = {
 	p = {
-		min = -0.5,
-		max = -1.4,
+		min = -3,
+		max = -8,
 	},
 	y = {
-		min = -0.4,
-		max = 0.4,
+		min = 2,
+		max = 2,
 	},
 }
 
 SWEP.ReloadDelay = 1
-SWEP.ReloadSound = "weapons/fiveseven/fiveseven_clipout.wav"
+SWEP.ReloadSound = "weapons/xm1014/xm1014_insertshell.wav"
