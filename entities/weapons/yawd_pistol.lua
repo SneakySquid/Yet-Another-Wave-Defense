@@ -1,3 +1,5 @@
+-- TODO: Refactor into a weapon base
+
 SWEP.Base = "weapon_base"
 SWEP.PrintName = "Pistol"
 SWEP.Author = "YAWD Team"
@@ -26,12 +28,12 @@ SWEP.Primary = {
 	Ammo = "Pistol",
 	ClipSize = 12,
 	DefaultClip = 48,
-	Automatic = true,
+	Automatic = false,
 }
 
 SWEP.Secondary = {}
 
-SWEP.PrimaryDelay = 0.2
+SWEP.PrimaryDelay = 0.15
 SWEP.PrimarySpread = Vector(0.03, 0.01, 0)
 SWEP.PrimaryBulletsPerFire = 1
 SWEP.PrimaryDamage = {
@@ -40,21 +42,27 @@ SWEP.PrimaryDamage = {
 }
 SWEP.PrimaryForce = 1
 SWEP.PrimaryMaxDistance = 56756
-SWEP.PrimarySound = "weapons/pistol/pistol_fire3.wav"
+SWEP.PrimarySound = "weapons/fiveseven/fiveseven-1.wav"
 SWEP.PrimaryViewPunch = {
 	p = {
-		min = -1,
-		max = -3,
+		min = -0.5,
+		max = -1.4,
 	},
 	y = {
-		min = -1,
-		max = 1,
+		min = -0.4,
+		max = 0.4,
 	},
 }
 
 SWEP.SecondaryDelay = 1
 
 SWEP.ReloadDelay = 1
+SWEP.ReloadSound = "weapons/fiveseven/fiveseven_clipout.wav"
+
+SWEP.CanAttackReason = {
+	CLIP_EMPTY,
+	AWAITING_DELAY,
+}
 
 function SWEP:Initialize()
 	self:SetHoldType(self.HoldType)
@@ -69,7 +77,12 @@ function SWEP:Holster()
 end
 
 function SWEP:PrimaryAttack()
-	if not self:CanPrimaryAttack() then
+	local can_attack, reason = self:CanPrimaryAttack()
+	if not can_attack then
+		if reason == self.CanAttackReason.CLIP_EMTPY then
+			self:Reload()
+		end
+
 		return
 	end
 
@@ -105,16 +118,34 @@ function SWEP:SecondaryAttack()
 	self:SetNextSecondaryFire(CurTime() + self.SecondaryDelay)
 end
 
+function SWEP:CanPrimaryAttack()
+	if self:PrimaryClip() <= 0 then
+		return false, self.CanAttackReason.CLIP_EMPTY
+	end
+
+	return true
+end
+
+function SWEP:CanSecondaryAttack()
+	if self:SecondaryClip() <= 0 then
+		return false, self.CanAttackReason.CLIP_EMPTY
+	end
+
+	return true
+end
+
 function SWEP:Reload()
 	if not self:CanReload() then
 		return
 	end
 
-
+	-- FIXME: Viewmodel reload animation is bad
 	self:DefaultReload(ACT_VM_RELOAD)
 
 	local owner = self:GetOwner()
 	owner:SetAnimation(PLAYER_RELOAD)
+
+	self:EmitSound(self.ReloadSound, 75, 100, 1, CHAN_WEAPON)
 
 	local time = CurTime()
 	self:SetNextReload(time + self.ReloadDelay)
@@ -124,6 +155,7 @@ end
 
 function SWEP:CanReload()
 	return CurTime() >= self:GetNextReload()
+		and self:PrimaryAmmo() > 0
 end
 
 function SWEP:SetNextReload(time)
@@ -144,3 +176,16 @@ function SWEP:ViewPunch()
 		0
 	))
 end
+
+-- Nicer names
+function SWEP:PrimaryAmmo()
+	return self:GetOwner():GetAmmoCount(self:GetPrimaryAmmoType())
+end
+
+function SWEP:SecondaryAmmo()
+	return self:GetOwner():GetAmmoCount(self:GetSecondaryAmmoType())
+end
+
+local _weapon = debug.getregistry().Weapon
+SWEP.PrimaryClip = _weapon.Clip1
+SWEP.SecondaryClip = _weapon.Clip2
