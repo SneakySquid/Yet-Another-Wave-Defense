@@ -135,7 +135,7 @@ function SWEP:Reload()
 
 	local time = CurTime()
 	self:SetNextReload(time + self.ReloadDelay)
-	self:SetNextPrimaryFire(time + self.PrimaryDelay)
+	self:SetNextPrimaryFire(time + self.ReloadDelay)
 end
 
 function SWEP:CanReload()
