@@ -89,7 +89,7 @@ function SWEP:PrimaryAttack()
 		Distance = self.PrimaryMaxDistance,
 		Num = self.PrimaryBulletsPerFire,
 		Dir = owner:GetAimVector(),
-		Spread = self.PrimarySpread,
+		Spread = self:GetSpread(),
 		Src = owner:GetShootPos(),
 	}
 
@@ -160,6 +160,10 @@ function SWEP:ViewPunch()
 		math.random(viewpunch.y.min, viewpunch.y.max),
 		0
 	))
+end
+
+function SWEP:GetSpread()
+	return self.PrimarySpread
 end
 
 -- Nicer names
