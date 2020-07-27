@@ -29,7 +29,7 @@ SWEP.Primary = {
 	Automatic = false,
 }
 
-SWEP.PrimaryDelay = 0.32
+SWEP.PrimaryDelay = 0.35
 SWEP.PrimarySpread = Vector(0.1, 0.1, 0)
 SWEP.PrimaryBulletsPerFire = 8
 SWEP.PrimaryBulletsTakenPerShot = 1
