@@ -19,7 +19,7 @@ SWEP.ViewModelFlip = true
 SWEP.UseHands = true
 SWEP.ViewModel = "models/weapons/v_snip_awp.mdl"
 SWEP.WorldModel = "models/weapons/w_snip_awp.mdl"
-SWEP.HoldType = "sniper"
+SWEP.HoldType = "ar2"
 
 SWEP.Primary = {
 	Ammo = "SniperRound",
