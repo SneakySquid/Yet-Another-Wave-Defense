@@ -134,7 +134,7 @@ HUD.Status = {
 	PlayerAmmo = function(ply, sw, sh)
 		local wep = ply:GetActiveWeapon()
 
-		if IsValid(wep) then
+		if IsValid(wep) and wep.DrawAmmo ~= false then
 			local ammo = math.max(0, wep:Clip1())
 			local max_ammo = wep:GetMaxClip1()
 			local total_ammo = ply:GetAmmoCount(wep:GetPrimaryAmmoType())
