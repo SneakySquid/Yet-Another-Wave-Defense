@@ -14,13 +14,12 @@ SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
 SWEP.ViewModelFOV = 62
-SWEP.ViewModelFlip = false
+SWEP.ViewModelFlip = true
 
 SWEP.UseHands = true
 SWEP.ViewModel = "models/weapons/v_pist_fiveseven.mdl"
 SWEP.WorldModel = "models/weapons/w_pist_fiveseven.mdl"
 SWEP.HoldType = "pistol"
-SWEP.ViewModelFlip = true
 
 SWEP.Primary = {
 	Ammo = "Pistol",

@@ -14,13 +14,12 @@ SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
 SWEP.ViewModelFOV = 62
-SWEP.ViewModelFlip = false
+SWEP.ViewModelFlip = true
 
 SWEP.UseHands = true
 SWEP.ViewModel = ""
 SWEP.WorldModel = ""
 SWEP.HoldType = "ar2"
-SWEP.ViewModelFlip = true
 
 SWEP.Primary = {
 	Ammo = "SniperRound",

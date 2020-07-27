@@ -14,13 +14,12 @@ SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
 SWEP.ViewModelFOV = 62
-SWEP.ViewModelFlip = false
+SWEP.ViewModelFlip = true
 
 SWEP.UseHands = true
 SWEP.ViewModel = "models/weapons/v_shot_xm1014.mdl"
 SWEP.WorldModel = "models/weapons/w_shot_xm1014.mdl"
 SWEP.HoldType = "shotgun"
-SWEP.ViewModelFlip = true
 
 SWEP.Primary = {
 	Ammo = "Buckshot",
