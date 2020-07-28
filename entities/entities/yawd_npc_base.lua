@@ -13,7 +13,6 @@ AccessorFunc(ENT, "m_Target", "Target") -- This should be an entity
 AccessorFunc(ENT, "m_MaxSpeed", "MaxSpeed") -- max velocity in m/s
 AccessorFunc(ENT, "m_Attacking", "Attacking") -- Boolean if Target isn't null
 AccessorFunc(ENT, "m_Controller", "Controller") -- Controller object, set with ENT:InitController
-AccessorFunc(ENT, "m_AimDistance", "AimDistance") -- maximum detection range for entities
 AccessorFunc(ENT, "m_Acceleration", "Acceleration") -- Acceleration measure in m/s
 AccessorFunc(ENT, "m_HULLTYPE", "HULLType") -- Max steering force in m/s
 
@@ -141,6 +140,7 @@ function ENT:OnKilled( dmginfo )
 	self:BecomeRagdoll( dmginfo )
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 	if self.Weapon then SafeRemoveEntity( self.Weapon) end
+	if self.m_IgnoreMoney then return end
 	NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
 end
 
@@ -156,8 +156,7 @@ function ENT:TraceHull(From, To)
 end
 
 function ENT:Initialize()
-	self:SetAimDistance(50) -- How far away the ent can detect players, measured in meters
-
+	self:SetCustomCollisionCheck(true)
 	-- leave these ones alone
 	self:SetTarget(NULL) -- target should always be an entity even if it is NULL
 	self:SetAttacking(false) -- set internally, use to check if the ent has a target
@@ -170,6 +169,7 @@ function ENT:Initialize()
 	end
 
 	if SERVER then
+		self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
 		self:SetMaxHealth(self.NPC_DATA.Health or 25)
 		self:SetHealth(self.NPC_DATA.Health or 25)
 	--	self:SetModel("models/combine_soldier.mdl")
@@ -202,6 +202,18 @@ function ENT:InitController(target, jump_down, jump_up)
 	end
 end
 
+local function WentIntoCore(self)
+	local core = Building.GetCore()
+	if IsValid(core) then
+		local n = math.random(1,3)
+		if n > 1 then n = n + 1 end
+		core:EmitSound("ambient/machines/teleport" .. n .. ".wav", 120)
+		core:TakeCoreDamage( self:GetMaxHealth() )
+	end
+	self.m_IgnoreMoney = true
+	SafeRemoveEntity(self)
+end
+
 function ENT:CalculateGoal( stepUp )
 	local controller = self:GetController()
 	if not controller then return false end
@@ -209,8 +221,11 @@ function ENT:CalculateGoal( stepUp )
 	local goal = controller:GetGoal()
 	if not goal then
 		local new_path = Controller.RequestEntityPath(self, target, jump_down, jump_up)
-
-		if new_path then
+		if new_path and type(new_path) == "boolean" then
+			DebugMessage(string.format("Reached the core %s.", self))
+			WentIntoCore(self)
+			return
+		elseif new_path then
 			DebugMessage(string.format("Generated new path for %s.", self))
 			controller:SetPath(new_path)
 
@@ -374,20 +389,12 @@ function ENT:SetupDataTables()
 	self:NetworkVar("Int", 1, "Debuffs")
 end
 
---[[
-	Problems:
-		- Using physics can get stuck on small elevations
-		- Using SetPos makes the model glitch out if we got physics.
-		- Some Models are 4 units above the ground.
-		- If we don't use have physics, the NPC can't be tossed around.
-
-	Solutions:
-		- Have a switch between SetPos and Physics. A simple "toss" function might work.
-		- SetPos + HullTrace might be a better move function, as it won't roll downhull
-		- Update the client with the goal position, to make it more seamless.
-		- "Noclip" the NPC and make it move towards points on the path, using HULL_Trace
-]]
-
+hook.Add("ShouldCollide","yawd_npc_collide",function(a,b)
+	local ac = a:GetClass()
+	if ac == "yawd_npc_base" and b:GetClass() == ac then
+		return false
+	end
+end)
 
 if CLIENT then
 	ENT.HaloColour = Color(234, 60, 83) -- team.GetColor(TEAM_ATTACKER) -- not defined yet smh, manual include master race
