@@ -161,12 +161,8 @@ if SERVER then
 			if self.i_reset >= CurTime() then return end
 			self.i_reset = nil
 		end
-		-- Check if there are enemies on it
-		if not self:HasEnemiesOn() then
-			if self.i_triggerpoint then
-				self.i_triggerpoint = nil
-				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
-			end
+		-- Check if there are enemies on it [ BUG: Triggers seems to go on and off randomlly.]
+		if not self:HasEnemiesOn() and not self.i_triggerpoint then
 			return
 		end
 		-- Set the springtime
@@ -174,11 +170,11 @@ if SERVER then
 			self.i_triggerpoint = CurTime() + self.TrapTriggerTime
 			DebugMessage(string.format("%s: Trigger-timer started ..", self))
 		elseif self.i_triggerpoint <= CurTime() then -- Trigger the trap
-			if not self:HasEnemiesOn() then -- They ran away
+			--[[if not self:HasEnemiesOn() then -- They ran away
 				self.i_triggerpoint = nil
 				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
 				return 
-			end
+			end]]
 			local t = self:GetEnemiesOn()
 			if self:OnTrapTrigger( t ) == false then -- Trap returned false
 				self.i_triggerpoint = nil
@@ -194,6 +190,7 @@ if SERVER then
 				end
 			net.Broadcast()
 			DebugMessage(string.format("%s: Trap triggered.", self))
+			self.i_triggerpoint = nil
 			self.i_duration = CurTime() + self.TrapDurationTime
 		end
 	end
