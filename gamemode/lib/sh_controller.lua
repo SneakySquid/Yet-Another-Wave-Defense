@@ -68,7 +68,6 @@ end
 
 function Controller.RequestEntityPath(ent, target_pos, jump_down, jump_up)
 	local hull = ent:GetHULLType()
-	print("HULL",hull)
 	return Controller.RequestPath(hull, ent:GetPos(), target_pos, jump_down, jump_up)
 end
 

@@ -518,7 +518,7 @@ end
 function path_meta:GetDistance()
 	return self.distance or 0
 end
--- Creates a new path to a point or entity. Note max_jumpdown is negative.
+-- Creates a new path to a point or entity. Note max_jumpdown is negative. Returns true if reached.
 function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
 	if not scanned then return false end
 	local t
@@ -530,6 +530,7 @@ function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distan
 		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
 		if not t then return false end
 	end
+	if type(t) == "boolean" and t then return true end
 	t.start = vec_from
 	t.distance = 0
 	for i = 1, #t - 1 do
