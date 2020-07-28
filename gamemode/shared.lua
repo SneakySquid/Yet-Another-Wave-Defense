@@ -21,7 +21,6 @@ end
 
 -- Include/Run the lua-file
 function HandleFile(str)
-	local c = SysTime()
 	local path = str
 	if string.find(str,"/") then
 		path = string.GetFileFromFilename(str)
