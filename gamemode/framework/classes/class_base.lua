@@ -26,6 +26,8 @@ function PLAYER:SetupDataTables()
 	ply:NetworkVar("Float", 1, "SpawnDelay")
 
 	if (SERVER) then
+		ply:SetBuffs(ply:GetBuffs() or 0)
+		ply:SetDebuffs(ply:GetDebuffs() or 0)
 		ply:SetCurrency(ply:GetCurrency() or 0)
 		ply:SetPlayerClass(ply:GetPlayerClass() or 0)
 		ply:SetMaxOverheal(ply:GetMaxOverheal() or 0)
