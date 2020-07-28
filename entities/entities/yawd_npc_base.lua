@@ -370,6 +370,8 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Vector", 0, "GoalPos" )
 	self:NetworkVar( "Bool", 0, "Ragdolled" )
 	self:NetworkVar( "String", 0, "NPCType" )
+	self:NetworkVar("Int", 0, "Buffs")
+	self:NetworkVar("Int", 1, "Debuffs")
 end
 
 --[[
