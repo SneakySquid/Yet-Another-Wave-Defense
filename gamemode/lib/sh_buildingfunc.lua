@@ -292,8 +292,10 @@ end
 -- Checks to see if the entity is an enemy
 function Building.CanTarget( ent )
 	if ent:Health() <= 0 then return false end
-	if ent:GetClass() == "player" then return false end
-	return string.find(ent:GetClass(),"npc") and true or false
+	if ent:IsNPC() or ent:IsNextBot() or ent:GetClass() == "yawd_npc_base" then 
+		return true
+	end
+	return false
 end
 
 if SERVER then
@@ -302,13 +304,14 @@ if SERVER then
 		if type(target) == "Player" then
 			target:SetVelocity(target:GetVelocity() + Vector(vec.x / 2, vec.y / 2, vec.z))
 		else
-			if target.SetRagdolled then
-				target:SetRagdolled( true )
-			end
-			local phys = target:GetPhysicsObject()
-			if IsValid(phys) then
-				phys:Wake()
-				target:SetVelocity(target:GetVelocity() + Vector(vec.x * 2, vec.y * 2, vec.z) )
+			if target.Fling then
+				target:Fling( vec )
+			else
+				local phys = target:GetPhysicsObject()
+				if IsValid(phys) then
+					phys:Wake()
+					target:SetVelocity(target:GetVelocity() + Vector(vec.x * 2, vec.y * 2, vec.z) )
+				end
 			end
 		end
 	end

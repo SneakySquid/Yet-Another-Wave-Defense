@@ -82,6 +82,7 @@ function ENT:Initialize()
 	if CLIENT then
 		Building.ApplyFunctions( self )
 	end
+	self.OnTrap = {}
 end
 
 if SERVER then
@@ -111,25 +112,37 @@ if SERVER then
 	function ENT:GetBuildingData()
 		return self.builddata
 	end
-	ENT.OnTrap = {}
+	local function ClearTouch(self)
+		for i = #self.OnTrap, 1, -1 do
+			if not IsValid(self.OnTrap[i]) then
+				table.remove(self.OnTrap, i)
+			end
+		end
+	end
 	function ENT:StartTouch( ent )
+		if not self.OnTrap then self.OnTrap = {} end
 		if not Building.CanTarget( ent ) then return end
-		self.OnTrap[ent] = true
+		table.insert(self.OnTrap, ent)
 	end
 	function ENT:EndTouch(ent)
-		self.OnTrap[ent] = nil
+		if not self.OnTrap then self.OnTrap = {} end
+		if not Building.CanTarget( ent ) then return end
+		table.RemoveByValue(self.OnTrap, ent)
 	end
 	function ENT:HasEnemiesOn()
+		if not self.OnTrap then self.OnTrap = {} end
+		ClearTouch(self)
 		return next( self.OnTrap ) ~= nil
 	end
 	function ENT:GetEnemiesOn()
-		return table.GetKeys( self.OnTrap )
+		ClearTouch(self)
+		return self.OnTrap
 	end
 	-- Trap logic
 	function ENT:Think()
 		-- Check if this trap can trigger
-		if not IsValid(self.e_trigger) then return end
-		if self.TrapTriggerTime < 0 then return end
+		if not IsValid(self.e_trigger) then return end 	-- No trigger
+		if self.TrapTriggerTime < 0 then return end 	-- Wait for spring
 		-- Check if the trap has triggered
 		if self.i_duration then
 			if self.i_duration > CurTime() and not self:GetDisabled() then
@@ -149,21 +162,27 @@ if SERVER then
 			self.i_reset = nil
 		end
 		-- Check if there are enemies on it
-		if not self:HasEnemiesOn() then 
-			self.i_triggerpoint = nil
+		if not self:HasEnemiesOn() then
+			if self.i_triggerpoint then
+				self.i_triggerpoint = nil
+				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
+			end
 			return
 		end
 		-- Set the springtime
 		if not self.i_triggerpoint then
 			self.i_triggerpoint = CurTime() + self.TrapTriggerTime
+			DebugMessage(string.format("%s: Trigger-timer started ..", self))
 		elseif self.i_triggerpoint <= CurTime() then -- Trigger the trap
 			if not self:HasEnemiesOn() then -- They ran away
 				self.i_triggerpoint = nil
+				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
 				return 
 			end
 			local t = self:GetEnemiesOn()
 			if self:OnTrapTrigger( t ) == false then -- Trap returned false
 				self.i_triggerpoint = nil
+				DebugMessage(string.format("%s: I'm not allowe to trigger", self))
 				return 
 			end
 			-- Trigger it
@@ -174,6 +193,7 @@ if SERVER then
 					net.WriteEntity( t[i] )
 				end
 			net.Broadcast()
+			DebugMessage(string.format("%s: Trap triggered.", self))
 			self.i_duration = CurTime() + self.TrapDurationTime
 		end
 	end

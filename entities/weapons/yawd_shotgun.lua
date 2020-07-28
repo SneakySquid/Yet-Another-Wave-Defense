@@ -14,13 +14,12 @@ SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
 SWEP.ViewModelFOV = 62
-SWEP.ViewModelFlip = false
+SWEP.ViewModelFlip = true
 
 SWEP.UseHands = true
 SWEP.ViewModel = "models/weapons/v_shot_xm1014.mdl"
 SWEP.WorldModel = "models/weapons/w_shot_xm1014.mdl"
 SWEP.HoldType = "shotgun"
-SWEP.ViewModelFlip = true
 
 SWEP.Primary = {
 	Ammo = "Buckshot",
@@ -29,7 +28,7 @@ SWEP.Primary = {
 	Automatic = false,
 }
 
-SWEP.PrimaryDelay = 0.32
+SWEP.PrimaryDelay = 0.35
 SWEP.PrimarySpread = Vector(0.1, 0.1, 0)
 SWEP.PrimaryBulletsPerFire = 8
 SWEP.PrimaryBulletsTakenPerShot = 1

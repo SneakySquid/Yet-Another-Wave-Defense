@@ -1,5 +1,5 @@
 SWEP.Base = "yawd_weapon_base"
-SWEP.PrintName = "Pistol"
+SWEP.PrintName = "Light Machine Gun"
 SWEP.Author = "YAWD Team"
 SWEP.Category = "YAWD"
 SWEP.Spawnable = true
@@ -14,41 +14,41 @@ SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
 SWEP.ViewModelFOV = 62
-SWEP.ViewModelFlip = true
+SWEP.ViewModelFlip = false
 
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_pist_fiveseven.mdl"
-SWEP.WorldModel = "models/weapons/w_pist_fiveseven.mdl"
-SWEP.HoldType = "pistol"
+SWEP.ViewModel = "models/weapons/v_mach_m249para.mdl"
+SWEP.WorldModel = "models/weapons/w_mach_m249para.mdl"
+SWEP.HoldType = "ar2"
 
 SWEP.Primary = {
-	Ammo = "Pistol",
-	ClipSize = 12,
-	DefaultClip = 48,
-	Automatic = false,
+	Ammo = "AR2",
+	ClipSize = 100,
+	DefaultClip = 300,
+	Automatic = true,
 }
 
-SWEP.PrimaryDelay = 0.15
-SWEP.PrimarySpread = Vector(0.03, 0.01, 0)
+SWEP.PrimaryDelay = 0.1
+SWEP.PrimarySpread = Vector(0.03, 0.045, 0)
 SWEP.PrimaryBulletsPerFire = 1
 SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
 SWEP.PrimaryMaxDistance = 56756
-SWEP.PrimarySound = "weapons/fiveseven/fiveseven-1.wav"
+SWEP.PrimarySound = "weapons/m249/m249-1.wav"
 SWEP.PrimaryDamage = {
-	min = 7,
-	max = 14,
+	min = 24,
+	max = 32,
 }
 SWEP.PrimaryViewPunch = {
 	p = {
-		min = -0.5,
-		max = -1.4,
+		min = -1.2,
+		max = -2.1,
 	},
 	y = {
-		min = -0.4,
-		max = 0.4,
+		min = -0.1,
+		max = 0.1,
 	},
 }
 
 SWEP.ReloadDelay = 1
-SWEP.ReloadSound = "weapons/fiveseven/fiveseven_clipout.wav"
+SWEP.ReloadSound = "weapons/m249/m249_boxout.wav"

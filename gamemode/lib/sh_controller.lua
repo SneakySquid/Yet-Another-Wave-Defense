@@ -15,6 +15,10 @@ function CONTROLLER:IsValid()
 	return self.m_Path and self.m_PathPoint > 0 and self:Age() <= 30
 end
 
+function CONTROLLER:MakeInvalid()
+	self.m_Path = nil
+end
+
 function CONTROLLER:SetPath(path)
 	self:SetPathPoint(#path)
 	self:SetLastUpdate(CurTime())
@@ -63,7 +67,8 @@ function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up)
 end
 
 function Controller.RequestEntityPath(ent, target_pos, jump_down, jump_up)
-	local hull = PathFinder.FindEntityHULL(ent)
+	local hull = ent:GetHULLType()
+	print("HULL",hull)
 	return Controller.RequestPath(hull, ent:GetPos(), target_pos, jump_down, jump_up)
 end
 
