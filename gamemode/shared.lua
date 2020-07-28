@@ -20,7 +20,7 @@ function DebugMessage(msg)
 end
 
 -- Include/Run the lua-file
-local function HandleFile(str)
+function HandleFile(str)
 	local c = SysTime()
 	local path = str
 	if string.find(str,"/") then
@@ -40,7 +40,7 @@ local function HandleFile(str)
 	end
 end
 -- Handle folders
-local function HandleLocalFolder(str, bIgnoreSubFolders)
+function HandleLocalFolder(str, bIgnoreSubFolders)
 	local files,folders = file.Find(str .. "/*.lua","LUA")
 	if not bIgnoreSubFolders then
 		for _,fol in ipairs(folders or {}) do
@@ -51,7 +51,7 @@ local function HandleLocalFolder(str, bIgnoreSubFolders)
 		HandleFile(str .. "/" .. fil)
 	end
 end
-local function HandleFolder(str)
+function HandleFolder(str)
 	HandleLocalFolder(GM.FolderName .. "/gamemode/" .. str)
 end
 
