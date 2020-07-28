@@ -16,9 +16,11 @@ PLAYER.BaseStats = {}
 function PLAYER:SetupDataTables()
 	local ply = self.Player
 
-	ply:NetworkVar("Int", 0, "Currency")
-	ply:NetworkVar("Int", 1, "PlayerClass")
-	ply:NetworkVar("Int", 2, "MaxOverheal")
+	ply:NetworkVar("Int", 0, "Buffs")
+	ply:NetworkVar("Int", 1, "Debuffs")
+	ply:NetworkVar("Int", 2, "Currency")
+	ply:NetworkVar("Int", 3, "PlayerClass")
+	ply:NetworkVar("Int", 4, "MaxOverheal")
 
 	ply:NetworkVar("Float", 0, "DeathTime")
 	ply:NetworkVar("Float", 1, "SpawnDelay")
