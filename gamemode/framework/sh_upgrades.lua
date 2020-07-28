@@ -18,7 +18,7 @@ local registered_upgrades = {}
 {
 	name,			the name of the upgrade
 	price,			the price of the upgrade, can either be a number or a table for prices of each tier
-	can_purchase, 	optional function override for upgrades that aren't just restricted by price. args: tbd
+	can_purchase, 	optional price override for upgrades that aren't just restricted by price. args: ply, tier
 	on_purchase,	optional function that is called when a player purchases the upgrade
 }
 --]]
@@ -32,7 +32,7 @@ function GM:RegisterUpgrade(t)
 	_assert(t.can_purchase == nil or isfunction(t.can_purchase), "can_purchase")
 	_assert(t.on_purchase == nil or isfunction(t.on_purchase), "on_purchase")
 
-	t.tiers = istable(t.price) and #t.price or nil
+	t.tiers = istable(t.price) and #t.price or 1
 
 	local k = table.insert(registered_upgrades, t)
 	t.k = k
@@ -59,36 +59,43 @@ function GM:GetUpgradeByName(name)
 end
 
 -- NOTE: A client's upgrades aren't networked to other clients
-function GM:PlayerHasUpgrade(ply, key)
+function GM:GetPlayerUpgradeTier(ply, key)
 	for _, upgrade in ipairs(ply.yawd_upgrades or {}) do
 		if upgrade.k == key then
-			return true, upgrade.tier or 1
+			return upgrade.tier
 		end
 	end
 
-	return false
+	return 0
 end
 
 function GM:GetPlayerUpgrades(ply)
 	return ply.yawd_upgrades or {}
 end
 
-function GM:GetUpgradeRefundPercentage()
-	return 0.5
+function GM:GetUpgradePrice(upgrade, tier_desired, tier_owned)
+	if upgrade.tiers > 1 and isnumber(upgrade.price) then
+		return upgrade.price * (tier_owned - tier_desired)
+	elseif upgrade.tiers == 1 then
+		return upgrade.price
+	elseif upgrade.tiers > 1 and istable(upgrade.price) then
+		local total_price = 0
+
+		for i = tier_owned + 1, math.min(tier_desired, #upgrade.price) do
+			total_price = total_price + upgrade.price[i]
+		end
+
+		return total_price
+	end
 end
 
-function GM:GetUpgradeRefundAmount(upgrade, purchased_upgrade_tiers)
-	local amt = 0
+function GM:GetUpgradeRefundAmount(upgrade, tier_desired, tier_owned)
+	return self:GetUpgradePrice(upgrade, tier_owned, tier_desired)
+		* GAMEMODE:GetUpgradeRefundPercentage()
+end
 
-	if isnumber(upgrade.price) then
-		amt = purchased_upgrade_tiers * upgrade.price
-	elseif istable(upgrade.price) then
-		for i = 1, math.min(purchased_upgrade_tiers, #upgrade.price) do
-			amt = amt + upgrade.price[i]
-		end
-	end
-
-	return amt * GAMEMODE:GetUpgradeRefundPercentage()
+function GM:GetUpgradeRefundPercentage()
+	return 0.5
 end
 
 if SERVER then
