@@ -19,7 +19,7 @@ function b:StartTouch( ent )
 	if not self.OnTrap then self.OnTrap = {} end
 	if self.OnTrap[ent] then return end
 	if CLIENT then
-		ent:EmitSound("player/footsteps/mud" .. math.random(1, 4) .. ".wav")ent:EmitSound("player/footsteps/mud" .. math.random(1, 4) .. ".wav")
+		ent:EmitSound("player/footsteps/mud" .. math.random(1, 4) .. ".wav")
 	end
 	local n = 0.6 / (self:GetUpgrades() + 1)
 	if type(ent) == "Player" then
