@@ -19,6 +19,11 @@ function ENT:Initialize()
 	elseif CLIENT then
 		Building.ApplyFunctions( self )
 	end
+	for k,v in ipairs(ents.FindByClass( self:GetClass() )) do
+		if v ~= self then
+			SafeRemoveEntity(v)
+		end
+	end
 end
 
 function ENT:UpdateTransmitState()
