@@ -115,10 +115,9 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 	if not HULL then HULL = 1 end
 	if not max_jumpdown then max_jumpdown = 0 end
 	if not max_jump then max_jump = 0 end
-
 	local t = {}
 	for k, v in ipairs(links[self] or {}) do
-		local deltaheight = v[2][HULL]
+		local deltaheight = v[2][HULL + 1]
 		if deltaheight == -1 then -- Invalid
 			continue
 		elseif deltaheight == 0 then -- Walk
