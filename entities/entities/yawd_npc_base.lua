@@ -152,7 +152,6 @@ function ENT:TraceHull(From, To)
 		mins = self:OBBMins(),
 		maxs = self:OBBMaxs(),
 		mask = MASK_NPCSOLID_BRUSHONLY,
-
 	})
 end
 
@@ -284,6 +283,19 @@ local function SearchPlayers(self, distance, vPos)
 	return e
 end
 
+function ENT:MoveTowards( pos )
+	local mov_speed = self:GetMoveSpeed()
+	local delta = (pos - self:GetPos())
+	local l = delta:Length()
+	local vel = delta:GetNormalized() * mov_speed
+	self:HandleAnimation(mov_speed)
+	if l < 50 then return true end
+	self:SetGoalPos(pos)
+	self.loco:SetVelocity(vel)
+	self.loco:Approach(pos, 1)
+	return false
+end
+
 function ENT:RunBehaviour()
 	local controller = self:GetController()
 	if not controller then return false end
@@ -310,12 +322,7 @@ function ENT:RunBehaviour()
 				self:SetTarget( SearchPlayers(self, self.NPC_DATA.TargetPlayersRange or 200) )
 			end
 			if goal then
-				local mov_speed = self:GetMoveSpeed()
-				local delta = (goal - self:GetPos())
-				local l = delta:Length()
-				local vel = delta:GetNormalized() * math.min(mov_speed)
-				self:HandleAnimation(mov_speed)
-				if l < 50 then
+				if self:MoveTowards(goal) then
 					local finished = controller:NextGoal()
 					if finished then
 						DebugMessage(string.format("%s reached the end of the path, removing.", self))
@@ -323,12 +330,6 @@ function ENT:RunBehaviour()
 						return false
 					end
 				end
-				self:SetGoalPos(controller:GetGoal())
-
-				--vel.z = 0
-				--self.loco:SetAcceleration(vel:Length() * mov_speed)
-				self.loco:SetVelocity(vel)
-				self.loco:Approach(goal, 1)
 			end
 		end
 		coroutine.yield()
