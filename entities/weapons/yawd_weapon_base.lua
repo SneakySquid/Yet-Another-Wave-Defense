@@ -87,7 +87,7 @@ function SWEP:PrimaryAttack()
 		Force = self.PrimaryForce,
 		Distance = self.PrimaryMaxDistance,
 		Num = self.PrimaryBulletsPerFire,
-		Dir = owner:GetAimVector(),
+		Dir = (owner:EyeAngles() + owner:GetViewPunchAngles()):Forward(),
 		Spread = self:GetSpread(),
 		Src = owner:GetShootPos(),
 	}
