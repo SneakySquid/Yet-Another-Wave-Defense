@@ -15,13 +15,12 @@
 local registered_upgrades = {}
 
 --[[ RegisterUpgrade() table format
-{
-	name,			the name of the upgrade
-	price,			the price of the upgrade, can either be a number or a table for prices of each tier
-	can_purchase, 	optional price override for upgrades that aren't just restricted by price. args: ply, tier
-	on_purchase,	optional function that is called when a player purchases the upgrade. args: ply, tier_old, tier_new
-	on_sell,		optional function called when player sells tier(s). args: ply, tier_old, tier_new
-}
+name,			required. upgrade name.
+price,			required. can either be a number or a table for prices of each tier.
+hooks,			optional. hook table: { { event, realm, callback }, ... } (realm="client/server/shared")
+can_purchase, 	optional function for upgrades that aren't just restricted by price. args: ply, tier
+on_purchase,	optional function. args: ply, tier_old, tier_new
+on_sell,		optional function. args: ply, tier_old, tier_new
 --]]
 function GM:RegisterUpgrade(t)
 	local function _assert(cond, key)
@@ -30,10 +29,23 @@ function GM:RegisterUpgrade(t)
 
 	_assert(isstring(t.name), "name")
 	_assert(isnumber(t.price) or istable(t.price), "price")
+	_assert(t.hooks == nil or istable(t.hooks), "hooks")
 	_assert(t.can_purchase == nil or isfunction(t.can_purchase), "can_purchase")
 	_assert(t.on_purchase == nil or isfunction(t.on_purchase), "on_purchase")
 
 	t.tiers = istable(t.price) and #t.price or 1
+
+	for _, v in ipairs(t.hooks or {}) do
+		local r = v.realm
+		local n = string.format("yawd.upgrades.%s", t.name)
+
+		if (SERVER and (r == nil or r == "server"))
+			or (CLIENT and r == "client")
+			or r == "shared" then
+
+			hook.Add(v.event, n, v.callback)
+		end
+	end
 
 	local k = table.insert(registered_upgrades, t)
 	t.k = k
