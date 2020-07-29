@@ -360,7 +360,7 @@ else
 		eyeang:RotateAroundAxis(eyeang:Right(), 90)
 		eyeang:RotateAroundAxis(eyeang:Up(), -90)
 
-		cam.Start3D2D(pos + Vector(0, 0, 60), eyeang, 0.5)
+		cam.Start3D2D(pos + Vector(0, 0, 90), eyeang, 0.5)
 			local hp = self:Health()
 			local max_hp = self:GetMaxHealth()
 
@@ -396,7 +396,7 @@ else
 				y_offset = y_offset + bh + 5
 			end
 
-			if self.TrapTriggerTime >= 0 and self.TrapResetTime >= 0 then
+			if self.TrapTriggerTime >= 0 and self.TrapResetTime >= 0 and self:DurationProcent() > 0 then
 				by = by + y_offset
 
 				surface.SetDrawColor(35, 35, 35, 200)
@@ -412,8 +412,6 @@ else
 				surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * p, bh)
 
 				y_offset = y_offset + bh + 5
-
-				print(self.TrapTriggerTime, self.TrapResetTime)
 			end
 		cam.End3D2D()
 	end
