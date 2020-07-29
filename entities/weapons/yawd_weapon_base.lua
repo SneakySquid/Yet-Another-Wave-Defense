@@ -140,6 +140,7 @@ end
 function SWEP:CanReload()
 	return CurTime() >= self:GetNextReload()
 		and self:PrimaryAmmo() > 0
+		and self:PrimaryClip() < self:PrimaryMaxClip()
 end
 
 function SWEP:SetNextReload(time)
@@ -177,3 +178,5 @@ end
 local _weapon = debug.getregistry().Weapon
 SWEP.PrimaryClip = _weapon.Clip1
 SWEP.SecondaryClip = _weapon.Clip2
+SWEP.PrimaryMaxClip = _weapon.GetMaxClip1
+SWEP.SecondaryMaxClip = _weapon.GetMaxClip2
