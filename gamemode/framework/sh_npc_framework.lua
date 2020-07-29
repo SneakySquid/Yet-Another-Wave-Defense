@@ -107,6 +107,10 @@ end
 function NPC.GetData(sName)
 	return NPCs[sName]
 end
+-- Returns all NPCs
+function NPC.GetAll()
+	return table.GetKeys(NPCs)
+end
 -- Reward players
 function NPC.RewardCurrency( num )
 	local t = player.GetAll()
