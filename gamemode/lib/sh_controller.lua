@@ -84,6 +84,7 @@ end
 if SERVER then
 	-- Handles the spawning of spawners on the map
 	local spawners = {} -- holds the locations of spawners.
+	local aim_distance = 5000 ^ 2
 	-- Finds the furthest node from start_node in the general direction of yaw.
 	local function LocateSpawnerNode( start_node, yaw )
 		local t = {}
@@ -91,15 +92,26 @@ if SERVER then
 		for _,node in ipairs(PathFinder.GetMapNodes()) do
 			local pos = node:GetPos()
 			local n_yaw = math.deg(math.atan2( pos.x - sp.x, pos.y - sp.y))
-			local diff = ( 180 - math.abs(math.AngleDifference(n_yaw, yaw)) ) / 180
+			local diff = 1 + (math.abs(math.AngleDifference(n_yaw, yaw)) / 360)
 			local dis = pos:DistToSqr(sp) * diff    // Distance point
 			for _,sp in ipairs(spawners) do
-				dis = math.min(dis, sp:DistToSqr(pos) * 1.5 )
+				dis = dis + math.max(0, (100000 - sp:DistToSqr(pos) * 1.5))
 			end
 			table.insert(t, {node, dis})
 		end
-		table.sort(t, function(a,b) return a[2] > b[2] end)
-		return t[1][1]
+		table.sort(t, function(a,b) return a[2] < b[2] end)
+		local fallback
+		for i = 1, #t do
+			local next_bigger = i ~= #t
+			local dis = t[i][2]
+			if next_bigger and dis < aim_distance then  -- Next one might be a better one
+				fallback = t[i][1]
+				continue 
+			end
+			return t[i][1]
+		end
+		print("FALLBACK")
+		return fallback
 	end
 	local function AddPath(ent_spawner)
 		local core = Building.GetCore()
