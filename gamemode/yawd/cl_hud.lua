@@ -5,7 +5,13 @@ do
 		weight = 1500,
 	})
 
-		surface.CreateFont("HUD.VoteStatus", {
+	surface.CreateFont("HUD.VoteStatus", {
+		font = "Tahoma",
+		size = 32,
+		weight = 1500,
+	})
+
+	surface.CreateFont("HUD.Building", {
 		font = "Tahoma",
 		size = 32,
 		weight = 1500,
@@ -15,13 +21,15 @@ do
 		font = "Arial",
 		size = 32,
 	})
-
-	surface.CreateFont("HUD.Building", {
-		font = "Tahoma",
-		size = 32,
-		weight = 1500,
-	})
 end
+
+local vote_info = GM.VoteInfo
+
+local health_lerp = PercentLerp(0.5, 0.25, true)
+local overheal_lerp = PercentLerp(0.5, 0.25, true)
+local currency_lerp = TargetLerp(0, 0.5)
+
+local left_mouse_indicator = Material("gui/lmb.png")
 
 local HUD = {
 	StatusStrings = {
@@ -47,49 +55,8 @@ local HUD = {
 	},
 }
 
-local grad_r = Material("vgui/gradient-r")
-local grad_l = Material("vgui/gradient-l")
-
-local health_lerp = LerpCalc(0.5, 0.25, true)
-local overheal_lerp = LerpCalc(0.5, 0.25, true)
-
 local function CanDraw(element)
 	return hook.Run("HUDShouldDraw", element) ~= false
-end
-
-local function TextBackground(text, font, x, y, text_col, background_col, gradient_w, padding_l, padding_t, padding_r, padding_b, align_x, align_y)
-	surface.SetFont(font)
-	local tw, th = surface.GetTextSize(text)
-
-	if align_x == TEXT_ALIGN_CENTER then
-		x = x - tw * 0.5
-	elseif align_x == TEXT_ALIGN_RIGHT then
-		x = x - tw
-	end
-
-	if align_y == TEXT_ALIGN_CENTER then
-		y = y - th * 0.5
-	elseif align_y == TEXT_ALIGN_BOTTOM then
-		y = y - th
-	end
-
-	local w = tw + padding_l + padding_r
-	local h = th + padding_t + padding_b
-
-	surface.SetDrawColor(background_col)
-	surface.DrawRect(x - padding_l, y - padding_t, w, h)
-
-	if gradient_w > 0 then
-		surface.SetMaterial(grad_l)
-		surface.DrawTexturedRect(x - padding_l + w, y - padding_t, gradient_w, h)
-
-		surface.SetMaterial(grad_r)
-		surface.DrawTexturedRect(x - padding_l - gradient_w, y - padding_t, gradient_w, h)
-	end
-
-	surface.SetTextPos(math.floor(x), math.floor(y))
-	surface.SetTextColor(text_col)
-	surface.DrawText(text)
 end
 
 HUD.Status = {
@@ -148,10 +115,10 @@ HUD.Status = {
 
 			-- If we used the same lerp function for every weapon we'd get
 			-- a useless bar when switching from a full clip to a used clip.
-			wep.m_LerpCalc = wep.m_LerpCalc or LerpCalc(0.5, 0.25, true)
+			wep.m_PercentLerp = wep.m_PercentLerp or PercentLerp(0.5, 0.25, true)
 
 			local p = math.min(1, ammo / max_ammo)
-			local lp = wep.m_LerpCalc(ammo, max_ammo)
+			local lp = wep.m_PercentLerp(ammo, max_ammo)
 
 			local w = bw * lp
 			local offset = math.ceil(bw - w)
@@ -169,71 +136,14 @@ HUD.Status = {
 		end
 	end,
 
-	GoalHealth = function(ply, sw, sh)
-		local goal = GAMEMODE:GetEndGoal()
-		-- do stuff
+	CoreHealth = function(ply, sw, sh)
 	end,
 
-	Building = function(ply, sw, sh)
-		local t = ply:GetEyeTrace()
-		if not t.Entity or not IsValid( t.Entity ) then return end
-		if not string.match(t.Entity:GetClass(),"^yawd_building") then return end
-		local ent = t.Entity
-		if ent:IsMine() then
-			if LocalPlayer():EyePos():Distance(t.HitPos) < 90 then
-				draw.DrawText("Press E to sell", "HUD.Building", sw / 2, sh / 2, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER)
-			end
-		end
-		local max_hp, hp = ent:GetMaxHealth(), ent:Health()
-		local ex_p = 0
-		if max_hp > 0  then
-			local bw, bh = sw * 0.20, 20
-			local bx, by = sw * 0.5 - bw / 2, 70
-		
-			surface.SetDrawColor(HUD.Colours.Main)
-			surface.DrawRect(bx, by, bw, bh)
-
-			local p = math.min(1, hp / max_hp)
-			local lp = health_lerp(hp, max_hp)
-
-			surface.SetDrawColor(HUD.Colours.Damage)
-			surface.DrawRect(bx, by, bw * lp, bh)
-
-			surface.SetDrawColor(HUD.Colours.Health)
-			surface.DrawRect(bx, by, bw * p, bh)
-			ex_p = 30
-		end
-		if ent.TrapTriggerTime >= 0 and ent.TrapResetTime >= 0 and ent.TrapDurationTime >= 0 then
-			local bw, bh = sw * 0.20, 20
-			local bx, by = sw * 0.5 - bw / 2, 70 + ex_p
-		
-			surface.SetDrawColor(HUD.Colours.Main)
-			surface.DrawRect(bx, by, bw, bh)
-			
-			local n = ent:DurationProcent()
-			local p = math.min(1, n <= 0 and ent:ResetProcent() or n)
-			local lp = health_lerp(hp, max_hp)
-
-			surface.SetDrawColor(HUD.Colours.Damage)
-			surface.DrawRect(bx, by, bw * lp, bh)
-
-			surface.SetDrawColor(HUD.Colours.Overheal)
-			surface.DrawRect(bx, by, bw * p, bh)
-		end
-		surface.SetFont("HUD.Building")
-		draw.DrawText(ent:GetBuildingName() or "Unknown Building", "HUD.Building", sw / 2, 20, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER)
-
+	BossHealth = function(ply, sw, sh)
 	end,
 
 	Currency = function(ply, sw, sh)
-		local del = 0
-		if not ply.r_currency then
-			ply.r_currency = 0
-		else
-			del = math.abs( ply.r_currency - ply:GetCurrency() ) * FrameTime() * 2
-			ply.r_currency = math.Approach(ply.r_currency, ply:GetCurrency(), math.max(0.1, del) )
-		end
-		draw.SimpleText(string.format("%i C", ply.r_currency), "HUD.Status", sw / 2 + math.random(-del,del), sh - 210 + math.random(-del,del), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+		draw.SimpleText(string.format("$%i", currency_lerp(ply:GetCurrency())), "HUD.Status", sw / 2, sh * 0.6, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 	end
 }
 
@@ -241,7 +151,32 @@ HUD.Wave = {
 	Status = function(ply, sw, sh)
 	end,
 
-	BossHealth = function(ply, sw, sh)
+	Vote = function(ply, sw, sh)
+		if not GAMEMODE.m_VoteStarted then return end
+
+		local vote_length = GAMEMODE.m_VoteLength
+		local start_time = GAMEMODE.m_VoteStartTime
+		local end_time = start_time + vote_length
+		local time_left = end_time - CurTime()
+
+		local tx, ty = sw * 0.5, sh * 0.25
+
+		if GAMEMODE.m_VoteType == VOTE_TYPE_CORE then
+			local w, h = draw.SimpleText("Choose your Core location", "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
+			render.PushFilterMag(TEXFILTER.ANISOTROPIC)
+				surface.SetDrawColor(255, 255, 255, 255)
+				surface.SetMaterial(left_mouse_indicator)
+				surface.DrawTexturedRect(tx - w * 0.5 - h, ty, h, h)
+			render.PopFilterMag()
+
+			ty = ty + h
+		end
+
+		if time_left >= 0 then
+			local _, h = draw.SimpleText(string.format("%s left", string.NiceTime(time_left)), "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			ty = ty + h
+		end
 	end,
 }
 
@@ -254,8 +189,8 @@ function GM:HUDPaint()
 			HUD.Wave.Status(ply, sw, sh)
 		end
 
-		if CanDraw("HUD.Wave.BossHealth") then
-			HUD.Wave.BossHealth(ply, sw, sh)
+		if CanDraw("HUD.Wave.Vote") then
+			HUD.Wave.Vote(ply, sw, sh)
 		end
 	end
 
@@ -272,19 +207,19 @@ function GM:HUDPaint()
 			if CanDraw("HUD.Status.PlayerAmmo") then
 				HUD.Status.PlayerAmmo(ply, sw, sh)
 			end
-
-			if CanDraw("HUD.Status.Currency") then
-				HUD.Status.Currency(ply, sw, sh)
-			end
-
-			if CanDraw("HUD.Status.Building") then
-				HUD.Status.Building(ply, sw, sh)
-			end
 		end
 
---		if CanDraw("HUD.Status.GoalHealth") then
---			HUD.Status.GoalHealth(ply, sw, sh)
---		end
+		if CanDraw("HUD.Status.Currency") then
+			HUD.Status.Currency(ply, sw, sh)
+		end
+
+		if CanDraw("HUD.Status.CoreHealth") then
+			HUD.Status.CoreHealth(ply, sw, sh)
+		end
+
+		if CanDraw("HUD.Status.BossHealth") then
+			HUD.Status.BossHealth(ply, sw, sh)
+		end
 	end
 end
 

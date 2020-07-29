@@ -22,8 +22,8 @@
 		SH	ENT:OnTrapReset()					Gets called when the trap resets.
 		SV	ENT:HasEnemiesOn()					Returns true if the trap has enemies on.
 		SV	ENT:GetEnemiesOn()					Returns a list of current enemies on the trap.
-	!	SV	ENT:StartTouch( ent )				
-	!	SV	ENT:EndTouch( ent )					
+	!	SV	ENT:StartTouch( ent )
+	!	SV	ENT:EndTouch( ent )
 		CL	ENT:RenderTrapArea( color )			Renders the trap-area defined by buildingdata.
 		CL	ENT:RenderBase(top_texture)			Renders the bottom of traps.
 ]]
@@ -174,13 +174,13 @@ if SERVER then
 			--[[if not self:HasEnemiesOn() then -- They ran away
 				self.i_triggerpoint = nil
 				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
-				return 
+				return
 			end]]
 			local t = self:GetEnemiesOn()
 			if self:OnTrapTrigger( t ) == false then -- Trap returned false
 				self.i_triggerpoint = nil
 				DebugMessage(string.format("%s: I'm not allowe to trigger", self))
-				return 
+				return
 			end
 			-- Trigger it
 			net.Start("yawd.traptrigger")
@@ -324,7 +324,7 @@ else
 				SideMesh:Draw()
 			cam.PopModelMatrix()
 			render.PopFlashlightMode()
-		end 
+		end
 	end
 	local mat_nopower = Material("yawd/no_power.png")
 	local col = Color(255,0,0)
@@ -345,6 +345,77 @@ else
 			local s = 48 + p
 			render.DrawSprite(self:GetPos() + Vector(0,0,60), s, s, col)
 		end
+
+		local pos = self:GetPos()
+		local ply = LocalPlayer()
+		local delta = pos - ply:GetShootPos()
+		delta:Normalize()
+
+		local dot = ply:GetAimVector():Dot(delta)
+		dot = math.deg(math.acos(dot))
+
+		if dot >= 30 or pos:DistToSqr(ply:GetPos()) > 600 * 600 then return end
+
+		local eyeang = ply:EyeAngles()
+		eyeang:RotateAroundAxis(eyeang:Right(), 90)
+		eyeang:RotateAroundAxis(eyeang:Up(), -90)
+
+		cam.Start3D2D(pos + Vector(0, 0, 60), eyeang, 0.5)
+			local hp = self:Health()
+			local max_hp = self:GetMaxHealth()
+
+			self.m_HealthLerp = self.m_HealthLerp or PercentLerp(0.5, 0.25, true)
+
+			local bw, bh = 250, 25
+			local bx, by = 0, 0
+
+			local _, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			local y_offset = th + 5
+
+			if max_hp > 0 then
+				by = by + y_offset
+
+				surface.SetDrawColor(35, 35, 35, 200)
+				surface.DrawRect(bx - bw * 0.5, by, bw, bh)
+
+				local p = math.Clamp(hp / max_hp, 0, 1)
+				local lp = self.m_HealthLerp(hp, max_hp)
+
+				local x_offset = bw - bw * lp
+				x_offset = x_offset * 0.5
+
+				surface.SetDrawColor(255, 75, 75)
+				surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * lp, bh)
+
+				x_offset = bw - bw * p
+				x_offset = x_offset * 0.5
+
+				surface.SetDrawColor(136, 181, 55)
+				surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * p, bh)
+
+				y_offset = y_offset + bh + 5
+			end
+
+			if self.TrapTriggerTime >= 0 and self.TrapResetTime >= 0 then
+				by = by + y_offset
+
+				surface.SetDrawColor(35, 35, 35, 200)
+				surface.DrawRect(bx - bw * 0.5, by, bw, bh)
+
+				local n = self:DurationProcent()
+				local p = math.Clamp(n, 0, 1)
+
+				local x_offset = bw - bw * p
+				x_offset = x_offset * 0.5
+
+				surface.SetDrawColor(121, 0, 185)
+				surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * p, bh)
+
+				y_offset = y_offset + bh + 5
+
+				print(self.TrapTriggerTime, self.TrapResetTime)
+			end
+		cam.End3D2D()
 	end
 	function ENT:OnRemove()
 		if self.b_OnRemove then
