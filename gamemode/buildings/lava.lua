@@ -76,4 +76,6 @@ function b:Draw()
 	self:RenderBase( (self.i_reset or self:GetDisabled()) and mat2 or mat)
 	self:RenderTrapArea()
 end
+b.DrawSelection = b.Draw
+
 return b

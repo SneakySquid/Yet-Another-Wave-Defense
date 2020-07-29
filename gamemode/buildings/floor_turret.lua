@@ -23,6 +23,7 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 				self.t_model = ClientsideModel(mdl)
 				self.t_model:SetPos(self:GetPos())
 				self.t_model:SetNoDraw(true)
+				self.t_model:SetModelScale(2)
 			end
 		end
 	end
@@ -84,7 +85,7 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 		-- Shoot target
 		if IsValid(self.e_target) and self:DurationProcent() <= 0.9 and (self.i_bullet or 0) <= CurTime() then
 			self.i_bullet = CurTime() + 0.10
-			local b_pos = self:LocalToWorld(Vector(0,0,22))
+			local b_pos = self:LocalToWorld(Vector(0,0,22 * 2))
 			local b_ang = (self.e_target:GetPos() + self.e_target:OBBCenter() - b_pos):Angle()
 			local b_norm = b_ang:Forward()
 			local bullet = {}
@@ -119,7 +120,7 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 					self.t_model:MuzzleFlash()
 				end
 				local effectdata = EffectData()
-				local m_pos = b_pos + f_norm * 12
+				local m_pos = b_pos + f_norm * 25
 				effectdata:SetEntity(self)
 				effectdata:SetFlags( 0 )
 				effectdata:SetOrigin( m_pos )
@@ -152,6 +153,7 @@ function b:Draw()
 	-- Renders the bottom of the trap
 	self:RenderBase()
 	-- Render turret
+	
 	if self:DurationProcent() > 0 then
 		self.i_hatch = math.min((1 - self:DurationProcent()) * 10, 1)
 	else
@@ -208,5 +210,15 @@ function b:Draw()
 	end
 	-- Renders the trap area
 	self:RenderTrapArea()
+end
+function b:DrawSelection( )
+	self:RenderBase()
+	self:RenderTrapArea()
+	
+	local h_vec =  Vector(0,hatch_size,1.9)
+	local h2_vec = -Vector(hatch_size,hatch_size,1.8)
+		render.SetMaterial(mat)
+		render.DrawBox(self:GetPos(), self:GetAngles(), h2_vec, h_vec, Color(0,0,0))
+		render.DrawBox(self:GetPos() + self:GetAngles():Forward() * hatch_size, self:GetAngles(), h2_vec, h_vec, Color(0,0,0))
 end
 return b

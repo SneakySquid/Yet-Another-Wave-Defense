@@ -96,4 +96,7 @@ function b:Draw()
 	end
 	self:RenderTrapArea()
 end
+function b:DrawSelection( )
+	self:RenderBase(mat)
+end
 return b

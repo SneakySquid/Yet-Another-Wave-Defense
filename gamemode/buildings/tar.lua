@@ -3,7 +3,7 @@
 local b = {}
 b.Name = "Tar"
 b.Icon = nil
-b.BuildClass = {CLASS_ANY}
+b.BuildClass = { CLASS_ANY }
 b.Cost = 250
 b.TrapArea = {-Vector(95, 95, 1.7), Vector(95, 95, 95)}
 
@@ -49,4 +49,5 @@ function b:Draw()
 	-- Renders the trap area
 	self:RenderTrapArea()
 end
+b.DrawSelection = b.Draw
 return b

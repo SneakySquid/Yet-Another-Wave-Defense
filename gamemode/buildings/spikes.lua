@@ -43,6 +43,24 @@ local mat = Material("yawd/spike.png")
 local mat2 = Material("yawd/models/trap_spike")
 b.retract = 0
 local spike_length = 50
+function b:DrawSelection( )
+	self:RenderBase(mat2)
+	self:RenderTrapArea()
+	render.SetMaterial(mat)
+	local ep = EyePos()
+	local r_t = {}
+	for x = -3, 3 do
+		for y = -3, 3 do
+			local pos = self:LocalToWorld(Vector(x * 19, y * 19, self:OBBMaxs().z))
+			table.insert(r_t, {pos,ep:DistToSqr(pos)})
+		end
+	end
+	table.sort(r_t, function(a,b) return a[2]>b[2] end)
+	local n = self:GetAngles():Up()
+	for k,v in ipairs(r_t) do
+		render.DrawBeam(v[1],v[1] + n * spike_length, 5, 1, 0, self.CanAfford and Color(0,255,0) or Color(255,0,0))
+	end
+end
 function b:Draw()
 	-- Renders the bottom of the trap
 	self:RenderBase(mat2)
