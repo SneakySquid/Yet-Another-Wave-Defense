@@ -11,3 +11,7 @@ function GM:RequestSellUpgrade(upgrade_key, tier_desired)
 		net.WriteUInt(tier_desired, 8)
 	net.SendToServer()
 end
+
+net.Receive("yawd.upgrades.menu", function()
+	GAMEMODE:CreateUpgradesMenu()
+end)

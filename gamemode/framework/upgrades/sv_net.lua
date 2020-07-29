@@ -1,5 +1,11 @@
 util.AddNetworkString("yawd.upgrades.purchase")
 util.AddNetworkString("yawd.upgrades.sell")
+util.AddNetworkString("yawd.upgrades.menu")
+
+function GM:OpenUpgradesMenuOnPlayer(ply)
+	net.Start("yawd.upgrades.menu")
+	net.Send(ply)
+end
 
 local function read_upgrade()
 	local key = net.ReadUInt(32)

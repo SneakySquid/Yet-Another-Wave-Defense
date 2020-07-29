@@ -137,10 +137,12 @@ end
 
 if SERVER then
 	AddCSLuaFile("upgrades/cl_net.lua")
+	AddCSLuaFile("upgrades/cl_menu.lua")
 
 	include("upgrades/sv_net.lua")
 else
 	include("upgrades/cl_net.lua")
+	include("upgrades/cl_menu.lua")
 end
 
 ---------- Upgrades ----------

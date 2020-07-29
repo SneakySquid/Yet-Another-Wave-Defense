@@ -12,6 +12,11 @@ function ENT:Initialize()
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_BBOX )
+
+	if SERVER then
+		self:SetUseType(SIMPLE_USE)
+	end
+
 	-- self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 	gmod.GetGamemode().Building_Core = self
 	if SERVER and Controller then
@@ -38,4 +43,10 @@ end
 
 function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
+end
+
+function ENT:Use(activator, caller, use_type, value)
+	if activator:IsPlayer() and use_type == USE_ON then
+		GAMEMODE:OpenUpgradesMenuOnPlayer(activator)
+	end
 end
