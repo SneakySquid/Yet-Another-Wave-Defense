@@ -11,7 +11,7 @@
 		SH	Building.GetCore()												Returns the core building (If placed).
 	!	SH	Building.ApplyFunctions( ent )									Applies the building functions to the given building.
 		SH	Building.CanTarget( ent )										Returns true if the building can target the entity.
-		SV	Building.CreateBuilding( BuildingName, ply , pos, ang )			Creats a building at the given position and angle.
+		SV	Building.Create( BuildingName, ply , pos, ang )			Creats a building at the given position and angle.
 
 	Debug Functions:
 		SV	Building.RespawnCore()			Respawns the core at the same location.
@@ -42,19 +42,24 @@ function building_meta:__tostring()
 end
 
 -- Load buildings
-local files,folders = file.Find( GM.FolderName .. "/gamemode/buildings/*.lua" ,"LUA")
-for k,v in ipairs(files) do
-	local fil = GM.FolderName .. "/gamemode/buildings/" .. v
-	AddCSLuaFile(fil)
-	local t = include(fil)
-	if not t or type(t) ~= "table" then ErrorNoHalt("Empty building file [" .. fil .. "]") continue end
-	if not t.Name then ErrorNoHalt("Invalid building data  [" .. fil .. "]") continue end
-	setmetatable(t, building_meta)
-	t.max_size = Vector( math.max( -t.BuildingSize[1].x, t.BuildingSize[2].x ), math.max( -t.BuildingSize[1].y, t.BuildingSize[2].y ),math.max( -t.BuildingSize[1].z, t.BuildingSize[2].z ))
-	buildings[t.Name] = t
-end
+hook.Add("YAWDPreLoaded","YAWD_LoadBuildings",function()
+	local files,folders = file.Find( GM.FolderName .. "/gamemode/buildings/*.lua" ,"LUA")
+	for k,v in ipairs(files) do
+		local fil = GM.FolderName .. "/gamemode/buildings/" .. v
+		AddCSLuaFile(fil)
+		local t = include(fil)
+		if not t or type(t) ~= "table" then ErrorNoHalt("Empty building file [" .. fil .. "]") continue end
+		if not t.Name then ErrorNoHalt("Invalid building data  [" .. fil .. "]") continue end
+		setmetatable(t, building_meta)
+		t.max_size = Vector( math.max( -t.BuildingSize[1].x, t.BuildingSize[2].x ), math.max( -t.BuildingSize[1].y, t.BuildingSize[2].y ),math.max( -t.BuildingSize[1].z, t.BuildingSize[2].z ))
+		buildings[t.Name] = t
+	end
+end)
 
 -- Buiilding functions
+function Building.GetAll()
+	return table.GetKeys(buildings)
+end
 function Building.GetData( BuildingName )
 	return buildings[BuildingName] 
 end
@@ -82,7 +87,11 @@ local function isClassAllowed( BuildingName, CLASS )
 	cache[BuildingName][CLASS] = false
 	return false
 end
+function Building.CanClassBuild(BuildingName, CLASS)
+	return isClassAllowed(BuildingName, CLASS)
+end
 function Building.CanPlayerBuild( ply, BuildingName )
+	local bd = Building.GetData( BuildingName )
 	// Check cost
 	local cost = bd.Cost
 	if cost < 0 then return false end
@@ -258,7 +267,7 @@ end
 -- A debug function to respawn the core.
 function Building.RespawnCore()
 	local e = Building.GetCore()
-	local n = Building.CreateBuilding( "Core", nil, e:GetPos(), e:GetAngles() )
+	local n = Building.Create( "Core", nil, e:GetPos(), e:GetAngles() )
 	SafeRemoveEntity(e)
 end
 -- Returns the core
@@ -268,8 +277,9 @@ end
 -- Applies the functions
 function Building.ApplyFunctions( ent )
 	local BuildingName = ent:GetBuildingName()
+	if not BuildingName then return end
 	local bd = Building.GetData( BuildingName )
-	if not bd then ErrorNoHalt("Unknown building [" .. BuildingName .. "]") return end
+	if not bd then return end
 	ent.builddata = bd
 	for k,v in pairs( bd ) do
 		if k == "Init" and type(v) == "function" then
@@ -316,7 +326,7 @@ if SERVER then
 		end
 	end
 	-- Creats a building.
-	function Building.CreateBuilding( BuildingName, owner, pos, ang )
+	function Building.Create( BuildingName, owner, pos, ang )
 		local bd = Building.GetData( BuildingName )
 		if not bd then ErrorNoHalt("Unknown building [" .. BuildingName .. "]") return end
 		local c = "yawd_building"

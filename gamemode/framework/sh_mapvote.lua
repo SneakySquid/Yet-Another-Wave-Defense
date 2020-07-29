@@ -78,7 +78,7 @@ if SERVER then
 			end
 
 			local pos, ang = t[1], t[2]
-			Building.CreateBuilding("Core", nil, pos, ang)
+			Building.Create("Core", nil, pos, ang)
 		end
 	end
 	hook.Add("Think", "MapVote.HandleCountdown", HandleCountdown)
