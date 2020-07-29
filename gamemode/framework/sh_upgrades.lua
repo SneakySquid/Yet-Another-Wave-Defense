@@ -72,9 +72,9 @@ function GM:GetUpgradeByName(name)
 end
 
 -- NOTE: A client's upgrades aren't networked to other clients
-function GM:GetPlayerUpgradeTier(ply, key)
+function GM:GetPlayerUpgradeTier(ply, upgrade_key)
 	for _, v in ipairs(ply.yawd_upgrades or {}) do
-		if v.upgrade.k == key then
+		if v.upgrade.k == upgrade_key then
 			return v.tier
 		end
 	end
@@ -82,12 +82,12 @@ function GM:GetPlayerUpgradeTier(ply, key)
 	return 0
 end
 
-function GM:PlayerSetUpgradeTier(ply, upgrade, new_tier)
+function GM:PlayerSetUpgradeTier(ply, upgrade_key, new_tier)
 	ply.yawd_upgrades = ply.yawd_upgrades or {}
 
-	if GAMEMODE:GetPlayerUpgradeTier(ply, upgrade.k) > 0 then
+	if GAMEMODE:GetPlayerUpgradeTier(ply, upgrade_key) > 0 then
 		for k, v in ipairs(ply.yawd_upgrades) do
-			if v.upgrade.k == upgrade.k then
+			if v.upgrade.k == upgrade_key then
 				if new_tier <= 0 then
 					table.remove(ply.yawd_upgrades, k)
 					break
@@ -99,7 +99,7 @@ function GM:PlayerSetUpgradeTier(ply, upgrade, new_tier)
 		end
 	else
 		table.insert(ply.yawd_upgrades, {
-			upgrade = upgrade,
+			upgrade = GAMEMODE:GetUpgrade(upgrade_key),
 			tier = new_tier,
 		})
 	end
@@ -109,7 +109,8 @@ function GM:GetPlayerUpgrades(ply)
 	return ply.yawd_upgrades or {}
 end
 
-function GM:GetUpgradePrice(upgrade, tier_desired, tier_owned)
+function GM:GetUpgradePrice(upgrade_key, tier_desired, tier_owned)
+	local upgrade = GAMEMODE:GetUpgrade(upgrade_key)
 	if upgrade.tiers > 1 and isnumber(upgrade.price) then
 		return upgrade.price * (tier_owned - tier_desired)
 	elseif upgrade.tiers == 1 then
@@ -125,8 +126,8 @@ function GM:GetUpgradePrice(upgrade, tier_desired, tier_owned)
 	end
 end
 
-function GM:GetUpgradeRefundAmount(upgrade, tier_desired, tier_owned)
-	return self:GetUpgradePrice(upgrade, tier_owned, tier_desired)
+function GM:GetUpgradeRefundAmount(upgrade_key, tier_desired, tier_owned)
+	return self:GetUpgradePrice(upgrade_key, tier_owned, tier_desired)
 		* GAMEMODE:GetUpgradeRefundPercentage()
 end
 
