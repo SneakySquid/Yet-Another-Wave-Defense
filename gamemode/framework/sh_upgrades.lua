@@ -73,13 +73,36 @@ end
 
 -- NOTE: A client's upgrades aren't networked to other clients
 function GM:GetPlayerUpgradeTier(ply, key)
-	for _, upgrade in ipairs(ply.yawd_upgrades or {}) do
-		if upgrade.k == key then
-			return upgrade.tier
+	for _, v in ipairs(ply.yawd_upgrades or {}) do
+		if v.upgrade.k == key then
+			return v.tier
 		end
 	end
 
 	return 0
+end
+
+function GM:PlayerSetUpgradeTier(ply, upgrade, new_tier)
+	ply.yawd_upgrades = ply.yawd_upgrades or {}
+
+	if GAMEMODE:GetPlayerUpgradeTier(ply, upgrade.k) > 0 then
+		for k, v in ipairs(ply.yawd_upgrades) do
+			if v.upgrade.k == upgrade.k then
+				if new_tier <= 0 then
+					table.remove(ply.yawd_upgrades, k)
+					break
+				else
+					v.tier = new_tier
+					break
+				end
+			end
+		end
+	else
+		table.insert(ply.yawd_upgrades, {
+			upgrade = upgrade,
+			tier = new_tier,
+		})
+	end
 end
 
 function GM:GetPlayerUpgrades(ply)
@@ -138,6 +161,17 @@ YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
 YAWD_UPGRADE_ARMOUR = GM:RegisterUpgrade({
 	name = "Armour",
 	price = 500,
+	hooks = {
+		{
+			event = "PlayerSpawn",
+			realm = "server",
+			callback = function(ply, transition)
+				if GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR) > 0 then
+					ply:SetArmor(100)
+				end
+			end,
+		},
+	},
 })
 
 YAWD_UPGRADE_HEALTHREGEN = GM:RegisterUpgrade({
