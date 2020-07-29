@@ -67,6 +67,28 @@ if SERVER then
 
 		return true
 	end
+	-- Give players the weapons and traps
+	local meleeWep = {"weapon_crowbar", "yawd_fists_extreme"} -- These weapons will remove yaw_fists
+	local function GetMelee(ply)
+		for k,v in ipairs(ply:GetWeapons()) do
+			if table.HasValue(meleeWep, v:GetClass()) then return v:GetClass() end
+		end
+
+	end
+	function GM:PlayerLoadout( ply )
+		ply:StripWeapons()
+		player_manager.RunClass( ply, "Loadout" )
+		-- Allways give these
+		ply:Give( "wep_build" )
+		local melee = GetMelee( ply )
+		if not melee then
+			ply:Give( "yawd_fists" )
+			ply:SelectWeapon( "yawd_fists" )
+		else
+			ply:SelectWeapon( melee )
+		end
+		
+	end
 end
 
 include("classes/class_base.lua")

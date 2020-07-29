@@ -21,4 +21,13 @@ PLAYER.StartHealth = 175
 PLAYER.Description = "The #yawd_bomber is a class that utilises high AoE burst damage to demolish large groups of enemies."
 PLAYER.BaseStats = {}
 
+function PLAYER:Loadout(...)
+	self.Player:RemoveAllAmmo()
+	self.Player:GiveAmmo(5, "grenade", true)
+	self.Player:GiveAmmo(256, "SMG1", true)
+	self.Player:Give("weapon_frag")
+	self.Player:Give("weapon_smg1")
+	self.Player:SwitchToDefaultWeapon()
+end
+
 GM:RegisterClass("yawd_bomber", PLAYER)

@@ -51,7 +51,7 @@ end
 
 function PLAYER:Loadout(...)
 	self.Player:RemoveAllAmmo()
-
+--[[
 	self.Player:GiveAmmo(256, "Pistol", true)
 	self.Player:GiveAmmo(256, "SMG1", true)
 	self.Player:GiveAmmo(5, "grenade", true)
@@ -70,7 +70,7 @@ function PLAYER:Loadout(...)
 	self.Player:Give("weapon_357")
 	self.Player:Give("weapon_rpg")
 	self.Player:Give("weapon_ar2")
-
+]]
 	self.Player:SwitchToDefaultWeapon()
 end
 

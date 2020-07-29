@@ -21,4 +21,35 @@ PLAYER.StartHealth = 220
 PLAYER.Description = "The #yawd_fighter is a close range all-rounder that excels at ambushing and flanking enemies."
 PLAYER.BaseStats = {}
 
+function PLAYER:Loadout(...)
+	self.Player:RemoveAllAmmo()
+	self.Player:Give("weapon_crowbar")
+	self.Player:Give("yawd_shotgun")
+	self.Player:Give("weapon_pistol")
+	self.Player:GiveAmmo(256, "Pistol", true)
+	self.Player:GiveAmmo(164, "Buckshot", true)
+	self.Player:SwitchToDefaultWeapon()
+end
+
+
 GM:RegisterClass("yawd_fighter", PLAYER)
+--[[yawd_lmg
+	self.Player:GiveAmmo(256, "Pistol", true)
+	self.Player:GiveAmmo(256, "SMG1", true)
+	self.Player:GiveAmmo(5, "grenade", true)
+	self.Player:GiveAmmo(64, "Buckshot", true)
+	self.Player:GiveAmmo(32, "357", true)
+	self.Player:GiveAmmo(32, "XBowBolt", true)
+	self.Player:GiveAmmo(100, "AR2", true)
+
+	self.Player:Give("weapon_crowbar")
+	self.Player:Give("weapon_pistol")
+	self.Player:Give("weapon_smg1")
+	self.Player:Give("weapon_frag")
+	self.Player:Give("weapon_physcannon")
+	self.Player:Give("weapon_crossbow")
+	self.Player:Give("weapon_shotgun")
+	self.Player:Give("weapon_357")
+	self.Player:Give("weapon_rpg")
+	self.Player:Give("weapon_ar2")
+]]

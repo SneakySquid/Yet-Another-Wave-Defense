@@ -21,4 +21,12 @@ PLAYER.StartHealth = 350
 PLAYER.Description = "The #yawd_juggernaut has a steady damage output and thrives on the frontlines."
 PLAYER.BaseStats = {}
 
+function PLAYER:Loadout(...)
+	self.Player:RemoveAllAmmo()
+	self.Player:Give("yawd_fists_extreme")
+	self.Player:Give("yawd_lmg")
+	self.Player:GiveAmmo(500, "AR2", true)
+	self.Player:SwitchToDefaultWeapon()
+end
+
 GM:RegisterClass("yawd_juggernaut", PLAYER)

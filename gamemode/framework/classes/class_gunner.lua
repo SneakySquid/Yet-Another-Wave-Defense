@@ -21,4 +21,11 @@ PLAYER.StartHealth = 150
 PLAYER.Description = "The #yawd_gunner is capable of using most ranged weapons with high proficiency."
 PLAYER.BaseStats = {}
 
+function PLAYER:Loadout(...)
+	self.Player:RemoveAllAmmo()
+	self.Player:Give("yawd_rifle")
+	self.Player:GiveAmmo(300, "AR2", true)
+	self.Player:SwitchToDefaultWeapon()
+end
+
 GM:RegisterClass("yawd_gunner", PLAYER)

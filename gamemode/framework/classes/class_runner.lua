@@ -21,4 +21,12 @@ PLAYER.StartHealth = 125
 PLAYER.Description = "The #yawd_runner is highly mobile but fragile support class that regains health from collecting money."
 PLAYER.BaseStats = {}
 
+function PLAYER:Loadout(...)
+	self.Player:RemoveAllAmmo()
+	self.Player:Give("yawd_pistol")
+	self.Player:GiveAmmo(50, "Pistol", true)
+	self.Player:SwitchToDefaultWeapon()
+end
+
+
 GM:RegisterClass("yawd_runner", PLAYER)
