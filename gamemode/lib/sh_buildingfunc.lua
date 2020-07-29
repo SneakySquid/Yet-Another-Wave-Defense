@@ -22,7 +22,9 @@ Building = {}
 
 local cores = ents.FindByClass( "yawd_building_core" )
 if #cores > 0 then
-	gmod.GetGamemode().Building_Core = cores[1]
+	GM.Building_Core = cores[1]
+else
+	GM.Building_Core = NULL
 end
 
 local buildings = {}
@@ -61,7 +63,7 @@ function Building.GetAll()
 	return table.GetKeys(buildings)
 end
 function Building.GetData( BuildingName )
-	return buildings[BuildingName] 
+	return buildings[BuildingName]
 end
 local cache = {}
 local function isClassAllowed( BuildingName, CLASS )
@@ -77,7 +79,7 @@ local function isClassAllowed( BuildingName, CLASS )
 		for _,bclass in ipairs( bd.BuildClass ) do
 			if bclass == CLASS or bclass == CLASS_ANY then
 				cache[BuildingName][CLASS] = true
-				return true 
+				return true
 			end
 		end
 	elseif bd.BuildClass == CLASS_ANY or bd.BuildClass == CLASS then
@@ -106,7 +108,7 @@ function Building.GetPlayerBuildings( ply )
 		local ow = ent:GetBuildingOwner()
 		if IsValid(ow) and ow == ply then
 			table.insert(t, ent)
-		end 
+		end
 	end
 	return t
 end
@@ -254,11 +256,11 @@ function Building.CanPlaceCore( node )
 	if not node:IsMapNode() then return false end
 	if #node:GetConnectedNodes(nil, nil, NODE_TYPE_GROUND) < 3 then -- Check to see if there are more than 3 nodes connected to this.
 		n_c[node] = false
-		return false 
+		return false
 	end
 	if not Building.CanPlaceOnFloorFast("Core", node:GetPos(), 0, false) then
 		n_c[node] = false
-		return false 
+		return false
 	end
 	local _,vec,ang = Building.CanPlaceOnFloor("Core", node:GetPos(), 0, false)
 	n_c[node] = {vec,ang}
@@ -302,7 +304,7 @@ end
 -- Checks to see if the entity is an enemy
 function Building.CanTarget( ent )
 	if ent:Health() <= 0 then return false end
-	if ent:IsNPC() or ent:IsNextBot() or ent:GetClass() == "yawd_npc_base" then 
+	if ent:IsNPC() or ent:IsNextBot() or ent:GetClass() == "yawd_npc_base" then
 		return true
 	end
 	return false
