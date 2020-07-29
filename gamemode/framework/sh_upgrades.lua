@@ -19,7 +19,8 @@ local registered_upgrades = {}
 	name,			the name of the upgrade
 	price,			the price of the upgrade, can either be a number or a table for prices of each tier
 	can_purchase, 	optional price override for upgrades that aren't just restricted by price. args: ply, tier
-	on_purchase,	optional function that is called when a player purchases the upgrade
+	on_purchase,	optional function that is called when a player purchases the upgrade. args: ply, tier_old, tier_new
+	on_sell,		optional function called when player sells tier(s). args: ply, tier_old, tier_new
 }
 --]]
 function GM:RegisterUpgrade(t)
@@ -100,11 +101,13 @@ end
 
 if SERVER then
 	AddCSLuaFile("upgrades/cl_upgrades.lua")
+	AddCSLuaFile("upgrades/cl_net.lua")
 
 	include("upgrades/sv_upgrades.lua")
 	include("upgrades/sv_net.lua")
 else
 	include("upgrades/cl_upgrades.lua")
+	include("upgrades/cl_net.lua")
 end
 
 ---------- Upgrades ----------
