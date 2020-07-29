@@ -14,7 +14,7 @@ net.Receive("Wave.UpdateNumber", function()
 end)
 
 net.Receive("Wave.UpdateStatus", function()
-	GAMEMODE:SetWaveStatus(net.ReadUInt(3))
+	GAMEMODE:SetWaveStatus(net.ReadUInt(2))
 end)
 
 net.Receive("Wave.RequestInfo", function()
