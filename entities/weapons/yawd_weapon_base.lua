@@ -50,7 +50,6 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = ""
 
 SWEP.CanAttackReason = {
@@ -133,7 +132,7 @@ function SWEP:Reload()
 	self:EmitSound(self.ReloadSound, 75, 100, 1, CHAN_WEAPON)
 
 	local time = CurTime()
-	self:SetNextReload(time + self.ReloadDelay)
+	self:SetNextReload(time + self:SequenceDuration())
 	self:SetNextPrimaryFire(time + self.ReloadDelay)
 end
 
