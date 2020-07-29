@@ -42,7 +42,8 @@ local HUD = {
 		["CHudHealth"] = true,
 		["CHudAmmo"] = true,
 		["CHudSecondaryAmmo"] = true,
-		["CHudBattery"] = true
+		["CHudBattery"] = true,
+		["CHudWeaponSelection"] = true
 	},
 }
 
@@ -178,7 +179,11 @@ HUD.Status = {
 		if not t.Entity or not IsValid( t.Entity ) then return end
 		if not string.match(t.Entity:GetClass(),"^yawd_building") then return end
 		local ent = t.Entity
-
+		if ent:IsMine() then
+			if LocalPlayer():EyePos():Distance(t.HitPos) < 90 then
+				draw.DrawText("Press E to sell", "HUD.Building", sw / 2, sh / 2, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER)
+			end
+		end
 		local max_hp, hp = ent:GetMaxHealth(), ent:Health()
 		local ex_p = 0
 		if max_hp > 0  then
@@ -217,8 +222,19 @@ HUD.Status = {
 		end
 		surface.SetFont("HUD.Building")
 		draw.DrawText(ent:GetBuildingName() or "Unknown Building", "HUD.Building", sw / 2, 20, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER)
-	
+
 	end,
+
+	Currency = function(ply, sw, sh)
+		local del = 0
+		if not ply.r_currency then
+			ply.r_currency = 0
+		else
+			del = math.abs( ply.r_currency - ply:GetCurrency() ) * FrameTime() * 2
+			ply.r_currency = math.Approach(ply.r_currency, ply:GetCurrency(), math.max(0.1, del) )
+		end
+		draw.SimpleText(string.format("%i C", ply.r_currency), "HUD.Status", sw / 2 + math.random(-del,del), sh - 210 + math.random(-del,del), color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+	end
 }
 
 HUD.Wave = {
@@ -255,6 +271,10 @@ function GM:HUDPaint()
 
 			if CanDraw("HUD.Status.PlayerAmmo") then
 				HUD.Status.PlayerAmmo(ply, sw, sh)
+			end
+
+			if CanDraw("HUD.Status.Currency") then
+				HUD.Status.Currency(ply, sw, sh)
 			end
 
 			if CanDraw("HUD.Status.Building") then
