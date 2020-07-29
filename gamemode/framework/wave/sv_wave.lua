@@ -16,7 +16,7 @@ end)
 
 function GM:StartWave()
 	if self:HasWaveStarted() then return false end
-	if not hook.Run("YAWDWaveStarted") then return false end
+	if hook.Run("YAWDWaveStarted") == false then return false end
 
 	self:SetWaveStatus(WAVE_ACTIVE)
 
@@ -25,7 +25,7 @@ end
 
 function GM:EndWave()
 	if not self:HasWaveStarted() then return false end
-	if not hook.Run("YAWDWaveFinished") then return false end
+	if hook.Run("YAWDWaveFinished") == false then return false end
 
 	self:SetWaveStatus(WAVE_POST)
 
