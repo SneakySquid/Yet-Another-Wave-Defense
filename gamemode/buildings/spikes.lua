@@ -28,13 +28,13 @@ function b:OnTrapTrigger( tListOfEnemies )
 			v:EmitSound("npc/manhack/grind_flesh" .. math.random(1,3) .. ".wav", 100)
 		end
 	else
-		self:EmitSound("npc/strider/strider_skewer1.wav", 100)
+		self:EmitSound("npc/strider/strider_skewer1.wav", 100, 100, 0.4)
 		self.triggered = true
 	end
 end
 if CLIENT then
 	function b:OnTrapEnd()
-		self:EmitSound("npc/strider/strider_skewer1.wav", 100)
+		self:EmitSound("npc/strider/strider_skewer1.wav", 100, 100, 0.4)
 		self.triggered = nil
 	end
 end
