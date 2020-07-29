@@ -136,13 +136,10 @@ function GM:GetUpgradeRefundPercentage()
 end
 
 if SERVER then
-	AddCSLuaFile("upgrades/cl_upgrades.lua")
 	AddCSLuaFile("upgrades/cl_net.lua")
 
-	include("upgrades/sv_upgrades.lua")
 	include("upgrades/sv_net.lua")
 else
-	include("upgrades/cl_upgrades.lua")
 	include("upgrades/cl_net.lua")
 end
 
@@ -159,21 +156,32 @@ YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
 	price = 500,
 })
 
-YAWD_UPGRADE_ARMOUR = GM:RegisterUpgrade({
-	name = "Armour",
-	price = 500,
-	hooks = {
-		{
-			event = "PlayerSpawn",
-			realm = "server",
-			callback = function(ply, transition)
-				if GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR) > 0 then
-					ply:SetArmor(100)
-				end
-			end,
+do
+	local armour_lookup = {
+		[1] = 25,
+		[2] = 50,
+		[3] = 75,
+		[4] = 100,
+		[5] = 125,
+	}
+
+	YAWD_UPGRADE_ARMOUR = GM:RegisterUpgrade({
+		name = "Armour",
+		price = {100, 200, 300, 400, 500},
+		hooks = {
+			{
+				event = "PlayerSpawn",
+				realm = "server",
+				callback = function(ply, transition)
+					local tier = GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR)
+					if tier > 0 then
+						ply:SetArmor(armour_lookup[tier])
+					end
+				end,
+			},
 		},
-	},
-})
+	})
+end
 
 YAWD_UPGRADE_HEALTHREGEN = GM:RegisterUpgrade({
 	name = "Health Regen",
