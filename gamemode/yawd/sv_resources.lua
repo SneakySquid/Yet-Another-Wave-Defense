@@ -27,5 +27,3 @@ AddMaterial("models/trap_side.vmt")
 AddMaterial("models/trap_spike.vmt")
 AddMaterial("models/trap_squre.vmt")
 AddMaterial("models/trap_tar.vmt")
-
-print("Added resources to download queue.")
