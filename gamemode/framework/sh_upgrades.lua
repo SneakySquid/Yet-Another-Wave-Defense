@@ -8,7 +8,7 @@
 		- Resistance(s)
 		- Armour
 		- Health regen
-		- Max health
+		- Max overheal
 		- Weapon clip increase
 ]]
 
@@ -130,8 +130,8 @@ YAWD_UPGRADE_HEALTHREGEN = GM:RegisterUpgrade({
 	price = 500,
 })
 
-YAWD_UPGRADE_MAXHEALTH = GM:RegisterUpgrade({
-	name = "Max Health",
+YAWD_UPGRADE_MAXOVERHEAL = GM:RegisterUpgrade({
+	name = "Max Overheal",
 	price = 500,
 })
 
