@@ -75,6 +75,7 @@ function ENT:Initialize()
 		if ( IsValid( phys ) ) then
 			phys:Sleep()
 		end
+		self:SetUseType( SIMPLE_USE )
 	end
 	if self.TrapArea then
 		self:EnableTrigger(self.TrapArea[1], self.TrapArea[2])
@@ -227,6 +228,7 @@ else
 	local default = Color(155,155,255,20)
 	local default_disabled = Color(255,155,155,20)
 	function ENT:RenderTrapArea( color )
+		if true then return end
 		if GAMEMODE:HasWaveStarted() then return end -- Only render trap area when the wave hasn't started.
 		local vmin,vmax = self:GetTrapArea()
 		color = color or self:GetDisabled() and default_disabled or default
@@ -302,7 +304,6 @@ else
 			GenerateMesh()
 		end
 		local mins,maxs = self:OBBMins(), self:OBBMaxs()
-
 		local matr = Matrix()
 		matr:SetAngles(self:GetAngles())
 		matr:SetTranslation(self:GetPos())
@@ -373,4 +374,14 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Entity", 0, "BuildingOwner" )
 	self:NetworkVar( "Int", 0, "Upgrades" )
 	self:NetworkVar( "Bool", 1, "Disabled" )
+end
+
+function ENT:Use(ply)
+	if not IsValid(ply) then return end
+	if self:GetBuildingOwner() ~= ply then return end
+	-- Sell trap
+	local cost = self:GetBuildingData().Cost or 100
+	SafeRemoveEntity(self)
+	ply:AddCurrency( cost )
+	ply:EmitSound("ambient/levels/labs/coinslot1.wav")
 end
