@@ -5,7 +5,7 @@ zombie.DisplayName = "Zombie"
 
 zombie.Model = Model("models/Zombie/Classic.mdl")
 zombie.MoveSpeed = 60
-zombie.Currency = 5
+zombie.Currency = 12
 zombie.Skin = {0, 1}
 
 zombie.Health = 75					-- Health
@@ -73,12 +73,12 @@ zombie.DisplayName = "Fast Zombie"
 
 zombie.Model = Model("models/Zombie/Fast.mdl")
 zombie.MoveSpeed = 220
-zombie.Currency = 5
+zombie.Currency = 22
 zombie.Skin = {0, 1}
 
-zombie.Health = 75					-- Health
-zombie.JumpDown = 10				-- Allows the NPC to "jumpdown" from said areas
-zombie.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
+zombie.Health = 65					-- Health
+zombie.JumpDown = 50				-- Allows the NPC to "jumpdown" from said areas
+zombie.JumpUp = 50					-- Allows the NPC to "jumpup" from said areas
 
 zombie.CanTargetPlayers = true		-- Tells that we can target the players
 zombie.TargetIgnoreWalls = false	-- Ignore walls when targeting players

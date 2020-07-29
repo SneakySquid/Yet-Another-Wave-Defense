@@ -5,7 +5,7 @@ combine.DisplayName = "Combine"
 
 combine.Model = Model("models/combine_soldier.mdl")
 combine.MoveSpeed = 140
-combine.Currency = 5
+combine.Currency = 25
 combine.Skin = {0, 1}
 
 combine.Health = 75					-- Health
