@@ -228,7 +228,6 @@ else
 	local default = Color(155,155,255,20)
 	local default_disabled = Color(255,155,155,20)
 	function ENT:RenderTrapArea( color )
-		if true then return end
 		if GAMEMODE:HasWaveStarted() then return end -- Only render trap area when the wave hasn't started.
 		local vmin,vmax = self:GetTrapArea()
 		color = color or self:GetDisabled() and default_disabled or default
