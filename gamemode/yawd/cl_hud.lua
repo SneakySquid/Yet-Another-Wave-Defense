@@ -25,6 +25,7 @@ end
 
 local vote_info = GM.VoteInfo
 
+local core_lerp = PercentLerp(0.5, 0.25, true)
 local health_lerp = PercentLerp(0.5, 0.25, true)
 local overheal_lerp = PercentLerp(0.5, 0.25, true)
 local currency_lerp = TargetLerp(0, 0.5)
@@ -40,6 +41,7 @@ local HUD = {
 
 	Colours = {
 		["Main"] = Color(35, 35, 35, 200),
+		["Core"] = Color(121, 0, 185),
 		["Health"] = Color(136, 181, 55),
 		["Overheal"] = Color(68, 152, 208),
 		["Ammo"] = Color(193, 111, 46),
@@ -137,6 +139,34 @@ HUD.Status = {
 	end,
 
 	CoreHealth = function(ply, sw, sh)
+		local core = GAMEMODE.Building_Core
+		if not core:IsValid() then return end
+
+		local hp = math.max(0, core:Health())
+		local max_hp = core:GetMaxHealth()
+
+		local bw, bh = sw * 0.25, 32
+		local bx, by = sw * 0.5 - bw * 0.5, sh - bh - 10
+
+		surface.SetDrawColor(HUD.Colours.Main)
+		surface.DrawRect(bx, by, bw, bh)
+
+		local p = math.min(1, hp / max_hp)
+		local lp = core_lerp(hp, max_hp)
+
+		local x_offset = bw - bw * lp
+		x_offset = x_offset * 0.5
+
+		surface.SetDrawColor(HUD.Colours.Damage)
+		surface.DrawRect(bx + x_offset, by, bw * lp, bh)
+
+		x_offset = bw - bw * p
+		x_offset = x_offset * 0.5
+
+		surface.SetDrawColor(HUD.Colours.Core)
+		surface.DrawRect(bx + x_offset, by, bw * p, bh)
+
+		draw.SimpleText(string.format("Core: %i", hp), "HUD.Status", bx + bw * 0.5, by + bh * 0.5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end,
 
 	BossHealth = function(ply, sw, sh)
