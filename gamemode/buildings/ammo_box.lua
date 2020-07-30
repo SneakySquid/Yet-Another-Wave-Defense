@@ -36,11 +36,10 @@ local mdl = Model("models/Items/ammocrate_smg1.mdl")
 	function b:GetEnemiesOn() return false end
 
 	if SERVER then
-		local n_Timer = 0
 		function b:Think()
 			if #self.OnTrap < 1 then return end
-			if n_Timer > CurTime() then return end
-			n_Timer = CurTime() + 5
+			if (self.n_Timer or 0) > CurTime() then return end
+			self.n_Timer = CurTime() + 5
 			for _,ply in ipairs(self.OnTrap) do
 				ply:YAWDGiveAmmo(0.2)
 			end
