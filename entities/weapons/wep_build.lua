@@ -45,7 +45,8 @@ if SERVER then
 		if not Building.CanPlayerBuild( ply, building ) then return end -- You can't build that
 		-- Get placment
 		local pos = ply:GetEyeTrace().HitPos
-		local succ, pos, ang = Building.CanPlaceOnFloor(building, pos, Rotate * 90, bAllowWater, net.ReadBool())
+		local shift = net.ReadBool()
+		local succ, pos, ang = Building.CanPlaceOnFloor(building, pos, Rotate * 90, bAllowWater)
 		if not succ then return end -- You can't place it there
 		local b = Building.Create( building, ply , pos, ang )
 		if b then
@@ -148,25 +149,19 @@ else
 		local ow = self:GetOwner()
 		local tr = ow:GetEyeTrace()
 		local pos = tr.HitPos
-		if tr.Entity and tr.Entity:GetClass() == "yawd_building" then
+		local succ, pos, ang = Building.CanPlaceOnFloor(self:GetBuilding(), pos, Rotate * 90, bAllowWater, self.GhostEntity, input.IsShiftDown())
+		if not succ then
 			if IsValid(self.GhostEntity) then
 				self.GhostEntity:SetNoDraw(true)
 			end
+			render.SetMaterial(mat_invalid)
+			render.DrawSprite(pos, 20,20, Color(255,0,0))
 		else
-			local succ, pos, ang = Building.CanPlaceOnFloor(self:GetBuilding(), pos, Rotate * 90, bAllowWater, input.IsShiftDown())
-			if not succ then
-				if IsValid(self.GhostEntity) then
-					self.GhostEntity:SetNoDraw(true)
-				end
-				render.SetMaterial(mat_invalid)
-				render.DrawSprite(pos, 20,20, Color(255,0,0))
-			else
-				local ghost = self.GhostEntity
-				if IsValid(ghost) then
-					ghost:SetNoDraw(false)
-					ghost:SetPos(pos)
-					ghost:SetAngles(ang)
-				end
+			local ghost = self.GhostEntity
+			if IsValid(ghost) then
+				ghost:SetNoDraw(false)
+				ghost:SetPos(pos)
+				ghost:SetAngles(ang)
 			end
 		end
 	end
@@ -196,7 +191,7 @@ else
 		end
 		-- Make sure we can place the building first
 		local pos = LocalPlayer():GetEyeTrace().HitPos
-		local succ, pos, ang = Building.CanPlaceOnFloorFast(self:GetBuilding(), pos, 0, bAllowWater, input.IsShiftDown())
+		local succ, pos, ang = Building.CanPlaceOnFloorFast(self:GetBuilding(), pos, 0, bAllowWater, self.GhostEntity, input.IsShiftDown())
 		if not succ then 
 			return 
 		end
