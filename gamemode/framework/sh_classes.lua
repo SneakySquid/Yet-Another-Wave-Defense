@@ -80,9 +80,14 @@ if SERVER then
 		for type, start_amt in pairs(self.m_StartingAmmo) do
 			local current_amt = self:GetAmmoCount(type)
 
-			if current_amt ~= start_amt then
-				local new_amt = math.min(start_amt, current_amt + start_amt * f)
-				self:GiveAmmo(new_amt, type, false)
+			if current_amt < start_amt then
+				local new_amt = math.min(start_amt, math.floor(start_amt * f))
+
+				if new_amt + current_amt <= start_amt then
+					self:GiveAmmo(new_amt, type, false)
+				else
+					self:GiveAmmo(start_amt - current_amt, type, false)
+				end
 			end
 		end
 
