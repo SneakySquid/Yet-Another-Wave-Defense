@@ -33,14 +33,18 @@ function GM:CreateUpgradesMenu()
 
 			local btn_purchase_tier = pnl:Add("DButton")
 			btn_purchase_tier:SetText(
-				is_owned and "Sell" or "Purchase" .. string.format(" Tier %s ($%d)", i, price)
+				(is_owned and "Sell" or "Purchase") .. string.format(" Tier %s ($%d)", i, price)
 			)
 			btn_purchase_tier:SizeToContentsX()
 			btn_purchase_tier:Dock(LEFT)
 			btn_purchase_tier:SetTextColor(text_col)
 
 			function btn_purchase_tier:DoClick()
-				GAMEMODE:RequestPurchaseUpgrade(v.k, i)
+				if is_owned then
+					GAMEMODE:RequestSellUpgrade(v.k, i - 1)
+				else
+					GAMEMODE:RequestPurchaseUpgrade(v.k, i)
+				end
 			end
 		end
 	end
