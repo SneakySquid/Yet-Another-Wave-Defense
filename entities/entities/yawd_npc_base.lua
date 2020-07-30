@@ -298,12 +298,15 @@ local function SearchPlayers(self, distance, vPos)
 	return e
 end
 
-function ENT:MoveTowards( pos )
+function ENT:MoveTowards( pos, ignoreAnimation )
 	local mov_speed = self:GetMoveSpeed()
 	local delta = (pos - self:GetPos())
 	local l = delta:Length()
 	local vel = delta:GetNormalized() * mov_speed
-	self:HandleAnimation(mov_speed)
+	if not ignoreAnimation then self:HandleAnimation(mov_speed) end
+	if self.NPC_DATA.OnStep and (self.m_StepDur or 0) < CurTime() then
+		self.m_StepDur = CurTime() + (self.NPC_DATA.OnStep(self) or 40 / mov_speed)
+	end
 	if l < 50 then return true end
 	self:SetGoalPos(pos)
 	self.loco:SetVelocity(vel)
@@ -327,12 +330,15 @@ function ENT:RunBehaviour()
 			else
 				self.NPC_DATA.OnAttack(self, self:GetTarget())
 				self.m_TargetCooldown = CurTime() + ( self.NPC_DATA.TargetCooldown or 15 )
-				self:SetTarget( nil )
+				if self.NPC_DATA.OnAttackEnd then
+					self.NPC_DATA.OnAttackEnd(self, self:GetTarget())
+				end
+				self:SetTarget( nil )				
 				coroutine.wait(0.3)
 			end
 		else
 			local goal = controller:GetGoal()
-			if self.NPC_DATA.CanTargetPlayers and (self.i_search or 0) < CurTime() then
+			if self.NPC_DATA.CanTargetPlayers and (self.m_TargetCooldown or 0) < CurTime() and (self.i_search or 0) < CurTime() then
 				self.i_search = CurTime() + 5
 				self:SetTarget( SearchPlayers(self, self.NPC_DATA.TargetPlayersRange or 200) )
 			end
