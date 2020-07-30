@@ -222,7 +222,7 @@ function ENT:CalculateGoal( stepUp )
 		local new_path = Controller.RequestEntityPath(self, target, jump_down, jump_up)
 		if new_path and type(new_path) == "boolean" then
 			DebugMessage(string.format("Reached the core %s.", self))
-			WentIntoCore(self)
+			if SERVER then WentIntoCore(self) end
 			return
 		elseif new_path then
 			DebugMessage(string.format("Generated new path for %s.", self))
