@@ -122,6 +122,7 @@ else
 				ent:SetBuildingName( self:GetBuilding() )
 				Building.ApplyFunctions(ent)
 			end
+			ent:Spawn()
 			self.GhostEntity = ent
 		end
 	end
