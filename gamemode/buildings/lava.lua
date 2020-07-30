@@ -5,7 +5,7 @@ b.Name = "Lava"
 b.Icon = Material("yawd/hud/lava.png")
 b.Health = -1
 b.CanBuild = true
-b.BuildClass = {CLASS_CONSTRUCTOR}
+b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_RUNNER}
 b.Cost = 550
 
 b.BuildingSize = {-Vector(95, 95, 12), Vector(95, 95, 12)}
@@ -55,7 +55,7 @@ function b:StartTouch( ent )
 		net.WriteEntity(self)
 		net.WriteInt(0, 32)
 	net.Broadcast()
-	self.i_duration = CurTime() + self.TrapDurationTime 
+	self.i_duration = CurTime() + self.TrapDurationTime
 end
 
 function b:Think()

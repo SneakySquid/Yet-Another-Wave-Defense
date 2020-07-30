@@ -26,5 +26,4 @@ function PLAYER:Loadout(...)
 	self.Player:SwitchToDefaultWeapon()
 end
 
-
 GM:RegisterClass("yawd_runner", PLAYER)
