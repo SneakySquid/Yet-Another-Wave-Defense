@@ -39,7 +39,7 @@ function zombie:OnAttack( target )
 			self:SetPlaybackRate(1.5)
 			coroutine.wait(0.3)
 			if self:GetRagdolled() then return end
-			if target:GetPos():Distance(self:GetPos()) < 50 then
+			if target:GetPos():Distance(self:GetPos()) < 70 then
 				self:EmitSound("npc/zombie/claw_strike" .. math.random(1,2) .. ".wav")
 				TakeDamage(self, target)
 				if math.random(1,3) < 2 then -- double hit
@@ -105,7 +105,7 @@ function zombie:OnAttack( target )
 	-- Move closer to the player
 	local target_time = CurTime() + 5
 	while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
-		if target:GetPos():Distance(self:GetPos()) < 50 then -- We are close
+		if target:GetPos():Distance(self:GetPos()) < 70 then -- We are close
 			self:ResetSequence( "melee" )
 			self:EmitSound("npc/zombie/claw_strike" .. math.random(1,2) .. ".wav")
 			TakeDamage(self, target)
