@@ -103,6 +103,8 @@ function GM:PlayerSetUpgradeTier(ply, upgrade_key, new_tier)
 			tier = new_tier,
 		})
 	end
+
+	GAMEMODE:NetworkUpgrades(ply)
 end
 
 function GM:GetPlayerUpgrades(ply)

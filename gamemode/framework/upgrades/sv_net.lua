@@ -1,9 +1,24 @@
 util.AddNetworkString("yawd.upgrades.purchase")
 util.AddNetworkString("yawd.upgrades.sell")
 util.AddNetworkString("yawd.upgrades.menu")
+util.AddNetworkString("yawd.upgrades.owned")
 
 function GM:OpenUpgradesMenuOnPlayer(ply)
 	net.Start("yawd.upgrades.menu")
+	net.Send(ply)
+end
+
+function GM:NetworkUpgrades(ply)
+	local upgrades = GAMEMODE:GetPlayerUpgrades(ply)
+
+	net.Start("yawd.upgrades.owned")
+	net.WriteUInt(#upgrades, 32)
+
+	for _, v in ipairs(upgrades) do
+		net.WriteUInt(v.upgrade.k, 32)
+		net.WriteUInt(v.tier, 8)
+	end
+
 	net.Send(ply)
 end
 
