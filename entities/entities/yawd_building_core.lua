@@ -50,3 +50,17 @@ function ENT:Use(activator, caller, use_type, value)
 		GAMEMODE:OpenUpgradesMenuOnPlayer(activator)
 	end
 end
+
+-- The core gives ammo
+if SERVER then
+	local n_Ammo = 0
+	function ENT:Think()
+		if n_Ammo > CurTime() then return end
+		n_Ammo = CurTime() + 2
+		for _, ply in ipairs( player.GetAll() ) do
+			if ply:GetPos():Distance(self:GetPos()) < 300 then
+				ply:YAWDGiveAmmo()
+			end
+		end
+	end
+end
