@@ -107,6 +107,14 @@ function GM:PlayerSetUpgradeTier(ply, upgrade_key, new_tier)
 	GAMEMODE:NetworkUpgrades(ply)
 end
 
+function GM:PlayerSetUpgrades(ply, upgrades)
+	ply.yawd_upgrades = upgrades
+
+	if SERVER then
+		GAMEMODE:NetworkUpgrades(ply)
+	end
+end
+
 function GM:GetPlayerUpgrades(ply)
 	return ply.yawd_upgrades or {}
 end
