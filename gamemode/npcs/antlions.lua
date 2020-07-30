@@ -103,9 +103,9 @@ do
 
 	lion.Model = Model("models/antlion_guard.mdl")
 	lion.MoveSpeed = 160
-	lion.Currency = 150
+	lion.Currency = 175
 	lion.Skin = 0
-	lion.Health = 650				-- Health
+	lion.Health = 400				-- Health
 	lion.JumpDown = 150				-- Allows the NPC to "jumpdown" from said areas
 	lion.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
 
@@ -116,7 +116,7 @@ do
 	lion.TargetPlayersRange = 600	-- The radius of the target
 	lion.TargetCooldown = 10		-- The amount of times we can target the player
 	function lion:Init()
-
+		self:SetCanBePushed( false ) -- This one can't be pushed
 	end
 	local function TakeDamage( self, target )
 		if target:IsPlayer() then

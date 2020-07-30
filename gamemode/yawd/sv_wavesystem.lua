@@ -15,7 +15,7 @@ local function GetNPCType()
 end
 local function GenerateNPCList()
 	local num = GAMEMODE:GetWaveNumber()
-	local max_coins = 100 + 250 * num + math.random(75)
+	local max_coins = 50 + 150 * num + math.random(75)
 	local t = {}
 	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
 	for i = 1, n do
@@ -30,7 +30,7 @@ local function GenerateNPCList()
 		end
 		local cost = NPC.GetData(npc_type).Currency or 12
 		local spent = (max_coins * amount)
-		local amount = math.ceil( spent / cost )
+		local amount = math.ceil( spent / cost + 0.01 )
 		max_coins = max_coins - amount * cost
 		t[npc_type] = (t[npc_type] or 0) + amount
 	end
@@ -86,7 +86,6 @@ hook.Add( "Think", "WaveSpawnerThink", function()
 		check_timer = CurTime() + 1
 		if #ents.FindByClass("yawd_npc_base") < 1 then
 			GAMEMODE:EndWave()
-			GAMEMODE:SetWaveNumber( GAMEMODE:GetWaveNumber() + 1 )
 		end
 	end
 end )

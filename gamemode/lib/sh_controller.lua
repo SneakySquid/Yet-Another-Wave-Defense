@@ -84,7 +84,7 @@ end
 if SERVER then
 	-- Handles the spawning of spawners on the map
 	local spawners = {} -- holds the locations of spawners.
-	local aim_distance = 5000 ^ 2
+	local aim_distance = 4000 ^ 2
 	-- Finds the furthest node from start_node in the general direction of yaw.
 	local function LocateSpawnerNode( start_node, yaw )
 		local t = {}
