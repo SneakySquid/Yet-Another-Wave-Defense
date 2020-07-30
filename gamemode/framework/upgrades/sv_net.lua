@@ -37,10 +37,10 @@ net.Receive("yawd.upgrades.purchase", function(len, ply)
 
 		if tier_new > tier_owned and tier_new <= upgrade.tiers then
 			local upgrade_price = GAMEMODE:GetUpgradePrice(upgrade.k, tier_new, tier_owned)
+			local can_purchase = isfunction(upgrade.can_purchase) and upgrade.can_purchase
+				or function() return true end
 
-			if ply:GetCurrency() >= upgrade_price and (isfunction(upgrade.can_purchase)
-				and upgrade.can_purchase(ply, tier_new) or true) then
-
+			if ply:GetCurrency() >= upgrade_price and can_purchase(ply, tier_new) then
 				ply:AddCurrency(-upgrade_price)
 				GAMEMODE:PlayerSetUpgradeTier(ply, upgrade.k, tier_new)
 
