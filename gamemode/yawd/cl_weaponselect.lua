@@ -80,7 +80,7 @@ function GM:WeaponSelect(ply, sw, sh)
 	local class = ply:GetPlayerClass()
 
 	if (last_class ~= class) or (not last_alive and alive) then
-		PrecacheSlots()
+		self:PrecacheSlots()
 	end
 
 	last_alive = alive
