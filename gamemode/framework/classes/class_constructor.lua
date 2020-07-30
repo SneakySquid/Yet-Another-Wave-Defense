@@ -23,12 +23,6 @@ PLAYER.BaseStats = {}
 
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
-
-	self.Player:SetAmmo(256, "Pistol")
-	self.Player.m_StartingAmmo["Pistol"] = 256
-
-	self.Player:Give("yawd_pistol")
-
 	self.Player:SwitchToDefaultWeapon()
 end
 
