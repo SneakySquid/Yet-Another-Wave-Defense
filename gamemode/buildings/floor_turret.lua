@@ -3,7 +3,7 @@
 local b = {}
 b.Name = "Floor Turret"
 b.Icon = Material("yawd/hud/floor_turret.png")
-b.BuildClass = {CLASS_ANY}
+b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_GUNNER, CLASS_HEALER}
 b.Cost = 850
 b.TrapArea = {-Vector(95 * 3, 95 * 3, 1.7), Vector(95 * 3, 95 * 3, 95)}
 local target_range = 403 -- math.sqrt((95 * 3) ^ 2 + (95 * 3) ^ 2)
@@ -62,7 +62,7 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 			local n = #targets
 			if n == 0 then
 				self.e_target = nil
-				return 
+				return
 			elseif n == 1 then
 				self.e_target = targets[1]
 			else
@@ -142,7 +142,7 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 local mat = Material("yawd/models/trap_base")
 
 local hatch_size = 37
-if SERVER then return b end 
+if SERVER then return b end
 
 function b:OnRemove()
 	SafeRemoveEntity(self.t_model)
@@ -153,7 +153,7 @@ function b:Draw()
 	-- Renders the bottom of the trap
 	self:RenderBase()
 	-- Render turret
-	
+
 	if self:DurationProcent() > 0 then
 		self.i_hatch = math.min((1 - self:DurationProcent()) * 10, 1)
 	else
@@ -214,7 +214,7 @@ end
 function b:DrawSelection( )
 	self:RenderBase()
 	self:RenderTrapArea()
-	
+
 	local h_vec =  Vector(0,hatch_size,1.9)
 	local h2_vec = -Vector(hatch_size,hatch_size,1.8)
 		render.SetMaterial(mat)

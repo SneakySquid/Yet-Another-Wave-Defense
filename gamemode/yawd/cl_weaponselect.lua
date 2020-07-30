@@ -32,7 +32,7 @@ local function SwitchWeapon()
 	end
 end
 
-local function PrecacheSlots()
+function GM:PrecacheSlots()
 	local ply = LocalPlayer()
 	local class = ply:GetPlayerClass()
 
@@ -80,7 +80,7 @@ function GM:WeaponSelect(ply, sw, sh)
 	local class = ply:GetPlayerClass()
 
 	if (last_class ~= class) or (not last_alive and alive) then
-		PrecacheSlots()
+		self:PrecacheSlots()
 	end
 
 	last_alive = alive
@@ -104,8 +104,8 @@ function GM:WeaponSelect(ply, sw, sh)
 		local x_pos = sw * 0.5 + math.floor(((slot - 1) * box_size - x_offset - box_center) + ((slot - 1) * box_margin))
 
 		if is_wep and not item[1]:IsValid() then
-			PrecacheSlots()
-			continue
+			self:PrecacheSlots()
+			break
 		end
 
 		if slot == current_slot then

@@ -3,7 +3,7 @@
 local b = {}
 b.Name = "Tar"
 b.Icon = Material("yawd/hud/tar.png")
-b.BuildClass = { CLASS_ANY }
+b.BuildClass = { CLASS_RUNNER }
 b.Cost = 250
 b.TrapArea = {-Vector(95, 95, 1.7), Vector(95, 95, 95)}
 

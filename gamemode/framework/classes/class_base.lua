@@ -59,6 +59,29 @@ function PLAYER:Loadout(...)
 	self.Player:SelectWeapon("yawd_fists")
 
 	self.Player.m_StartingAmmo = {}
+
+	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_CROWBAR) ~= 0 then
+		self.Player:Give("weapon_crowbar")
+	end
+
+	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_PISTOL) ~= 0 then
+		self.Player:SetAmmo(50, "Pistol")
+		self.Player.m_StartingAmmo["Pistol"] = 50
+
+		self.Player:Give("yawd_pistol")
+	end
+
+	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_SMG) ~= 0 then
+		self.Player:SetAmmo(256, "SMG1")
+		self.Player.m_StartingAmmo["SMG1"] = 256
+
+		self.Player:Give("weapon_smg1")
+
+		if self.Player:GetPlayerClass() == CLASS_BOMBER then
+			self.Player:SetAmmo(5, "SMG1_Grenade")
+			self.Player.m_StartingAmmo["SMG1_Grenade"] = 5
+		end
+	end
 end
 
 function PLAYER:GetHandsModel()

@@ -24,14 +24,9 @@ PLAYER.BaseStats = {}
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
 
-	self.Player:SetAmmo(256, "SMG1")
-	self.Player.m_StartingAmmo["SMG1"] = 256
-
-	self.Player:SetAmmo(164, "Buckshot")
-	self.Player.m_StartingAmmo["Buckshot"] = 164
-
-	self.Player:Give("weapon_medkit")
-	self.Player:Give("weapon_smg1")
+	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_MEDKIT) ~= 0 then
+		self.Player:Give("weapon_medkit")
+	end
 
 	self.Player:SwitchToDefaultWeapon()
 end

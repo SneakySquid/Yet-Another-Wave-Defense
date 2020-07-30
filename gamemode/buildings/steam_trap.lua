@@ -5,7 +5,7 @@ b.Name = "Steam Trap"
 b.Icon = Material("yawd/hud/steam_trap.png")
 b.Health = -1
 b.CanBuild = true
-b.BuildClass = {CLASS_CONSTRUCTOR}
+b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_BOMBER}
 b.Cost = 450
 
 local damage = 35 -- This allows to balance traps
@@ -17,7 +17,7 @@ b.TrapTriggerTime = 1	-- Time it takes to trigger
 b.TrapResetTime = 7		-- Time it takes to reset
 b.TrapDurationTime = 1-- Time it takes to stop
 function b:OnTrapThink() end
-if SERVER then 
+if SERVER then
 	function b:OnTrapTrigger( tListOfEnemies )
 		local dm = self:DamageInfo()
 		dm:SetDamage( damage )
@@ -35,7 +35,7 @@ else
 		self.triggered = true
 		if not IsValid(self.emitter) then
 			self.emitter = ParticleEmitter( self:GetPos() ) -- Particle emitter in this position
-		end		
+		end
 	end
 	function b:OnTrapEnd()
 		self:StopSound("ambient/gas/cannister_loop.wav")
@@ -73,7 +73,7 @@ else
 	end
 	function b:OnTrapReset()
 		self:StopSound("ambient/gas/steam_loop1.wav")
-		self.emitter = nil	
+		self.emitter = nil
 	end
 end
 

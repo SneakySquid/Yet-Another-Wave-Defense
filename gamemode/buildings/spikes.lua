@@ -5,7 +5,7 @@ b.Name = "Spikes"
 b.Icon = Material("yawd/hud/spikes.png")
 b.Health = -1
 b.CanBuild = true
-b.BuildClass = {CLASS_CONSTRUCTOR}
+b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_JUGGERNAUT}
 b.Cost = 350
 
 local damage = 50 -- This allows to balance traps

@@ -3,11 +3,11 @@ DEFINE_BASECLASS("player_yawd")
 local PLAYER = {}
 PLAYER.DisplayName = "Juggernaut"
 
-PLAYER.Model = Model("models/player/swat.mdl")
+PLAYER.Model = Model("models/player/combine_soldier.mdl")
 PLAYER.Hands = {
 	model = Model("models/weapons/c_arms_combine.mdl"),
 	skin = 0,
-	body = "00000000",
+	body = "0000000",
 }
 
 PLAYER.WalkSpeed = 230
@@ -26,11 +26,14 @@ function PLAYER:Loadout(...)
 
 	self.Player:StripWeapon("yawd_fists")
 
-	self.Player:SetAmmo(500, "AR2")
-	self.Player.m_StartingAmmo["AR2"] = 500
-
 	self.Player:Give("yawd_fists_extreme")
-	self.Player:Give("yawd_lmg")
+
+	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_LMG) ~= 0 then
+		self.Player:SetAmmo(500, "AR2")
+		self.Player.m_StartingAmmo["AR2"] = 500
+
+		self.Player:Give("yawd_lmg")
+	end
 
 	self.Player:SwitchToDefaultWeapon()
 end

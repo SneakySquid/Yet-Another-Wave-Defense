@@ -3,7 +3,7 @@
 local b = {}
 b.Name = "Blade Trap"
 b.Icon = Material("yawd/hud/blade_trap.png")
-b.BuildClass = {CLASS_ANY}
+b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_FIGHTER, CLASS_RUNNER}
 b.Cost = 800
 b.TrapArea = {-Vector(95, 95, 1.7), Vector(95, 95, 95)}
 local target_range = 134 -- math.sqrt((95) ^ 2 + (95) ^ 2)
@@ -61,7 +61,7 @@ local mdl = Model("models/props_c17/TrapPropeller_Blade.mdl")
 local mat = Material("yawd/models/trap_base")
 
 local hatch_size = 37
-if SERVER then return b end 
+if SERVER then return b end
 
 function b:OnRemove()
 	SafeRemoveEntity(self.t_model)
@@ -140,7 +140,7 @@ end
 function b:DrawSelection( )
 	self:RenderBase(mat2)
 	self:RenderTrapArea()
-	
+
 	local h_vec =  Vector(0,hatch_size,1.9)
 	local h2_vec = -Vector(hatch_size,hatch_size,1.8)
 		render.SetMaterial(mat)
