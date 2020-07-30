@@ -121,7 +121,9 @@ function GM:WeaponSelect(ply, sw, sh)
 			surface.SetMaterial(SMaterial(string.format("materials/entities/%s.png", item[1]:GetClass())))
 			surface.DrawTexturedRect(x_pos, y_pos, box_size, box_size)
 		elseif is_building then
-			local cost = Building.GetData(item[1]).Cost
+			local data = Building.GetData(item[1])
+
+			local cost = data.Cost
 			local col = color_white
 
 			if currency < cost then
@@ -129,7 +131,7 @@ function GM:WeaponSelect(ply, sw, sh)
 			end
 
 			surface.SetDrawColor(255, 255, 255)
-			surface.SetMaterial(SMaterial(string.format("yawd/hud/%s.png", item[1])))
+			surface.SetMaterial(data.Icon or SMaterial(string.format("yawd/hud/%s.png", item[1])))
 
 			surface.DrawTexturedRect(x_pos, y_pos, box_size, box_size)
 			draw.SimpleText(cost, "HUD.WeaponSelect", x_pos + box_center, y_pos + box_size - 5, col, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
