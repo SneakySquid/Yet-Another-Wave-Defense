@@ -103,7 +103,7 @@ do
 
 	lion.Model = Model("models/antlion_guard.mdl")
 	lion.MoveSpeed = 160
-	lion.Currency = 50
+	lion.Currency = 150
 	lion.Skin = 0
 	lion.Health = 650				-- Health
 	lion.JumpDown = 150				-- Allows the NPC to "jumpdown" from said areas
