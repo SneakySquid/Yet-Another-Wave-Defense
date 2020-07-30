@@ -126,3 +126,27 @@ for k,v in ipairs(files) do
 	AddCSLuaFile(fil)
 	include(fil)
 end
+
+if CLIENT then
+	local corpses = {}
+	hook.Add( "CreateClientsideRagdoll", "YAWD_Ragdoll", function( entity, ragdoll )
+		if not IsValid(ragdoll) then return end
+		if ragdoll:GetModelScale() ~= 1 then
+			ragdoll:SetSaveValue( "m_bFadingOut", true )
+		else
+			table.insert(corpses, {ragdoll, CurTime() + 2})
+		end
+	end )
+	hook.Add("Think", "Yawd_CorpseRemoval", function()
+		for i = #corpses, 1, -1 do
+			local ragdoll = corpses[i][1]
+			local time = corpses[i][2]
+			if not IsValid(ragdoll) then
+				table.remove(corpses, i)
+			elseif time < CurTime() then
+				table.remove(corpses, i)
+				ragdoll:SetSaveValue( "m_bFadingOut", true )
+			end
+		end
+	end)
+end
