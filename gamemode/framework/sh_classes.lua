@@ -53,7 +53,7 @@ if SERVER then
 
 	function GM:UpdateClass(ply, class)
 		local able, reason = hook.Run("YAWDCanSwitchClass", ply, class)
-		if not able then return false, reason end
+		if able == false then return false, reason end
 
 		ply:SetTeam(TEAM_DEFENDER)
 		ply:SetPlayerClass(class)
@@ -67,48 +67,24 @@ if SERVER then
 
 		return true
 	end
-	-- Give players the weapons and traps
-	local meleeWep = {"weapon_crowbar", "yawd_fists_extreme"} -- These weapons will remove yaw_fists
-	local function GetMelee(ply)
-		for k,v in ipairs(ply:GetWeapons()) do
-			if table.HasValue(meleeWep, v:GetClass()) then return v:GetClass() end
+
+	local PLAYER = FindMetaTable("Player")
+
+	function PLAYER:YAWDGiveAmmo(f)
+		if not self.m_StartingAmmo then return false end
+
+		f = f or 0.2
+
+		for type, start_amt in pairs(self.m_StartingAmmo) do
+			local current_amt = self:GetAmmoCount(type)
+			local new_amt = math.min(start_amt, current_amt + start_amt * f)
+
+			if current_amt ~= new_amt then
+				self:GiveAmmo(new_amt, type, false)
+			end
 		end
 
-	end
-	local meta = FindMetaTable("Player")
-	function GM:PlayerLoadout( ply )
-		ply:StripWeapons()
-		player_manager.RunClass( ply, "Loadout" )
-		-- Allways give these
-		ply:Give( "wep_build" )
-		local melee = GetMelee( ply )
-		if not melee then
-			ply:Give( "yawd_fists" )
-			ply:SelectWeapon( "yawd_fists" )
-		else
-			ply:SelectWeapon( melee )
-		end
-		ply.t_StartingAmmo = {}
-		for k,_ in ipairs(  game.GetAmmoTypes() ) do
-			local n = ply:GetAmmoCount(k)
-			ply.t_StartingAmmo[k] = n
-		end
-	end
-	-- Gives an ammo percentage by using PlayerLoadout.
-	function meta:YAWDGiveAmmo( n_Percentage )
-		if not self.t_StartingAmmo then return end
-		if not n_Percentage then n_Percentage = 0.2 end
-		local give = false
-		for ammo_id,n_start in ipairs( self.t_StartingAmmo ) do
-			local cur = self:GetAmmoCount(ammo_id)
-			local giv = math.min(cur + n_start * n_Percentage, n_start - cur)
-			if giv <= 0 then continue end
-			self:GiveAmmo(giv, ammo_id, true)
-			give = true
-		end
-		if give then
-			self:EmitSound("items/ammo_pickup.wav")
-		end
+		return true
 	end
 end
 

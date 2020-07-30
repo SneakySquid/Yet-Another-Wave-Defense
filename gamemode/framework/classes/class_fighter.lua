@@ -22,12 +22,17 @@ PLAYER.Description = "The #yawd_fighter is a close range all-rounder that excels
 PLAYER.BaseStats = {}
 
 function PLAYER:Loadout(...)
-	self.Player:RemoveAllAmmo()
+	BaseClass.Loadout(self, ...)
+
+	self.Player:StripWeapon("yawd_fists")
+
+	self.Player:GiveAmmo(256, "Pistol", true)
+	self.Player:GiveAmmo(164, "Buckshot", true)
+
 	self.Player:Give("weapon_crowbar")
 	self.Player:Give("yawd_shotgun")
 	self.Player:Give("weapon_pistol")
-	self.Player:GiveAmmo(256, "Pistol", true)
-	self.Player:GiveAmmo(164, "Buckshot", true)
+
 	self.Player:SwitchToDefaultWeapon()
 end
 

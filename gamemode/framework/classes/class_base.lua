@@ -50,28 +50,20 @@ function PLAYER:Death(inflictor, attacker)
 end
 
 function PLAYER:Loadout(...)
+	self.Player:StripWeapons()
 	self.Player:RemoveAllAmmo()
---[[
-	self.Player:GiveAmmo(256, "Pistol", true)
-	self.Player:GiveAmmo(256, "SMG1", true)
-	self.Player:GiveAmmo(5, "grenade", true)
-	self.Player:GiveAmmo(64, "Buckshot", true)
-	self.Player:GiveAmmo(32, "357", true)
-	self.Player:GiveAmmo(32, "XBowBolt", true)
-	self.Player:GiveAmmo(100, "AR2", true)
 
-	self.Player:Give("weapon_crowbar")
-	self.Player:Give("weapon_pistol")
-	self.Player:Give("weapon_smg1")
-	self.Player:Give("weapon_frag")
-	self.Player:Give("weapon_physcannon")
-	self.Player:Give("weapon_crossbow")
-	self.Player:Give("weapon_shotgun")
-	self.Player:Give("weapon_357")
-	self.Player:Give("weapon_rpg")
-	self.Player:Give("weapon_ar2")
-]]
-	self.Player:SwitchToDefaultWeapon()
+	self.Player:Give("wep_build")
+	self.Player:Give("yawd_fists")
+
+	self.Player.m_StartingAmmo = {}
+
+	for type in pairs(game.GetAmmoTypes()) do
+		self.Player.m_StartingAmmo[type] = self.Player:GetAmmoCount(type)
+	end
+
+	net.Start("Class.Loadout")
+	net.Send(self.Player)
 end
 
 function PLAYER:GetHandsModel()

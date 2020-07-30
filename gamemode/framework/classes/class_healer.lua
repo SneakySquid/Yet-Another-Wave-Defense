@@ -22,11 +22,14 @@ PLAYER.Description = "The #yawd_healer is the backbone of a team that helps othe
 PLAYER.BaseStats = {}
 
 function PLAYER:Loadout(...)
-	self.Player:RemoveAllAmmo()
-	self.Player:Give("weapon_medkit")
-	self.Player:Give("weapon_smg1")
+	BaseClass.Loadout(self, ...)
+
 	self.Player:GiveAmmo(256, "SMG1", true)
 	self.Player:GiveAmmo(164, "Buckshot", true)
+
+	self.Player:Give("weapon_medkit")
+	self.Player:Give("weapon_smg1")
+
 	self.Player:SwitchToDefaultWeapon()
 end
 GM:RegisterClass("yawd_healer", PLAYER)

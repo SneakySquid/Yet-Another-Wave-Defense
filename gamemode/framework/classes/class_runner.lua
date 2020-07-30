@@ -22,9 +22,11 @@ PLAYER.Description = "The #yawd_runner is highly mobile but fragile support clas
 PLAYER.BaseStats = {}
 
 function PLAYER:Loadout(...)
-	self.Player:RemoveAllAmmo()
-	self.Player:Give("yawd_pistol")
+	BaseClass.Loadout(self, ...)
+
 	self.Player:GiveAmmo(50, "Pistol", true)
+	self.Player:Give("yawd_pistol")
+
 	self.Player:SwitchToDefaultWeapon()
 end
 

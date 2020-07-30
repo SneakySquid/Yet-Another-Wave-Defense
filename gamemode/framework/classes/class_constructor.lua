@@ -22,9 +22,12 @@ PLAYER.Description = "The #yawd_constructor is a class that builds various const
 PLAYER.BaseStats = {}
 
 function PLAYER:Loadout(...)
-	self.Player:RemoveAllAmmo()
-	self.Player:Give("yawd_pistol")
+	BaseClass.Loadout(self, ...)
+
 	self.Player:GiveAmmo(256, "Pistol", true)
+	self.Player:Give("yawd_pistol")
+
+	self.Player:SwitchToDefaultWeapon()
 end
 
 GM:RegisterClass("yawd_constructor", PLAYER)

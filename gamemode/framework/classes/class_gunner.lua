@@ -22,9 +22,11 @@ PLAYER.Description = "The #yawd_gunner is capable of using most ranged weapons w
 PLAYER.BaseStats = {}
 
 function PLAYER:Loadout(...)
-	self.Player:RemoveAllAmmo()
-	self.Player:Give("yawd_rifle")
+	BaseClass.Loadout(self, ...)
+
 	self.Player:GiveAmmo(300, "AR2", true)
+	self.Player:Give("yawd_rifle")
+
 	self.Player:SwitchToDefaultWeapon()
 end
 
