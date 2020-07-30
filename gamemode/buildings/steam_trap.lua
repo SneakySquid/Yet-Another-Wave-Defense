@@ -2,7 +2,7 @@
 
 local b = {}
 b.Name = "Steam Trap"
-b.Icon = nil
+b.Icon = Material("yawd/hud/steam_trap.png")
 b.Health = -1
 b.CanBuild = true
 b.BuildClass = {CLASS_CONSTRUCTOR}

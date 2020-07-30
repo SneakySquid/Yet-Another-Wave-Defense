@@ -2,7 +2,7 @@
 
 local b = {}
 b.Name = "Lava"
-b.Icon = nil
+b.Icon = Material("yawd/hud/lava.png")
 b.Health = -1
 b.CanBuild = true
 b.BuildClass = {CLASS_CONSTRUCTOR}
