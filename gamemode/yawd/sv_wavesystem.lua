@@ -1,12 +1,13 @@
 
 -- Returns a random NPC type
-local function SpawnNPCType(npc_type, tOverwrite)
+function NPC.SpawnType(npc_type, tOverwrite)
 	local t = ents.FindByClass("yawd_npc_spawner")
 	if not t or #t < 1 then return false end
 	local r_spawner = table.Random(t)
 	NPC.Create(npc_type, r_spawner:GetPos() + Vector(0,0,10),tOverwrite)
 	return true
 end
+
 local function GetNPCType()
 	local l = NPC.GetAll()
 	local n = math.Round(PRNG.Random( 1, #l))
@@ -51,7 +52,7 @@ local function CoroutineWave()
 		-- We're still in the wave. Pick a random NPC to spawn
 		local row = math.Round(math.sqrt( PRNG.Random(1, (#npc_list) ^ 2) )) -- This will try and select the higest
 		local npc_tab = npc_list[row]
-		if not SpawnNPCType(npc_tab[1]) then 
+		if not NPC.SpawnType(npc_tab[1]) then 
 			coroutine.yield( true ) -- No spawners
 		end
 		npc_list[row][2] = npc_tab[2] - 1
