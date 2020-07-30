@@ -26,8 +26,11 @@ function PLAYER:Loadout(...)
 
 	self.Player:StripWeapon("yawd_fists")
 
-	self.Player:GiveAmmo(256, "Pistol", true)
-	self.Player:GiveAmmo(164, "Buckshot", true)
+	self.Player:SetAmmo(256, "Pistol")
+	self.Player.m_StartingAmmo["Pistol"] = 256
+
+	self.Player:SetAmmo(164, "Buckshot")
+	self.Player.m_StartingAmmo["Buckshot"] = 164
 
 	self.Player:Give("weapon_crowbar")
 	self.Player:Give("yawd_shotgun")

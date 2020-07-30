@@ -21,6 +21,15 @@ do
 		font = "Arial",
 		size = 32,
 	})
+
+	surface.CreateFont("HUD.WeaponSelect", {
+		font = "Tahoma",
+		size = 18,
+		weight = 1500,
+		outline = true,
+		antialias = true,
+		additive = false,
+	})
 end
 
 local vote_info = GM.VoteInfo
@@ -53,7 +62,7 @@ local HUD = {
 		["CHudAmmo"] = true,
 		["CHudSecondaryAmmo"] = true,
 		["CHudBattery"] = true,
-		["CHudWeaponSelection"] = true
+		["CHudWeaponSelection"] = true,
 	},
 }
 
@@ -174,7 +183,11 @@ HUD.Status = {
 
 	Currency = function(ply, sw, sh)
 		draw.SimpleText(string.format("$%i", currency_lerp(ply:GetCurrency())), "HUD.Status", sw / 2, sh * 0.6, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-	end
+	end,
+
+	WeaponSelect = function(ply, sw, sh)
+		GAMEMODE:WeaponSelect(ply, sw, sh)
+	end,
 }
 
 HUD.Wave = {
@@ -236,6 +249,10 @@ function GM:HUDPaint()
 
 			if CanDraw("HUD.Status.PlayerAmmo") then
 				HUD.Status.PlayerAmmo(ply, sw, sh)
+			end
+
+			if CanDraw("HUD.Status.WeaponSelect") then
+				HUD.Status.WeaponSelect(ply, sw, sh)
 			end
 		end
 

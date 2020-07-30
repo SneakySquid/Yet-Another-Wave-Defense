@@ -56,14 +56,9 @@ function PLAYER:Loadout(...)
 	self.Player:Give("wep_build")
 	self.Player:Give("yawd_fists")
 
+	self.Player:SelectWeapon("yawd_fists")
+
 	self.Player.m_StartingAmmo = {}
-
-	for type in pairs(game.GetAmmoTypes()) do
-		self.Player.m_StartingAmmo[type] = self.Player:GetAmmoCount(type)
-	end
-
-	net.Start("Class.Loadout")
-	net.Send(self.Player)
 end
 
 function PLAYER:GetHandsModel()

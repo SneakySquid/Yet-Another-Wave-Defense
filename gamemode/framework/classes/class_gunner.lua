@@ -24,7 +24,9 @@ PLAYER.BaseStats = {}
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
 
-	self.Player:GiveAmmo(300, "AR2", true)
+	self.Player:SetAmmo(300, "AR2")
+	self.Player.m_StartingAmmo["AR2"] = 300
+
 	self.Player:Give("yawd_rifle")
 
 	self.Player:SwitchToDefaultWeapon()

@@ -42,6 +42,8 @@ function GM:YAWDCanSwitchClass(ply, class)
 end
 
 if SERVER then
+	util.AddNetworkString("Class.Loadout")
+
 	AddCSLuaFile("classes/class_base.lua")
 	AddCSLuaFile("classes/class_bomber.lua")
 	AddCSLuaFile("classes/class_constructor.lua")
@@ -77,9 +79,9 @@ if SERVER then
 
 		for type, start_amt in pairs(self.m_StartingAmmo) do
 			local current_amt = self:GetAmmoCount(type)
-			local new_amt = math.min(start_amt, current_amt + start_amt * f)
 
-			if current_amt ~= new_amt then
+			if current_amt ~= start_amt then
+				local new_amt = math.min(start_amt, current_amt + start_amt * f)
 				self:GiveAmmo(new_amt, type, false)
 			end
 		end

@@ -24,7 +24,8 @@ PLAYER.BaseStats = {}
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
 
-	self.Player:GiveAmmo(500, "AR2", true)
+	self.Player:SetAmmo(500, "AR2")
+	self.Player.m_StartingAmmo["AR2"] = 500
 
 	self.Player:Give("yawd_fists_extreme")
 	self.Player:Give("yawd_lmg")
