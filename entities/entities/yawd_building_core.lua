@@ -6,12 +6,17 @@ AddCSLuaFile()
 
 ENT.Type = "anim"
 ENT.Base = "yawd_building"
-ENT.Model = Model( "models/hunter/blocks/cube4x4x05.mdl" )
+ENT.Model = Model( "models/hunter/plates/plate4x4.mdl" )
 function ENT:Initialize()
 	self:SetModel( self.Model )
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_BBOX )
+
+	if SERVER then
+		self:SetUseType(SIMPLE_USE)
+	end
+
 	-- self:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 	gmod.GetGamemode().Building_Core = self
 	if SERVER and Controller then
@@ -38,4 +43,24 @@ end
 
 function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
+end
+
+function ENT:Use(activator, caller, use_type, value)
+	if activator:IsPlayer() and use_type == USE_ON then
+		GAMEMODE:OpenUpgradesMenuOnPlayer(activator)
+	end
+end
+
+-- The core gives ammo
+if SERVER then
+	local n_Ammo = 0
+	function ENT:Think()
+		if n_Ammo > CurTime() then return end
+		n_Ammo = CurTime() + 2
+		for _, ply in ipairs( player.GetAll() ) do
+			if ply:GetPos():Distance(self:GetPos()) < 300 then
+				ply:YAWDGiveAmmo()
+			end
+		end
+	end
 end

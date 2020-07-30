@@ -50,7 +50,6 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = ""
 
 SWEP.CanAttackReason = {
@@ -87,7 +86,7 @@ function SWEP:PrimaryAttack()
 		Force = self.PrimaryForce,
 		Distance = self.PrimaryMaxDistance,
 		Num = self.PrimaryBulletsPerFire,
-		Dir = owner:GetAimVector(),
+		Dir = (owner:EyeAngles() + owner:GetViewPunchAngles()):Forward(),
 		Spread = self:GetSpread(),
 		Src = owner:GetShootPos(),
 	}
@@ -133,13 +132,14 @@ function SWEP:Reload()
 	self:EmitSound(self.ReloadSound, 75, 100, 1, CHAN_WEAPON)
 
 	local time = CurTime()
-	self:SetNextReload(time + self.ReloadDelay)
+	self:SetNextReload(time + self:SequenceDuration())
 	self:SetNextPrimaryFire(time + self.ReloadDelay)
 end
 
 function SWEP:CanReload()
 	return CurTime() >= self:GetNextReload()
 		and self:PrimaryAmmo() > 0
+		and self:PrimaryClip() < self:PrimaryMaxClip()
 end
 
 function SWEP:SetNextReload(time)
@@ -177,3 +177,5 @@ end
 local _weapon = debug.getregistry().Weapon
 SWEP.PrimaryClip = _weapon.Clip1
 SWEP.SecondaryClip = _weapon.Clip2
+SWEP.PrimaryMaxClip = _weapon.GetMaxClip1
+SWEP.SecondaryMaxClip = _weapon.GetMaxClip2

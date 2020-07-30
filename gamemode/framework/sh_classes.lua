@@ -75,6 +75,7 @@ if SERVER then
 		end
 
 	end
+	local meta = FindMetaTable("Player")
 	function GM:PlayerLoadout( ply )
 		ply:StripWeapons()
 		player_manager.RunClass( ply, "Loadout" )
@@ -87,7 +88,27 @@ if SERVER then
 		else
 			ply:SelectWeapon( melee )
 		end
-		
+		ply.t_StartingAmmo = {}
+		for k,_ in ipairs(  game.GetAmmoTypes() ) do
+			local n = ply:GetAmmoCount(k)
+			ply.t_StartingAmmo[k] = n
+		end
+	end
+	-- Gives an ammo percentage by using PlayerLoadout.
+	function meta:YAWDGiveAmmo( n_Percentage )
+		if not self.t_StartingAmmo then return end
+		if not n_Percentage then n_Percentage = 0.2 end
+		local give = false
+		for ammo_id,n_start in ipairs( self.t_StartingAmmo ) do
+			local cur = self:GetAmmoCount(ammo_id)
+			local giv = math.min(cur + n_start * n_Percentage, n_start - cur)
+			if giv <= 0 then continue end
+			self:GiveAmmo(giv, ammo_id, true)
+			give = true
+		end
+		if give then
+			self:EmitSound("items/ammo_pickup.wav")
+		end
 	end
 end
 

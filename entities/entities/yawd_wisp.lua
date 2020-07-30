@@ -31,6 +31,7 @@ end
 if SERVER then return end
 
 function ENT:SetPath( path )
+	if not path or type(path) == "boolean" then SafeRemoveEntity(self) return false end
 	self:SetPos( path.start  + Vector(0,0,40) )
 	self.path = path
 	self.path_id = #path - 1

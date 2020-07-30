@@ -5,7 +5,7 @@ combine.DisplayName = "Combine"
 
 combine.Model = Model("models/combine_soldier.mdl")
 combine.MoveSpeed = 140
-combine.Currency = 5
+combine.Currency = 25
 combine.Skin = {0, 1}
 
 combine.Health = 75					-- Health
@@ -15,7 +15,7 @@ combine.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
 combine.CanTargetPlayers = true		-- Tells that we can target the players
 combine.TargetIgnoreWalls = false	-- Ignore walls when targeting players
 combine.TargetPlayersRange = 700	-- The radius of the target
-combine.TargetCooldown = 15			-- The amount of times we can target the player
+combine.TargetCooldown = 5			-- The amount of times we can target the player
 function combine:Init()
 	self:GiveWeapon("weapon_smg1")
 end

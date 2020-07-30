@@ -2,7 +2,7 @@
 
 local b = {}
 b.Name = "Floor Turret"
-b.Icon = nil
+b.Icon = Material("yawd/hud/floor_turret.png")
 b.BuildClass = {CLASS_ANY}
 b.Cost = 850
 b.TrapArea = {-Vector(95 * 3, 95 * 3, 1.7), Vector(95 * 3, 95 * 3, 95)}

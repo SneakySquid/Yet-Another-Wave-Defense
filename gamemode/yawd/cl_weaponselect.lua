@@ -158,7 +158,14 @@ hook.Add("HUDPaint", "YAWD_WeaponSelection", function()
 				end
 			end
 		elseif Has_Wep_Build then
-			surface.SetMaterial(SMaterial("yawd/hud/"..obj..".png"))
+			local bd = Building.GetData( obj )
+			local mat
+			if bd and bd.Icon then
+				mat = bd.Icon
+			else
+				mat = SMaterial("yawd/hud/"..obj..".png")
+			end
+			surface.SetMaterial(mat)
 			if CanAffort then
 				surface.SetDrawColor(255, 255, 255, 255)
 				surface.DrawTexturedRect(x, y,box_size,box_size)

@@ -316,7 +316,7 @@ if SERVER then
 		if type(target) == "Player" then
 			target:SetVelocity(target:GetVelocity() + Vector(vec.x / 2, vec.y / 2, vec.z))
 		else
-			if target.Fling then
+			if target.Fling and not target.m_CantBePushed then
 				target:Fling( vec )
 			else
 				local phys = target:GetPhysicsObject()
