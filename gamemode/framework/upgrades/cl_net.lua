@@ -32,6 +32,7 @@ net.Receive("yawd.upgrades.owned", function()
 	end
 
 	GAMEMODE:PlayerSetUpgrades(LocalPlayer(), upgrades)
+	GAMEMODE:RefreshUpgradesMenu()
 
 	DebugMessage("Received owned player upgrades from server")
 end)

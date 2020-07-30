@@ -1,9 +1,11 @@
+local frame
+
 function GM:CreateUpgradesMenu()
 	DebugMessage("Opening player upgrades menu")
 
 	local localplayer = LocalPlayer()
 
-	local frame = vgui.Create("DFrame")
+	frame = vgui.Create("DFrame")
 	frame:SetTitle("Upgrades")
 	frame:MakePopup()
 	frame:SetSize(600, ScrH() / 1.4)
@@ -47,5 +49,12 @@ function GM:CreateUpgradesMenu()
 				end
 			end
 		end
+	end
+end
+
+function GM:RefreshUpgradesMenu()
+	if IsValid(frame) then
+		frame:Remove()
+		GAMEMODE:CreateUpgradesMenu()
 	end
 end
