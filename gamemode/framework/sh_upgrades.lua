@@ -211,4 +211,4 @@ YAWD_UPGRADE_WEAPONCLIPSIZE = GM:RegisterUpgrade({
 })
 
 -- Let other stuff know we've loaded
-hook.Call("YAWDPlayerUpgradesLoaded")
+hook.Run("YAWDPlayerUpgradesLoaded")
