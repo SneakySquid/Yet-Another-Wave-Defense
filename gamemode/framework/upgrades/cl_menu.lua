@@ -6,7 +6,7 @@ function GM:CreateUpgradesMenu()
 	local frame = vgui.Create("DFrame")
 	frame:SetTitle("Upgrades")
 	frame:MakePopup()
-	frame:SetSize(ScrW() / 1.4, ScrH() / 1.4)
+	frame:SetSize(600, ScrH() / 1.4)
 	frame:Center()
 
 	local pnl_scroll = frame:Add("DScrollPanel")
@@ -17,25 +17,25 @@ function GM:CreateUpgradesMenu()
 		local pnl = pnl_scroll:Add("DPanel")
 		pnl:SetTall(100)
 		pnl:Dock(TOP)
-		pnl:DockMargin(0, 0, 0, 5)
+		pnl:DockMargin(0, 0, 0, 20)
 		pnl.Paint = function() end
 
 		local name = pnl:Add("DLabel")
 		name:SetText(v.name)
 		name:Dock(TOP)
-		name:SetTall(50)
+		name:SetTall(30)
 
 		for i = 1, v.tiers do
 			local price = istable(v.price) and v.price[i] or v.price
 			local owned_tier = GAMEMODE:GetPlayerUpgradeTier(localplayer, v.k)
 			local is_owned = owned_tier >= i
 			local text_col = is_owned and Color(180, 0, 0, 255) or Color(0, 140, 0, 255)
+			local text = string.format("%s Tier %s for $%d", is_owned and "Sell" or "Purchase", i, price)
 
 			local btn_purchase_tier = pnl:Add("DButton")
-			btn_purchase_tier:SetText(
-				(is_owned and "Sell" or "Purchase") .. string.format(" Tier %s ($%d)", i, price)
-			)
+			btn_purchase_tier:SetText(text)
 			btn_purchase_tier:SizeToContentsX()
+			btn_purchase_tier:DockMargin(5, 0, 0, 0)
 			btn_purchase_tier:Dock(LEFT)
 			btn_purchase_tier:SetTextColor(text_col)
 
