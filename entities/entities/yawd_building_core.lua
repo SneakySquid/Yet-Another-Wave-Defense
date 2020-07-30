@@ -6,7 +6,7 @@ AddCSLuaFile()
 
 ENT.Type = "anim"
 ENT.Base = "yawd_building"
-ENT.Model = Model( "models/hunter/blocks/cube4x4x05.mdl" )
+ENT.Model = Model( "models/hunter/plates/plate4x4.mdl" )
 function ENT:Initialize()
 	self:SetModel( self.Model )
 	self:PhysicsInit( SOLID_VPHYSICS )
