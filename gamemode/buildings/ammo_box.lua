@@ -37,6 +37,7 @@ local mdl = Model("models/Items/ammocrate_smg1.mdl")
 
 	if SERVER then
 		function b:Think()
+			if self:GetDisabled() then return end
 			if #self.OnTrap < 1 then return end
 			if (self.n_Timer or 0) > CurTime() then return end
 			self.n_Timer = CurTime() + 5
