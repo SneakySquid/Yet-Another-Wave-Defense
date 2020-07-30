@@ -17,7 +17,7 @@ end)
 function GM:StartWave()
 	if self:HasWaveStarted() then return false end
 	if hook.Run("YAWDWaveStarted") == false then return false end
-
+	self:SetWaveNumber( self:GetWaveNumber() + 1 )
 	self:SetWaveStatus(WAVE_ACTIVE)
 
 	return true
