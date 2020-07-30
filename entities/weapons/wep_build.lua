@@ -132,6 +132,7 @@ else
 	function SWEP:OnRemove()	self:RemoveGhost() return end
 	local m_Reload = false
 	function SWEP:Think()
+		if self:GetOwner() ~= LocalPlayer() then return end
 		self:MakeGhost()
 		local b = LocalPlayer():KeyDown( IN_RELOAD ) or LocalPlayer():KeyDown( IN_ATTACK2 )
 		if m_Reload~=b then

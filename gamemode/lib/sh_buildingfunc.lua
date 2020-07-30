@@ -170,7 +170,7 @@ function Building.CanPlaceOnFloor(BuildingName, vec, yaw, bAllowWater, e_IgnoreE
 	local ent = CheckForBuilding(vec + height, vec - height, -m_size, m_size, e_IgnoreEntity)
 	if ent and IsValid(ent) then -- We found a trap. Snap to it
 		if not ent:IsBuilding() or b_StopSnap then -- This is not a building. Can't snap.
-			return false, vec, Angle(0,yaw,0)
+			return false, vec
 		end
 		local offset = vec - ent:GetPos()
 		vec = ent:GetPos()
@@ -189,7 +189,7 @@ function Building.CanPlaceOnFloor(BuildingName, vec, yaw, bAllowWater, e_IgnoreE
 		end
 		-- We snapped, check if there is a building (or something else) at new location
 		if CheckForBuilding(vec + height, vec - height, -m_size, m_size, e_IgnoreEntity) then
-			return false, vec, Angle(0,yaw,0)
+			return false, vec
 		end
 	end
 	local eye = vec + Vector(0,0,50)
@@ -202,31 +202,32 @@ function Building.CanPlaceOnFloor(BuildingName, vec, yaw, bAllowWater, e_IgnoreE
 	local TL = vec + TLO - TRO + Vector(0,0,10)
 	local BL = vec - TLO - TRO + Vector(0,0,10)
 	local BR = vec - TLO + TRO + Vector(0,0,10)
-	if not pointFree(TR) then return false, vec, Angle(0,yaw,0) end
-	if not pointFree(TL) then return false, vec, Angle(0,yaw,0) end
-	if not pointFree(BL) then return false, vec, Angle(0,yaw,0) end
-	if not pointFree(BR) then return false, vec, Angle(0,yaw,0) end
+	if not pointFree(TR) then return false, vec end
+	if not pointFree(TL) then return false, vec end
+	if not pointFree(BL) then return false, vec end
+	if not pointFree(BR) then return false, vec end
 	-- Trace the ground from corners
 	local R_TL = ETHull(TL + Vector(0,0,40), TL - Vector(0,0,90), -s_hull, s_hull)
 	local R_TR = ETHull(TR + Vector(0,0,40), TR - Vector(0,0,90), -s_hull, s_hull)
 	local R_BL = ETHull(BL + Vector(0,0,40), BL - Vector(0,0,90), -s_hull, s_hull)
 	local R_BR = ETHull(BR + Vector(0,0,40), BR - Vector(0,0,90), -s_hull, s_hull)
-	if not R_TL.Hit or not R_TR.Hit or not R_BL.Hit or not R_BR.Hit then return false, vec, Angle(0,yaw,0) end
+	if not R_TL.Hit or not R_TR.Hit or not R_BL.Hit or not R_BR.Hit then return false, vec end
+	-- Lifts the detection a bit
 	TL.z = R_TL.HitPos.z + 20
 	TR.z = R_TR.HitPos.z + 20
 	BL.z = R_BL.HitPos.z + 20
 	BR.z = R_BR.HitPos.z + 20
 	-- Check from center to corners (Solid)
 	local t = ET(TL, TR)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(TR, BR)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(BR, BL)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(BL, TL)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(TL, BR)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 
 	local R_Center = ETHull(eye, eye - Vector(0,0,90), -s_hull, s_hull)
 	-- Get the position
@@ -261,7 +262,7 @@ function Building.CanPlaceOnFloorFast(BuildingName, vec, yaw, bAllowWater, e_Ign
 	local ent = CheckForBuilding(vec + height, vec - height, -m_size, m_size, e_IgnoreEntity)
 	if ent and IsValid(ent) then -- We found a trap. Snap to it
 		if not ent:IsBuilding() or b_StopSnap then -- This is not a building. Can't snap.
-			return false, vec, Angle(0,yaw,0)
+			return false, vec
 		end
 		local offset = vec - ent:GetPos()
 		vec = ent:GetPos()
@@ -280,7 +281,7 @@ function Building.CanPlaceOnFloorFast(BuildingName, vec, yaw, bAllowWater, e_Ign
 		end
 		-- We snapped, check if there is a building (or something else) at new location
 		if CheckForBuilding(vec + height, vec - height, -m_size, m_size, e_IgnoreEntity) then
-			return false, vec, Angle(0,yaw,0)
+			return false, vec
 		end
 	end
 	local eye = vec + Vector(0,0,50)
@@ -293,31 +294,31 @@ function Building.CanPlaceOnFloorFast(BuildingName, vec, yaw, bAllowWater, e_Ign
 	local TL = vec + TLO - TRO + Vector(0,0,10)
 	local BL = vec - TLO - TRO + Vector(0,0,10)
 	local BR = vec - TLO + TRO + Vector(0,0,10)
-	if not pointFree(TR) then return false, vec, Angle(0,yaw,0) end
-	if not pointFree(TL) then return false, vec, Angle(0,yaw,0) end
-	if not pointFree(BL) then return false, vec, Angle(0,yaw,0) end
-	if not pointFree(BR) then return false, vec, Angle(0,yaw,0) end
+	if not pointFree(TR) then return false, vec end
+	if not pointFree(TL) then return false, vec end
+	if not pointFree(BL) then return false, vec end
+	if not pointFree(BR) then return false, vec end
 	-- Trace the ground from corners
 	local R_TL = ETHull(TL + Vector(0,0,40), TL - Vector(0,0,90), -s_hull, s_hull)
 	local R_TR = ETHull(TR + Vector(0,0,40), TR - Vector(0,0,90), -s_hull, s_hull)
 	local R_BL = ETHull(BL + Vector(0,0,40), BL - Vector(0,0,90), -s_hull, s_hull)
 	local R_BR = ETHull(BR + Vector(0,0,40), BR - Vector(0,0,90), -s_hull, s_hull)
-	if not R_TL.Hit or not R_TR.Hit or not R_BL.Hit or not R_BR.Hit then return false, vec, Angle(0,yaw,0) end
+	if not R_TL.Hit or not R_TR.Hit or not R_BL.Hit or not R_BR.Hit then return false, vec end
 	TL.z = R_TL.HitPos.z + 20
 	TR.z = R_TR.HitPos.z + 20
 	BL.z = R_BL.HitPos.z + 20
 	BR.z = R_BR.HitPos.z + 20
 	-- Check from center to corners (Solid)
 	local t = ET(TL, TR)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(TR, BR)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(BR, BL)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(BL, TL)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 	local t = ET(TL, BR)
-	if t.Hit or t.StartSolid then return false, vec, Angle(0,yaw,0) end
+	if t.Hit or t.StartSolid then return false, vec end
 
 	local R_Center = ETHull(eye, eye - Vector(0,0,90), -s_hull, s_hull)
 	-- Get the position

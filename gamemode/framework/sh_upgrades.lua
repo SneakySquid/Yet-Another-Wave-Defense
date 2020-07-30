@@ -1,16 +1,7 @@
 --[[
 	TODO:
-		- Open menu when client +uses the core
-		- Menu
-
-	Upgrade ideas:
-		- Speed
-		- Resistance(s)
-		- Armour
-		- Health regen
-		- Max overheal
-		- Weapon clip increase
-]]
+		- make on_purchase and on_sell shared
+--]]
 
 local registered_upgrades = {}
 
@@ -32,7 +23,9 @@ function GM:RegisterUpgrade(t)
 	_assert(t.hooks == nil or istable(t.hooks), "hooks")
 	_assert(t.can_purchase == nil or isfunction(t.can_purchase), "can_purchase")
 	_assert(t.on_purchase == nil or isfunction(t.on_purchase), "on_purchase")
+	_assert(t.on_sell == nil or isfunction(t.on_sell), "on_sell")
 
+	t.can_purchase = t.can_purchase or function() return true end
 	t.tiers = istable(t.price) and #t.price or 1
 
 	for _, v in ipairs(t.hooks or {}) do
