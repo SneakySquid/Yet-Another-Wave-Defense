@@ -22,6 +22,11 @@ function GM:PlayerSpawn(ply, transition)
 		return
 	end
 
+	if ply.m_SpawnedOnCore then
+		ply.m_SpawnedOnCore = false
+		ply:SetPos(ply:GetPos() + Vector(0, 0, 10))
+	end
+
 	BaseClass.PlayerSpawn(self, ply, transition)
 end
 
@@ -33,6 +38,11 @@ function GM:PlayerSelectSpawn(ply, transition)
 		for i, spawn in ipairs(spawn_points) do
 			if hook.Run("IsSpawnpointSuitable", ply, point, i == spawn_ents) then return spawn end
 		end
+	end
+
+	if self.Building_Core:IsValid() and hook.Run("IsSpawnpointSuitable", ply, self.Building_Core, true) then
+		ply.m_SpawnedOnCore = true
+		return self.Building_Core
 	end
 
 	return BaseClass.PlayerSelectSpawn(self, ply, transition)

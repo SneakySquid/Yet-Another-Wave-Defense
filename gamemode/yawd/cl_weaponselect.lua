@@ -1,5 +1,3 @@
-local last_class = 0
-
 local current_slot = 1
 
 local slot_count = 0
@@ -48,11 +46,21 @@ local function PrecacheSlots()
 		end
 	end
 
+	local buildings = {}
+
 	for i, building in ipairs(Building.GetAll()) do
 		if Building.CanClassBuild(building, class) then
-			slot_count = slot_count + 1
-			slot_cache[slot_count] = {building, false}
+			table.insert(buildings, building)
 		end
+	end
+
+	table.sort(buildings, function(a, b)
+		return Building.GetData(a).Cost < Building.GetData(b).Cost
+	end)
+
+	for i, building in ipairs(buildings) do
+		slot_count = slot_count + 1
+		slot_cache[slot_count] = {building, false}
 	end
 
 	if slot_count == 0 then
@@ -64,13 +72,21 @@ local function PrecacheSlots()
 	SwitchWeapon()
 end
 
+local last_alive = false
+local last_class = 0
+
 function GM:WeaponSelect(ply, sw, sh)
-	if last_class ~= ply:GetPlayerClass() then
+	local alive = ply:Alive()
+	local class = ply:GetPlayerClass()
+
+	if (last_class ~= class) or (not last_alive and alive) then
 		PrecacheSlots()
-		last_class = ply:GetPlayerClass()
 	end
 
-	if slot_count == 0 then return end
+	last_alive = alive
+	last_class = class
+
+	if not alive or slot_count == 0 then return end
 
 	local currency = ply:GetCurrency()
 
@@ -87,24 +103,36 @@ function GM:WeaponSelect(ply, sw, sh)
 
 		local x_pos = sw * 0.5 + math.floor(((slot - 1) * box_size - x_offset - box_center) + ((slot - 1) * box_margin))
 
+		if is_wep and not item[1]:IsValid() then
+			PrecacheSlots()
+			continue
+		end
+
 		if slot == current_slot then
 			surface.SetDrawColor(255, 255, 255)
 			surface.SetMaterial(mat_selected)
 			surface.DrawTexturedRect(x_pos - 8, y_pos - 8, box_size + 16, box_size + 16)
+
+			draw.SimpleText(is_wep and item[1]:GetPrintName() or item[1], "HUD.WeaponSelect", sw * 0.5, y_pos + box_size + 5, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 		end
 
-		if is_wep and item[1]:IsValid() then
+		if is_wep then
 			surface.SetDrawColor(255, 255, 255)
 			surface.SetMaterial(SMaterial(string.format("materials/entities/%s.png", item[1]:GetClass())))
 			surface.DrawTexturedRect(x_pos, y_pos, box_size, box_size)
 		elseif is_building then
 			local cost = Building.GetData(item[1]).Cost
+			local col = color_white
+
+			if currency < cost then
+				col = Color(255, 150, 150, 230)
+			end
 
 			surface.SetDrawColor(255, 255, 255)
 			surface.SetMaterial(SMaterial(string.format("yawd/hud/%s.png", item[1])))
 
 			surface.DrawTexturedRect(x_pos, y_pos, box_size, box_size)
-			draw.SimpleText(cost, "HUD.WeaponSelect", x_pos + box_center, y_pos + box_size - 5, Color(255, 150, 150, cost <= currency and 255 or 235), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+			draw.SimpleText(cost, "HUD.WeaponSelect", x_pos + box_center, y_pos + box_size - 5, col, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
 		end
 
 		draw.SimpleText(slot, "HUD.WeaponSelect", x_pos + 5, y_pos + 5, color_white)

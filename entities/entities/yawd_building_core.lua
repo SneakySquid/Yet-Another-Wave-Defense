@@ -8,12 +8,15 @@ ENT.Type = "anim"
 ENT.Base = "yawd_building"
 ENT.Model = Model( "models/hunter/plates/plate4x4.mdl" )
 function ENT:Initialize()
-	self:SetModel( self.Model )
-	self:PhysicsInit( SOLID_VPHYSICS )
-	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_BBOX )
-
 	if SERVER then
+		self:SetModel( self.Model )
+		self:PhysicsInit( SOLID_VPHYSICS )
+		self:SetMoveType( MOVETYPE_NONE )
+		self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
+		local phys = self:GetPhysicsObject()
+		if ( IsValid( phys ) ) then
+			phys:Sleep()
+		end
 		self:SetUseType(SIMPLE_USE)
 	end
 

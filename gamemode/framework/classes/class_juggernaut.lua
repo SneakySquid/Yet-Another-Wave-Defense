@@ -24,6 +24,8 @@ PLAYER.BaseStats = {}
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
 
+	self.Player:StripWeapon("yawd_fists")
+
 	self.Player:SetAmmo(500, "AR2")
 	self.Player.m_StartingAmmo["AR2"] = 500
 

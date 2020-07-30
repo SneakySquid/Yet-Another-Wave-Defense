@@ -79,6 +79,18 @@ end
 function ENT:GetBuildingName()
 	return self.BuildingName
 end
+function ENT:Think()
+	if not IsValid(LocalPlayer()) then 
+		SafeRemoveEntity(self)
+		return 
+	end
+	-- Check to see if localplayer still hold weapon.
+	local wep = LocalPlayer():GetActiveWeapon()
+	if not wep or not IsValid(wep) or wep:GetClass() ~= "wep_build" then
+		SafeRemoveEntity(self)
+		return
+	end
+end
 function ENT:Draw()
 	self.CanAfford = Building.CanPlayerBuild( LocalPlayer(), self:GetBuildingName() )
 	if self.DrawSelection then
