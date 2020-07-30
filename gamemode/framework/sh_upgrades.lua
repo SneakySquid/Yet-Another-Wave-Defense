@@ -1,16 +1,7 @@
 --[[
 	TODO:
-		- on_sell
 		- make on_purchase and on_sell shared
-
-	Upgrade ideas:
-		- Speed
-		- Resistance(s)
-		- Armour
-		- Health regen
-		- Max overheal
-		- Weapon clip increase
-]]
+--]]
 
 local registered_upgrades = {}
 
