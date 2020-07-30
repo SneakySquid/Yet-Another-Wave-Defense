@@ -11,9 +11,7 @@ local StepHeight = 18
 
 AccessorFunc(ENT, "m_Target", "Target") -- This should be an entity
 AccessorFunc(ENT, "m_MaxSpeed", "MaxSpeed") -- max velocity in m/s
-AccessorFunc(ENT, "m_Attacking", "Attacking") -- Boolean if Target isn't null
 AccessorFunc(ENT, "m_Controller", "Controller") -- Controller object, set with ENT:InitController
-AccessorFunc(ENT, "m_Acceleration", "Acceleration") -- Acceleration measure in m/s
 AccessorFunc(ENT, "m_HULLTYPE", "HULLType") -- Max steering force in m/s
 
 -- Modifiles the speed
@@ -162,9 +160,6 @@ end
 function ENT:Initialize()
 	self:SetCustomCollisionCheck(true)
 	-- leave these ones alone
-	self:SetTarget(NULL) -- target should always be an entity even if it is NULL
-	self:SetAttacking(false) -- set internally, use to check if the ent has a target
-	self:SetAcceleration(Vector()) -- acceleration vector for movement
 	self:AddSolidFlags( FSOLID_NOT_STANDABLE )
 	
 	if CLIENT then
@@ -312,7 +307,6 @@ function ENT:MoveTowards( pos, ignoreAnimation )
 		self.m_StepDur = CurTime() + (self.NPC_DATA.OnStep(self) or 40 / mov_speed)
 	end
 	if l < 50 then return true end
-	self:SetGoalPos(pos)
 	self.loco:SetVelocity(vel)
 	self.loco:Approach(pos, 1)
 	return false
@@ -365,9 +359,6 @@ function ENT:Draw()
 	if self:GetRagdolled() then return end
 	if self:Health() <= 0 and self:GetMaxHealth() > 0 then return end
 	self:DrawModel()
-	local v = self:GetGoalPos()
-	if not v then return end
-	render.DrawLine(self:GetPos(), v, Color(255,255,0), true)
 end
 
 function ENT:Think()
