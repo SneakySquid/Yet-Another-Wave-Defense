@@ -209,3 +209,6 @@ YAWD_UPGRADE_WEAPONCLIPSIZE = GM:RegisterUpgrade({
 	name = "Weapon Clip Size",
 	price = 500,
 })
+
+-- Let other stuff know we've loaded
+hook.Call("YawdPlayerUpgradesLoaded")
