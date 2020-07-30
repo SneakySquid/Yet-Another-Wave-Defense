@@ -78,6 +78,7 @@ end
 -- Makes the nextbot become a ragdoll and fly in a direction
 function ENT:Fling( vel )
 	if self:Health() <= 0 then return end
+	if self.m_CantBePushed then return end
 	local rag = self:MakeRagdoll()
 	local num = rag:GetPhysicsObjectCount()-1
 	for i=0, num do
@@ -91,6 +92,9 @@ function ENT:Fling( vel )
 			bone:SetVelocity(vel)
 		end
 	end
+end
+function ENT:SetCanBePushed( bool )
+	self.m_CantBePushed = not bool
 end
 -- Gives the nextbot a weapon
 hook.Add("PlayerCanPickupWeapon", "yawd_bot", function( ply, wep)
