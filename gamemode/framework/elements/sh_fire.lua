@@ -22,7 +22,8 @@ function ELEMENT:OnInteractWith(target, other, dmg_info)
 
 		-- EffectData stuff here
 	else
-		target:AddDebuff(DEBUFF_BURNING)
+		local debuff = target:AddDebuff(DEBUFF_BURNING)
+		debuff:SetAttacker(dmg_info:GetAttacker())
 	end
 
 	target:RemoveDebuff(DEBUFF_INFECTED)

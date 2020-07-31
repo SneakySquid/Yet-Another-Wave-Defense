@@ -14,23 +14,19 @@ function DEBUFF:Think()
 
 		if self.RemoveTimer:Elapsed() then
 			target:RemoveDebuff(DEBUFF_BURNING)
-			return
-		end
-
-		if self.DamageTimer:Elapsed() then
+		elseif self.DamageTimer:Elapsed() then
 			local dmg_info = DamageInfo()
 
 			dmg_info:SetDamageType(bit.bor(DMG_BURN, DMG_DISSOLVE))
 			dmg_info:SetDamage(self.BurnDamage)
 
-			dmg_info:SetAttacker(Entity(0))
-			dmg_info:SetInflictor(Entity(0))
+			dmg_info:SetAttacker(self:GetAttacker())
+			dmg_info:SetInflictor(self:GetAttacker())
 
 			target:TakeDamageInfo(dmg_info)
 
 			if target:Health() <= 0 then
 				target:RemoveDebuff(DEBUFF_BURNING)
-				return
 			end
 
 			self.DamageTimer:Start(1)

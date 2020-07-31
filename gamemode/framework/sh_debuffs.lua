@@ -56,7 +56,7 @@ function ENTITY:AddDebuff(enum)
 		net.Broadcast()
 	end
 
-	return true
+	return debuff
 end
 
 function ENTITY:RemoveDebuff(enum)
@@ -96,6 +96,7 @@ DEBUFF.__index = DEBUFF
 AccessorFunc(DEBUFF, "m_Debuff", "Debuff")
 AccessorFunc(DEBUFF, "m_Target", "Target")
 AccessorFunc(DEBUFF, "m_Applied", "Applied")
+AccessorFunc(DEBUFF, "m_Attacker", "Attacker")
 
 function DEBUFF:IsValid()
 	return self.m_Applied and self.m_Target:IsValid()
