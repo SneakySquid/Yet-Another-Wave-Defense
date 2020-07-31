@@ -22,5 +22,13 @@
 			"type"		"Numeric"
 			"default"	"60"
 		}
+
+		3
+		{
+			"name"		"yawd_seed"
+			"text"		"The wave seed. 0 will make this random"
+			"type"		"Text"
+			"default"	"0"
+		}
 	}
 }

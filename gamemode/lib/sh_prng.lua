@@ -7,6 +7,7 @@
     PRNG.RandomFloat()     Returns the next number. Between 0 and 1.
     PRNG.Random(min, max)  Returns the next number and acts like math.Random.
 ]]
+CreateConVar("yawd_seed", "0", {FCVAR_REPLICATED, FCVAR_ARCHIVE})
 local abs = math.abs
 PRNG = {}
 
@@ -55,4 +56,19 @@ function PRNG.Random(min, max)
 	else
 		return min + PRNG.RandomFloat() * (max - min)
 	end
+end
+
+local con = GetConVar("yawd_seed")
+if con:GetString() == "0" then
+    local t = ""
+    for i = 1, math.random(10, 20) do
+        local u = math.random(1,2) == 2
+        local c = string.char(math.random(97, 122))
+        t = t .. (u and string.upper(c) or c)
+    end
+    PRNG.SetSeed( t )
+    MsgC("YAWD SEED [Random]: " .. t .. "\n")
+else
+    PRNG.SetSeed( con:GetString() )
+    MsgC("YAWD SEED: " .. con:GetString() .. "\n")
 end
