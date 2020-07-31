@@ -79,7 +79,7 @@ local gman = {}
 	gman.MinimumWave = 4
 	gman.Spawnable = false
 
-	gman.Health = 130					-- Health
+	gman.Health = 230					-- Health
 	gman.JumpDown =50				-- Allows the NPC to "jumpdown" from said areas
 	gman.JumpUp = 50					-- Allows the NPC to "jumpup" from said areas
 
