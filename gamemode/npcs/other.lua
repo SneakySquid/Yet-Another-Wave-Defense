@@ -1,23 +1,24 @@
 do
-	local zombie = {}
-	zombie.Name = "dog"
-	zombie.DisplayName = "Zombie"
+	local dog = {}
+	dog.Name = "dog"
+	dog.DisplayName = "Zombie"
 
-	zombie.Model = Model("models/dog.mdl")
-	zombie.MoveSpeed = 65
-	zombie.Currency = 12
-	zombie.Skin = {0, 1}
+	dog.Model = Model("models/dog.mdl")
+	dog.MoveSpeed = 65
+	dog.Currency = 12
+	dog.Skin = {0, 1}
+	dog.MinimumWave = 7
 
-	zombie.Health = 525					-- Health
-	zombie.JumpDown = 10				-- Allows the NPC to "jumpdown" from said areas
-	zombie.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
+	dog.Health = 525					-- Health
+	dog.JumpDown = 10				-- Allows the NPC to "jumpdown" from said areas
+	dog.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
 
-	zombie.CanTargetPlayers = true		-- Tells that we can target the players
-	zombie.TargetIgnoreWalls = false	-- Ignore walls when targeting players
-	zombie.TargetPlayersRange = 300	-- The radius of the target
-	zombie.TargetCooldown = 15			-- The amount of times we can target the player
+	dog.CanTargetPlayers = true		-- Tells that we can target the players
+	dog.TargetIgnoreWalls = false	-- Ignore walls when targeting players
+	dog.TargetPlayersRange = 300	-- The radius of the target
+	dog.TargetCooldown = 15			-- The amount of times we can target the player
 
-	zombie.ANIM_RUN = 22 -- walk_all
+	dog.ANIM_RUN = 22 -- walk_all
 
 	local function TakeDamage( self, target )
 		if target:IsPlayer() then
@@ -44,7 +45,7 @@ do
 		end
 	end
 
-	function zombie:OnAttack( target )
+	function dog:OnAttack( target )
 		self:EmitSound("npc/dog/dog_playfull3.wav" .. math.random(3, 5) .. ".wav")
 		-- Move closer to the player
 		local target_time = CurTime() + 5
@@ -63,7 +64,7 @@ do
 		-- We gave up
 		return false
 	end
-	NPC.Add(zombie)
+	NPC.Add(dog)
 end
 
 do
