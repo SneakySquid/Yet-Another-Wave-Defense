@@ -11,4 +11,8 @@ if SERVER then
 	function GM:YAWDOnCurrencyGiven(amt)
 		self.m_TotalCurrency = self.m_TotalCurrency + amt
 	end
+else
+	function GM:PreDrawHalos()
+		halo.Add(player.GetAll(), Color(173, 216, 230), nil, nil, nil, nil, true)
+	end
 end
