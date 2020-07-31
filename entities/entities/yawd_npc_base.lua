@@ -175,7 +175,7 @@ function ENT:Initialize()
 	--	self:PhysicsInit(SOLID_BBOX)
 	--	self:SetSolid(SOLID_BBOX)
 	--	self:SetMoveType(MOVETYPE_STEP )
-		self:SetCollisionGroup( COLLISION_GROUP_PUSHAWAY )
+		self:SetCollisionGroup( COLLISION_GROUP_WORLD )
 
 	--	self:PhysWake()
 		local physobj = self:GetPhysicsObject()
@@ -391,10 +391,8 @@ function ENT:SetupDataTables()
 end
 
 hook.Add("ShouldCollide","yawd_npc_collide",function(a,b)
-	if not IsValid(a) or not IsValid(b) then return end
-	local ac = a:IsPlayer() or a:GetClass() == "yawd_npc_base"
-	local bc = b:IsPlayer() or b:GetClass() == "yawd_npc_base"
-	if ac or bc then
+	local ac = a:GetClass()
+	if ac == "yawd_npc_base" and b:GetClass() == ac then
 		return false
 	end
 end)
