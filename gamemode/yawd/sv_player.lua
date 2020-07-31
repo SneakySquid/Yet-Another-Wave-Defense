@@ -2,6 +2,7 @@ DEFINE_BASECLASS("gamemode_base")
 
 function GM:PlayerInitialSpawn(ply)
 	player_manager.SetPlayerClass(ply, "player_yawd")
+	ply:SetCurrency(self.m_TotalCurrency)
 end
 
 function GM:PlayerDeathThink(ply)
@@ -22,7 +23,7 @@ function GM:PlayerSpawn(ply, transition)
 		return
 	end
 
-	if ply.m_SpawnedOnCore then
+	if false and ply.m_SpawnedOnCore then
 		ply.m_SpawnedOnCore = false
 		ply:SetPos(ply:GetPos() + Vector(0, 0, 10))
 	end
