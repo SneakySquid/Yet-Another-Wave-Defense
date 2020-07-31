@@ -1,7 +1,7 @@
 do
 	local dog = {}
 	dog.Name = "dog"
-	dog.DisplayName = "Zombie"
+	dog.DisplayName = "Dog"
 
 	dog.Model = Model("models/dog.mdl")
 	dog.MoveSpeed = 65
