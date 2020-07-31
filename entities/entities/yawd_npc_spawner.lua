@@ -69,7 +69,7 @@ function ENT:WispThink()
 	if GAMEMODE:HasWaveStarted() then return end
 	if (self.next_wisp or 0) > CurTime() then return end
 	if not CanGeneratePath() then
-		self.next_wisp = CurTime() + 2
+		self.next_wisp = CurTime() + 1.5
 		return
 	end
 	if not self.tab_wisp then
@@ -86,14 +86,14 @@ function ENT:WispThink()
 		self.next_wisp = CurTime() + 2
 		return
 	end
-	local path = PathFinder.CreateNewPath(self:GetPos() + Vector(0,0,50), Building.GetCore():GetPos() + Vector(0,0,50), NODE_TYPE_GROUND, nil, 0, 0, HULL_TINY)
+	local path = PathFinder.CreateNewPath(self:GetPos() + Vector(0,0,50), Building.GetCore():GetPos() + Vector(0,0,50), NODE_TYPE_GROUND, nil, 0, 0, HULL_TINY, 1)
 	if not path then -- This shouldn't happen, try again in 10 seconds
 		self.next_wisp = CurTime() + 10
 		DebugMessage("NO PATH")
 		return
 	end
 	idle_wisp:SetPath( path )
-	self.next_wisp = CurTime() + 7
+	self.next_wisp = CurTime() + math.random(3,6)
 end
 
 
