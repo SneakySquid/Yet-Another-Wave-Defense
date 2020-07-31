@@ -5,6 +5,20 @@ do
 		weight = 1500,
 	})
 
+	surface.CreateFont("HUD.WaveDisplay", {
+		font = "Tahoma",
+		size = 20,
+		weight = 1500,
+		outline = true
+	})
+
+	surface.CreateFont("HUD.WaveDisplayNumber", {
+		font = "Tahoma",
+		size = 40,
+		weight = 1500,
+		outline = true
+	})
+
 	surface.CreateFont("HUD.VoteStatus", {
 		font = "Tahoma",
 		size = 32,
@@ -38,8 +52,15 @@ local core_lerp = PercentLerp(0.5, 0.25, true)
 local health_lerp = PercentLerp(0.5, 0.25, true)
 local overheal_lerp = PercentLerp(0.5, 0.25, true)
 local currency_lerp = TargetLerp(0, 0.5)
+local wavedisplay_core_shakestart = 0
+local wavedisplay_core_hp = -1
+local wavedisplay_core_shakespeed = 0
+
 
 local left_mouse_indicator = Material("gui/lmb.png")
+local wavedisplay_bg = Material("effects/ar2_altfire1")
+local wavedisplay_bg2 = Material("effects/splashwake1")
+local wavedisplay_bg3 = Material("effects/splashwake3")
 
 local HUD = {
 	StatusStrings = {
@@ -185,6 +206,49 @@ HUD.Status = {
 		draw.SimpleText(string.format("$%i", currency_lerp(ply:GetCurrency())), "HUD.Status", sw / 2, sh * 0.6, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 	end,
 
+	WaveDisplay = function(ply, sw, sh)
+		local num = GAMEMODE:GetWaveNumber()
+		local core = GAMEMODE.Building_Core
+		local c_col = color_white
+		local alive = false
+		if core and IsValid(core) then
+			local n = core:Health()
+			if n > 0 then 
+				alive = true
+				c_col = HSVToColor(n / 5, 1,1)
+			end
+			if wavedisplay_core_hp ~= n then
+				local delta = math.abs(n - wavedisplay_core_hp)
+				wavedisplay_core_hp = n
+				local p = (wavedisplay_core_shakestart - CurTime()) / 2
+				if p > 0 then
+					wavedisplay_core_shakespeed = math.max(wavedisplay_core_shakespeed * p, math.Clamp(delta / 100, 1, 4))
+				else
+					wavedisplay_core_shakespeed = math.Clamp(delta / 100, 1, 4)
+				end
+				wavedisplay_core_shakestart = CurTime() + 2
+			end
+		end
+		if alive then
+			local x,y = sw - 100, 70
+			if wavedisplay_core_shakestart > CurTime() then
+				local p = (wavedisplay_core_shakestart - CurTime()) ^ 1.8 * math.pi
+				x = x + math.sin(p * wavedisplay_core_shakespeed) * wavedisplay_core_shakespeed * p * 0.5
+			end
+			surface.SetDrawColor( c_col )
+			surface.SetMaterial(wavedisplay_bg2)
+			surface.DrawTexturedRectRotated(x, y, 100, 100, CurTime() * - 44)
+			surface.SetMaterial(wavedisplay_bg3)
+			surface.DrawTexturedRectRotated(x, y, 80, 80, CurTime() * 34)
+		
+			surface.SetMaterial(wavedisplay_bg)
+			surface.SetDrawColor(color_white)
+			surface.DrawTexturedRect(x - 50, y - 50, 100, 100)
+		end
+		draw.DrawText("WAVE", "HUD.WaveDisplay", sw - 100, 30, color_white, TEXT_ALIGN_CENTER)
+		draw.DrawText(num, "HUD.WaveDisplayNumber", sw - 100, 50, color_white, TEXT_ALIGN_CENTER)
+	end,
+
 	WeaponSelect = function(ply, sw, sh)
 		GAMEMODE:WeaponSelect(ply, sw, sh)
 	end,
@@ -258,6 +322,10 @@ function GM:HUDPaint()
 
 		if CanDraw("HUD.Status.Currency") then
 			HUD.Status.Currency(ply, sw, sh)
+		end
+
+		if CanDraw("HUD.Status.WaveDisplay") then
+			HUD.Status.WaveDisplay(ply, sw, sh)
 		end
 
 		if CanDraw("HUD.Status.CoreHealth") then
