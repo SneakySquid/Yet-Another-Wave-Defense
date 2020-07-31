@@ -26,9 +26,9 @@
 		3
 		{
 			"name"		"yawd_seed"
-			"text"		"The wave seed. 0 will make this random"
+			"text"		"The wave seed. Keep this empty for random"
 			"type"		"Text"
-			"default"	"0"
+			"default"	""
 		}
 	}
 }
