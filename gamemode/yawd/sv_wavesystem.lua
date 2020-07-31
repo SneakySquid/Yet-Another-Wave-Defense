@@ -1,6 +1,6 @@
-local SpawnRateAim = 4 * 60 	-- 4 mins. This is how much time we aim for pr wave.
+local SpawnRateAim = 2.5 * 60 	-- 4 mins. This is how much time we aim for pr wave.
 local MinSpawnRate = 8			-- This is the slowest spawnrate we accept.
-local MaxSpawnRate = 0.5		-- This is the max spawnrate we accept.
+local MaxSpawnRate = 0.1		-- This is the max spawnrate we accept.
 
 local SpawnWaveRatio = 3 * math.pi * 2 	-- This calculates how many "waves" we want.
 -- Returns a random NPC type
@@ -100,11 +100,8 @@ local function CoroutineWave()
 		-- CalcSpawnrate
 		local w_time = CurTime() - s_wave
 		local w_procent = w_time / SpawnRateAim
-		local n = (1.2 + math.sin(w_procent * SpawnWaveRatio)) -- 0.2 to 1.2
+		local n = (1.4 + math.sin(w_procent * SpawnWaveRatio)) / 2 -- 0.2 to 1.2
 		coroutine.wait( math.max( MaxSpawnRate, spawn_rate * n )  )
-		if PRNG.Random(1, 10) > 8 then
-			coroutine.wait( PRNG.Random(5, 10) )
-		end
 		coroutine.yield( )
 	end
 end
