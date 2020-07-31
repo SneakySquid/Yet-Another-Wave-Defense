@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 SWEP.Base = "weapon_base"
 SWEP.PrintName = "YAWD Weapon Base"
 SWEP.Author = "YAWD Team"
@@ -62,6 +64,12 @@ function SWEP:Initialize()
 end
 
 function SWEP:Deploy()
+	self:SendWeaponAnim(ACT_VM_DRAW)
+
+	local time = CurTime()
+	self:SetNextPrimaryFire(time + self:SequenceDuration())
+	self:SetNextReload(time + self:SequenceDuration())
+
 	return true
 end
 

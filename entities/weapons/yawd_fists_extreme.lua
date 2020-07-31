@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 SWEP.Base = "weapon_fists"
 
 SWEP.PrintName = "Extreme Fists"

@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 SWEP.Base = "yawd_sniper_base"
 SWEP.PrintName = "Sniper"
 SWEP.Author = "YAWD Team"
