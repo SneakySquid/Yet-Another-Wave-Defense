@@ -44,6 +44,11 @@ do
 		antialias = true,
 		additive = false,
 	})
+
+	surface.CreateFont("HUD.TargetID", {
+		font = "Arial",
+		size = 24,
+	})
 end
 
 local vote_info = GM.VoteInfo
@@ -253,6 +258,74 @@ HUD.Status = {
 	WeaponSelect = function(ply, sw, sh)
 		GAMEMODE:WeaponSelect(ply, sw, sh)
 	end,
+
+	TargetID = function(lply, sw, sh)
+		local aimvec = lply:GetAimVector()
+		local shootpos = lply:GetShootPos()
+
+		local trace_line = {}
+		local eye_trace = lply:GetEyeTrace()
+
+		for i, ply in ipairs(player.GetAll()) do
+			if ply == lply then goto CONTINUE end
+
+			local pos = ply:GetPos() + ply:OBBCenter()
+
+			util.TraceLine({
+				start = shootpos,
+				endpos = pos,
+				filter = lply,
+				mask = MASK_SHOT,
+				output = trace_line,
+			})
+
+			PrintTable(trace_line)
+			if trace_line.Entity ~= ply then goto CONTINUE end
+
+			local delta = pos - shootpos
+			delta:Normalize()
+
+			local dot = aimvec:Dot(delta)
+			dot = math.deg(math.acos(dot))
+
+			if eye_trace.Entity ~= ply and dot >= 10 then goto CONTINUE end
+
+			pos = pos:ToScreen()
+
+			local _, th = draw.SimpleText(ply:Nick(), "HUD.TargetID", pos.x, pos.y, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText(language.GetPhrase(GAMEMODE.PlayerClasses[ply:GetPlayerClass()]), "HUD.TargetID", pos.x, pos.y + th, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
+			if lply:GetPlayerClass() == CLASS_HEALER then
+				local hp = ply:Health()
+				local max_hp = ply:GetMaxHealth()
+
+				ply.m_HealthLerp = ply.m_HealthLerp or PercentLerp(0.5, 0.25, true)
+
+				local bw, bh = 150, 15
+				local bx, by = pos.x, pos.y + th * 2 + 5
+
+				surface.SetDrawColor(35, 35, 35, 200)
+				surface.DrawRect(bx - bw * 0.5, by, bw, bh)
+
+				local p = math.Clamp(hp / max_hp, 0, 1)
+				local lp = ply.m_HealthLerp(hp, max_hp)
+
+				local x_offset = bw - bw * lp
+				x_offset = x_offset * 0.5
+
+				surface.SetDrawColor(255, 75, 75)
+				surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * lp, bh)
+
+				x_offset = bw - bw * p
+				x_offset = x_offset * 0.5
+
+				surface.SetDrawColor(136, 181, 55)
+				surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * p, bh)
+			end
+
+			::CONTINUE::
+		end
+	end,
 }
 
 HUD.Wave = {
@@ -353,10 +426,10 @@ function GM:HUDPaint()
 			if CanDraw("HUD.Status.WeaponSelect") then
 				HUD.Status.WeaponSelect(ply, sw, sh)
 			end
-		end
 
-		if CanDraw("HUD.Status.Currency") then
-			HUD.Status.Currency(ply, sw, sh)
+			if CanDraw("HUD.Status.Currency") then
+				HUD.Status.Currency(ply, sw, sh)
+			end
 		end
 
 		if CanDraw("HUD.Status.WaveDisplay") then
@@ -369,6 +442,10 @@ function GM:HUDPaint()
 
 		if CanDraw("HUD.Status.BossHealth") then
 			HUD.Status.BossHealth(ply, sw, sh)
+		end
+
+		if CanDraw("HUD.Status.TargetID") then
+			HUD.Status.TargetID(ply, sw, sh)
 		end
 	end
 end
