@@ -43,12 +43,12 @@ SWEP.PrimaryDamage = {
 }
 SWEP.PrimaryViewPunch = {
 	p = {
-		min = -0.9,
-		max = -1.7,
+		min = -0.6,
+		max = -1.2,
 	},
 	y = {
-		min = -0.1,
-		max = 0.1,
+		min = -0.05,
+		max = 0.05,
 	},
 }
 

@@ -31,7 +31,7 @@ SWEP.Primary = {
 }
 
 SWEP.PrimaryDelay = 0.15
-SWEP.PrimarySpread = Vector(0.03, 0.01, 0)
+SWEP.PrimarySpread = Vector(0.01, 0.01, 0)
 SWEP.PrimaryBulletsPerFire = 1
 SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
@@ -43,12 +43,12 @@ SWEP.PrimaryDamage = {
 }
 SWEP.PrimaryViewPunch = {
 	p = {
-		min = -0.5,
-		max = -1.4,
+		min = -0.2,
+		max = -0.9,
 	},
 	y = {
-		min = -0.4,
-		max = 0.4,
+		min = -0.01,
+		max = 0.01,
 	},
 }
 

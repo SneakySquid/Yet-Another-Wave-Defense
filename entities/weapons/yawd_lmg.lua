@@ -31,15 +31,15 @@ SWEP.Primary = {
 }
 
 SWEP.PrimaryDelay = 0.1
-SWEP.PrimarySpread = Vector(0.03, 0.045, 0)
+SWEP.PrimarySpread = Vector(0.015, 0.025, 0)
 SWEP.PrimaryBulletsPerFire = 1
 SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
 SWEP.PrimaryMaxDistance = 56756
 SWEP.PrimarySound = "weapons/m249/m249-1.wav"
 SWEP.PrimaryDamage = {
-	min = 24,
-	max = 32,
+	min = 21,
+	max = 27,
 }
 SWEP.PrimaryViewPunch = {
 	p = {
@@ -47,8 +47,8 @@ SWEP.PrimaryViewPunch = {
 		max = -2.1,
 	},
 	y = {
-		min = -0.1,
-		max = 0.1,
+		min = -0.06,
+		max = 0.06,
 	},
 }
 
