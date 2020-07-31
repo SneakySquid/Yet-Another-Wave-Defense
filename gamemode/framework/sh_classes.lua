@@ -28,14 +28,20 @@ function GM:RegisterClass(name, tbl, base)
 end
 
 function GM:YAWDCanSwitchClass(ply, class)
-	if class == 0 then
-		return false, "Can't switch to the base class."
-	elseif not self.PlayerClasses[class] then
-		return false, "Can't switch to non-existant classes."
-	elseif self:GetWaveStatus() ~= WAVE_WAITING then
-		return false, "Can't switch class while waves are active."
-	elseif self.m_VoteStarted and self.m_VoteType == VOTE_TYPE_CORE then
-		return false, "Can't change class while the core vote is active."
+	local previous_class = ply:GetPlayerClass()
+
+	if previous_class ~= CLASS_BASE then
+		if class == 0 then
+			return false, "Can't change to the base class."
+		elseif class == previous_class then
+			return false, "Can't change to the same class."
+		elseif not self.PlayerClasses[class] then
+			return false, "Can't change to non-existant class."
+		elseif self.m_WaveStatus ~= WAVE_WAITING then
+			return false, "Can't change class while waves are active."
+		elseif self.m_VoteStarted and self.m_VoteType == VOTE_TYPE_CORE then
+			return false, "Can't change class while core vote is active."
+		end
 	end
 
 	return true
