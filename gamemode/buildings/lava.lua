@@ -34,18 +34,14 @@ else
 	end
 end
 
-local CanBurn = {}
 function b:StartTouch( ent )
 	if self:GetDisabled() then return end
 	if self.BurnAmount <= 0 then return end
 	if not Building.CanTarget( ent ) then return end
-	if ent._i_burntime and ent._i_burntime > CurTime() then return end
-	ent._i_burntime = CurTime() + 0.6
+	if ent:HasDebuff(DEBUFF_BURNING) then return end
 	self.OnTrap[ent] = true
 	self.BurnAmount = self.BurnAmount - 1
-	local dm = self:DamageInfo()
-		dm:SetDamage( 25 )
-		dm:SetDamageType( DMG_BURN )
+	local dm = Element.DamageInfo( ELEMENT_FIRE )
 		ent:TakeDamageInfo( dm )
 		ent:EmitSound("ambient/fire/gascan_ignite1.wav", 100)
 	--	ent:Ignite(4, 16)
