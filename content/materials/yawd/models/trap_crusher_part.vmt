@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "yawd/models/trap_crusher"
+	"$model" 1
+	"$nocull" 0
+	"$detail" "yawd/models/trap_crusher"
+	"$detailscale" 1
+	"$detailblendfactor" 0.1
+	"$detailblendmode" 5
+	"$basetexturetransform" "center 0 0 scale 1 0.5 rotate 90 translate 0 0"
+}
+
