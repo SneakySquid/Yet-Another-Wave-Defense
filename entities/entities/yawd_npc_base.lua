@@ -361,11 +361,6 @@ function ENT:RunBehaviour()
 end
 
 function ENT:Draw()
-	local hp = self:Health()
-	local max_hp = self:GetMaxHealth()
-
-	self.m_HealthLerp = self.m_HealthLerp or PercentLerp(0.5, 0.25, true)
-
 	if self:GetRagdolled() then return end
 	if hp <= 0 and max_hp > 0 then return end
 	if self.NPC_DATA.Color then
@@ -395,6 +390,11 @@ function ENT:Draw()
 	cam.Start3D2D(pos + Vector(0, 0, self:OBBMaxs().z + 5), eyeang, 0.5)
 		local bw, bh = 125, 5
 		local bx, by = 0, 0
+
+		local hp = self:Health()
+		local max_hp = self:GetMaxHealth()
+
+		self.m_HealthLerp = self.m_HealthLerp or PercentLerp(0.5, 0.25, true)
 
 		draw.SimpleText(data.DisplayName or "", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
 
