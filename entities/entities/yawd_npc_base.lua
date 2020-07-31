@@ -34,7 +34,7 @@ function ENT:MakeRagdoll( duration )
 	rag:SetModel( self:GetModel() )
 	rag:SetSkin( self:GetSkin() )
 	for key, value in pairs(self:GetBodyGroups()) do
-		rag:SetBodygroup(value.id, self:GetBodygroup(value.id))	
+		rag:SetBodygroup(value.id, self:GetBodygroup(value.id))
 	end
 	rag:SetAngles(self:GetAngles())
 	rag:SetColor(self:GetColor())
@@ -128,7 +128,7 @@ function ENT:ShootWeapon( target, bullet_data )
 		bullet_data.Num = Num or 1
 		bullet_data.Src = shootPos
 		bullet_data.Dir = dir
-		bullet_data.Spread = Vector(aimcone , aimcone, 0) 
+		bullet_data.Spread = Vector(aimcone , aimcone, 0)
 		bullet_data.Tracer = tracer or 1
 		bullet_data.Damage = dmg or 3
 	self:FireBullets(bullet_data)
@@ -161,7 +161,7 @@ function ENT:Initialize()
 	self:SetCustomCollisionCheck(true)
 	-- leave these ones alone
 	self:AddSolidFlags( FSOLID_NOT_STANDABLE )
-	
+
 	if CLIENT then
 		hook.Add("PreDrawHalos", self, self.DrawHalo) -- shitcode alert
 		NPC.ApplyFunctions(self, self:GetNPCType())
@@ -336,7 +336,7 @@ function ENT:RunBehaviour()
 				if self.NPC_DATA.OnAttackEnd then
 					self.NPC_DATA.OnAttackEnd(self, self:GetTarget())
 				end
-				self:SetTarget( nil )				
+				self:SetTarget( nil )
 				coroutine.wait(0.3)
 			end
 		else
@@ -361,13 +361,61 @@ function ENT:RunBehaviour()
 end
 
 function ENT:Draw()
+	local hp = self:Health()
+	local max_hp = self:GetMaxHealth()
+
+	self.m_HealthLerp = self.m_HealthLerp or PercentLerp(0.5, 0.25, true)
+
 	if self:GetRagdolled() then return end
-	if self:Health() <= 0 and self:GetMaxHealth() > 0 then return end
+	if hp <= 0 and max_hp > 0 then return end
 	if self.NPC_DATA.Color then
 		render.SetColorModulation(self.NPC_DATA.Color.r / 255,self.NPC_DATA.Color.g / 255,self.NPC_DATA.Color.b / 255)
 	end
 	self:DrawModel()
 	render.SetColorModulation(1,1,1)
+
+	if halo.RenderedEntity() == self then return end
+
+	local pos = self:GetPos()
+	local ply = LocalPlayer()
+	local delta = pos - ply:GetShootPos()
+	delta:Normalize()
+
+	local dot = ply:GetAimVector():Dot(delta)
+	dot = math.deg(math.acos(dot))
+
+	if dot >= 20 or pos:DistToSqr(ply:GetPos()) > 1250 * 1250 then return end
+
+	local eyeang = ply:EyeAngles()
+	eyeang:RotateAroundAxis(eyeang:Right(), 90)
+	eyeang:RotateAroundAxis(eyeang:Up(), -90)
+
+	local data = self.NPC_DATA
+
+	cam.Start3D2D(pos + Vector(0, 0, self:OBBMaxs().z + 5), eyeang, 0.5)
+		local bw, bh = 125, 5
+		local bx, by = 0, 0
+
+		draw.SimpleText(data.DisplayName or "", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM)
+
+		surface.SetDrawColor(35, 35, 35, 200)
+		surface.DrawRect(bx - bw * 0.5, by, bw, bh)
+
+		local p = math.Clamp(hp / max_hp, 0, 1)
+		local lp = self.m_HealthLerp(hp, max_hp)
+
+		local x_offset = bw - bw * lp
+		x_offset = x_offset * 0.5
+
+		surface.SetDrawColor(255, 75, 75)
+		surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * lp, bh)
+
+		x_offset = bw - bw * p
+		x_offset = x_offset * 0.5
+
+		surface.SetDrawColor(136, 181, 55)
+		surface.DrawRect(bx - bw * 0.5 + x_offset, by, bw * p, bh)
+	cam.End3D2D()
 end
 
 function ENT:Think()
