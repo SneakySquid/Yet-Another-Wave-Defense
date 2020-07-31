@@ -39,3 +39,5 @@ if SERVER then
 else
 	include("wave/cl_wave.lua")
 end
+
+VOTE_TYPE_WAVE = GM:RegisterVoteType(net.WriteBit, net.ReadBit)

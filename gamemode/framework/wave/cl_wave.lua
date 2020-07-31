@@ -7,10 +7,15 @@ local function WaveHandler(GM, old, new)
 end
 
 GM:Accessor("WaveNumber", 0)
+GM:Accessor("NextWaveStart", 0)
 GM:Accessor("WaveStatus", WAVE_WAITING, WaveHandler)
 
 net.Receive("Wave.UpdateNumber", function()
 	GAMEMODE:SetWaveNumber(net.ReadUInt(32))
+end)
+
+net.Receive("Wave.UpdateWaveStart", function()
+	GAMEMODE:SetNextWaveStart(net.ReadFloat())
 end)
 
 net.Receive("Wave.UpdateStatus", function()
@@ -20,6 +25,7 @@ end)
 net.Receive("Wave.RequestInfo", function()
 	GAMEMODE:SetWaveNumber(net.ReadUInt(32))
 	GAMEMODE:SetWaveStatus(net.ReadUInt(2))
+	GAMEMODE:SetNextWaveStart(net.ReadFloat())
 
 	hook.Run("YAWDWaveInfoReceived")
 end)
