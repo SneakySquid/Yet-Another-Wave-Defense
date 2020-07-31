@@ -362,7 +362,7 @@ end
 
 function ENT:Draw()
 	if self:GetRagdolled() then return end
-	if hp <= 0 and max_hp > 0 then return end
+	if self:Health() <= 0 and self:GetMaxHealth() > 0 then return end
 	if self.NPC_DATA.Color then
 		render.SetColorModulation(self.NPC_DATA.Color.r / 255,self.NPC_DATA.Color.g / 255,self.NPC_DATA.Color.b / 255)
 	end
