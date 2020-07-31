@@ -50,4 +50,8 @@ end
 
 function GM:PlayerDisconnected(ply)
 	self:RemoveVote(ply)
+
+	for i, building in ipairs(Building.GetPlayerBuildings(ply)) do
+		building:Remove()
+	end
 end
