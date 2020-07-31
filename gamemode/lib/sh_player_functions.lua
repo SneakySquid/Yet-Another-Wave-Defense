@@ -41,6 +41,15 @@ else
 			avatars[id] = a
 		end
 
-		return avatars[id]
+		local avatar = avatars[id]
+
+		if avatar:IsValid() then
+			return avatar
+		else
+			avatar:Remove()
+			avatars[id] = nil
+		end
+
+		return self:GetAvatar()
 	end
 end

@@ -60,6 +60,14 @@ else
 	hook.Add("YAWDVoteFinished", "Class.Select", function(vote_type)
 		if vote_type == VOTE_TYPE_CORE then
 			GAMEMODE:OpenSelectionMenu()
+			chat.AddText("Use 'yawd_select_class' to change classes.")
+		end
+	end)
+
+	hook.Add("YAWDPostEntity", "Class.Select", function()
+		if GAMEMODE.Building_Core:IsValid() then
+			GAMEMODE:OpenSelectionMenu()
+			chat.AddText("Use 'yawd_select_class' to change classes.")
 		end
 	end)
 end
