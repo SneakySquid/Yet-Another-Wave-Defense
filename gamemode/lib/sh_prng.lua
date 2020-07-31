@@ -59,7 +59,7 @@ function PRNG.Random(min, max)
 end
 
 local con = GetConVar("yawd_seed")
-if con:GetString() == "0" then
+if con:GetString() == "0" or #con:GetString() < 1 then
     local t = ""
     for i = 1, math.random(10, 20) do
         local u = math.random(1,2) == 2
