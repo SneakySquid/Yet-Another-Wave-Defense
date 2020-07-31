@@ -23,6 +23,7 @@ end)
 
 local vote_info = GM.VoteInfo
 local vote_timer = util.Timer()
+local yawd_votecountdown = GetConVar("yawd_votecountdown")
 
 local function WaveStartCountdown()
 	if vote_info.TotalVotes == 0 then
