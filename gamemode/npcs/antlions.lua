@@ -50,7 +50,11 @@ do
 	end
 
 	function lion:OnStep()
-		self:EmitSound( "npc/antlion/foot" .. math.random(1,4) .. ".wav", 75, 200 )
+		if math.random(10) <= 9 then
+			self:EmitSound( "npc/antlion/foot" .. math.random(1,4) .. ".wav", 75, 255 )
+		else
+			self:EmitSound( "physics/metal/metal_box_impact_soft".. math.random(1,2) .. ".wav", 75, 255 )
+		end
 	end
 	NPC.Add(lion)
 end
