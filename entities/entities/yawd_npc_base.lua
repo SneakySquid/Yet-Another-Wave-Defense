@@ -169,8 +169,10 @@ function ENT:Initialize()
 
 	if SERVER then
 		self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
-		self:SetMaxHealth(self.NPC_DATA.Health or 25)
-		self:SetHealth(self.NPC_DATA.Health or 25)
+		local hp_boost = 1 + math.max(1, GAMEMODE:GetWaveNumber()) * .025
+		local hp = (self.NPC_DATA.Health or 25) * hp_boost
+		self:SetMaxHealth(hp)
+		self:SetHealth(hp)
 	--	self:SetModel("models/combine_soldier.mdl")
 	--	self:PhysicsInit(SOLID_BBOX)
 	--	self:SetSolid(SOLID_BBOX)
