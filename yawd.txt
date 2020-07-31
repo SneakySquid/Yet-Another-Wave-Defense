@@ -12,7 +12,7 @@
 			"name"		"yawd_debug"
 			"text"		"Load sandbox-content and other debug functions."
 			"type"		"CheckBox"
-			"default"	"1"
+			"default"	"0"
 		}
 
 		2
