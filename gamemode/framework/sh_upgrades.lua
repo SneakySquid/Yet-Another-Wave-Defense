@@ -255,18 +255,20 @@ do
 				realm = "server",
 				callback = function()
 					for _, ply in ipairs(player.GetAll()) do
-						local tier = GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_HEALTHREGEN)
+						if ply:Alive() then
+							local tier = GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_HEALTHREGEN)
 
-						if tier > 0 then
-							local time = CurTime()
-							local health = ply:Health()
+							if tier > 0 then
+								local time = CurTime()
+								local health = ply:Health()
 
-							if health < ply:GetMaxHealth()
-								and time > (ply.last_damage_time or 0) + COOLDOWN_AFTER_DAMAGE
-								and time > (ply.next_health_regen or 0) then
+								if health < ply:GetMaxHealth()
+									and time > (ply.last_damage_time or 0) + COOLDOWN_AFTER_DAMAGE
+									and time > (ply.next_health_regen or 0) then
 
-								ply:SetHealth(health + HEALTH_PER_REGEN)
-								ply.next_health_regen = CurTime() + REGEN_RATE
+									ply:SetHealth(health + HEALTH_PER_REGEN)
+									ply.next_health_regen = CurTime() + REGEN_RATE
+								end
 							end
 						end
 					end
@@ -285,10 +287,37 @@ do
 	})
 end
 
-YAWD_UPGRADE_MAXOVERHEAL = GM:RegisterUpgrade({
-	name = "Max Overheal",
-	price = 500,
-})
+do
+	local lookup = {
+		1.04, 1.08, 1.12
+	}
+
+	local function apply(ply, tier_old, tier_new)
+		local tier = tier_new or GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_MAXOVERHEAL)
+		local mul = lookup[tier]
+
+		if mul then
+			timer.Simple(0, function() -- Disgusting workaround
+				ply:SetMaxHealth(ply:GetMaxHealth() * mul)
+			end)
+		end
+	end
+
+	YAWD_UPGRADE_MAXOVERHEAL = GM:RegisterUpgrade({
+		name = "Max Overheal",
+		price = { 1500, 3000, 4500 },
+		on_purchase = apply,
+		hooks = {
+			{
+				event = "PlayerSpawn",
+				realm = "server",
+				callback = function(ply, transition)
+					apply(ply)
+				end,
+			},
+		},
+	})
+end
 
 YAWD_UPGRADE_WEAPONCLIPSIZE = GM:RegisterUpgrade({
 	name = "Weapon Clip Size",
