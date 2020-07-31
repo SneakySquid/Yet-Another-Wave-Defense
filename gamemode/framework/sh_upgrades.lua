@@ -150,10 +150,38 @@ end
 
 ---------- Upgrades ----------
 
-YAWD_UPGRADE_MOVEMENTSPEED = GM:RegisterUpgrade({
-	name = "Movement Speed",
-	price = {100, 200, 300, 400, 500},
-})
+do
+	local lookup = {
+		50, 100, 150, 200, 250,
+	}
+
+	local function apply(ply, old_tier, new_tier)
+		local tier = new_tier or GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_MOVEMENTSPEED)
+		if tier > 0 then
+			local x = lookup[tier]
+
+			timer.Simple(0, function() -- Disgusting workaround
+				ply:SetWalkSpeed(ply:GetWalkSpeed() + x)
+				ply:SetRunSpeed(ply:GetRunSpeed() + x)
+			end)
+		end
+	end
+
+	YAWD_UPGRADE_MOVEMENTSPEED = GM:RegisterUpgrade({
+		name = "Movement Speed",
+		price = {100, 200, 300, 400, 500},
+		on_purchase = apply,
+		hooks = {
+			{
+				event = "PlayerSpawn",
+				realm = "server",
+				callback = function(ply, is_transition)
+					apply(ply)
+				end,
+			}
+		},
+	})
+end
 
 -- TODO: There should probably be a resistance upgrade for each element
 YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
@@ -162,12 +190,8 @@ YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
 })
 
 do
-	local armour_lookup = {
-		[1] = 25,
-		[2] = 50,
-		[3] = 75,
-		[4] = 100,
-		[5] = 125,
+	local lookup = {
+		25, 50, 75, 100, 125,
 	}
 
 	YAWD_UPGRADE_ARMOUR = GM:RegisterUpgrade({
@@ -180,7 +204,7 @@ do
 				callback = function(ply, transition)
 					local tier = GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR)
 					if tier > 0 then
-						ply:SetArmor(armour_lookup[tier])
+						ply:SetArmor(lookup[tier])
 					end
 				end,
 			},
