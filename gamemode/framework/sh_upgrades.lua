@@ -171,7 +171,7 @@ do
 
 	YAWD_UPGRADE_MOVEMENTSPEED = GM:RegisterUpgrade({
 		name = "Movement Speed",
-		price = {500, 750, 1000, 1250, 1500},
+		price = { 500, 750, 1000, 1250, 1500 },
 		on_purchase = apply,
 		hooks = {
 			{
@@ -193,7 +193,7 @@ do
 
 	YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
 		name = "Resistance",
-		price = {1000, 1500, 2000, 2500, 3000},
+		price = { 1000, 1500, 2000, 2500, 3000 },
 		hooks = {
 			{
 				event = "EntityTakeDamage",
@@ -231,7 +231,7 @@ do
 
 	YAWD_UPGRADE_ARMOUR = GM:RegisterUpgrade({
 		name = "Armour",
-		price = {300, 600, 900, 1200, 1500},
+		price = { 300, 600, 900, 1200, 1500 },
 		on_purchase = apply,
 		hooks = {
 			{
@@ -324,11 +324,6 @@ do
 		},
 	})
 end
-
-YAWD_UPGRADE_WEAPONCLIPSIZE = GM:RegisterUpgrade({
-	name = "Weapon Clip Size",
-	price = 500,
-})
 
 -- Let other stuff know we've loaded
 hook.Run("YAWDPlayerUpgradesLoaded")
