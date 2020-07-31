@@ -10,7 +10,7 @@ local target_range = 134 -- math.sqrt((95) ^ 2 + (95) ^ 2)
 
 local damage = 16 -- This is every slice (5 pr second)
 
-b.TrapTriggerTime = 1	-- Time it takes to trigger
+b.TrapTriggerTime = 0.6	-- Time it takes to trigger
 b.TrapResetTime = 15	-- Time it takes to reset
 b.TrapDurationTime = 5	-- Time it takes to stop
 
