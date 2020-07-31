@@ -279,7 +279,6 @@ HUD.Status = {
 				output = trace_line,
 			})
 
-			PrintTable(trace_line)
 			if trace_line.Entity ~= ply then goto CONTINUE end
 
 			local delta = pos - shootpos
