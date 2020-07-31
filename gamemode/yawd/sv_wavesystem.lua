@@ -61,7 +61,7 @@ local function GenerateNPCList()
 	end
 	local t2 = {}
 	-- Dr freemaaaan
-	if num > 0 and (num + 1) % 5 then
+	if num > 0 and ((num + 1) % 5) == 0 then
 		local n = PRNG.Random(1,3)
 		max_coins = max_coins - (NPC.GetData("gman").Currency) * n
 		table.insert(t2, {"gman", n})

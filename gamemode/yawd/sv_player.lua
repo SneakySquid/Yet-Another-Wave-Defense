@@ -58,8 +58,8 @@ function GM:PlayerDisconnected(ply)
 end
 
 -- No pvp
-function GM:PlayerShouldTakeDamage(ply, attacker)
+hook.Add("PlayerShouldTakeDamage", "YAWD.BlockPvP", function(ply, attacker)
 	if attacker and IsValid(attacker) and attacker:IsPlayer() then
 		return false
 	end
-end
+end)
