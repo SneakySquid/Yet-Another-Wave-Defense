@@ -15,7 +15,7 @@ SWEP.DrawCrosshair = true
 SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
-SWEP.ViewModelFOV = 62
+SWEP.ViewModelFOV = 74
 SWEP.ViewModelFlip = false
 
 SWEP.UseHands = true
