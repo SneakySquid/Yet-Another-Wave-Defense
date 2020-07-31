@@ -52,7 +52,7 @@ local function GetNPCType(max_coins)
 end
 local function GenerateNPCList()
 	local num = GAMEMODE:GetWaveNumber() or 0
-	local max_coins = 50 + 50 * num + math.random(75)
+	local max_coins = 50 + 80 * num + math.random(75) * (1 + (#player.GetAll() - 1) * 0.5 )
 	-- Easter egg :)
 	local core = Building.GetCore()
 	if num == 19 and core and IsValid(core) and core:Health() >= 1000 then
