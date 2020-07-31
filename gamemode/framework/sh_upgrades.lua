@@ -241,10 +241,49 @@ do
 	})
 end
 
-YAWD_UPGRADE_HEALTHREGEN = GM:RegisterUpgrade({
-	name = "Health Regen",
-	price = 500,
-})
+do
+	local COOLDOWN_AFTER_DAMAGE = 5
+	local REGEN_RATE = .2
+	local HEALTH_PER_REGEN = 1
+
+	YAWD_UPGRADE_HEALTHREGEN = GM:RegisterUpgrade({
+		name = "Health Regen",
+		price = 3000,
+		hooks = {
+			{
+				event = "Think",
+				realm = "server",
+				callback = function()
+					for _, ply in ipairs(player.GetAll()) do
+						local tier = GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_HEALTHREGEN)
+
+						if tier > 0 then
+							local time = CurTime()
+							local health = ply:Health()
+
+							if health < ply:GetMaxHealth()
+								and time > (ply.last_damage_time or 0) + COOLDOWN_AFTER_DAMAGE
+								and time > (ply.next_health_regen or 0) then
+
+								ply:SetHealth(health + HEALTH_PER_REGEN)
+								ply.next_health_regen = CurTime() + REGEN_RATE
+							end
+						end
+					end
+				end,
+			},
+			{
+				event = "EntityTakeDamage",
+				realm = "server",
+				callback = function(ent, dmg)
+					if ent:IsPlayer() then
+						ent.last_damage_time = CurTime()
+					end
+				end,
+			},
+		},
+	})
+end
 
 YAWD_UPGRADE_MAXOVERHEAL = GM:RegisterUpgrade({
 	name = "Max Overheal",
