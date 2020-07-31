@@ -13,7 +13,6 @@ function DEBUFF:Think()
 		local target = self:GetTarget()
 
 		if self.RemoveTimer:Elapsed() then
-			PrintTable(self.RemoveTimer)
 			target:RemoveDebuff(DEBUFF_BURNING)
 			return
 		end
