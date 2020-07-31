@@ -2,7 +2,7 @@
 local b = {}
 b.Name = "Ammo Station"
 b.Icon = Material("yawd/hud/ammo_box.png")
-b.BuildClass = {CLASS_ANY}
+b.BuildClass = {CLASS_BOMBER, CLASS_FIGHTER, CLASS_JUGGERNAUT, CLASS_GUNNER }
 b.Cost = 350
 b.TrapArea = {-Vector(95, 95, 1.7), Vector(95, 95, 95)}
 
