@@ -1,4 +1,8 @@
+local SpawnRateAim = 4 * 60 	-- 4 mins. This is how much time we aim for pr wave.
+local MinSpawnRate = 8			-- This is the slowest spawnrate we accept.
+local MaxSpawnRate = 0.5		-- This is the max spawnrate we accept.
 
+local SpawnWaveRatio = 3 * math.pi * 2 	-- This calculates how many "waves" we want.
 -- Returns a random NPC type
 function NPC.SpawnType(npc_type, tOverwrite)
 	local t = ents.FindByClass("yawd_npc_spawner")
@@ -8,19 +12,49 @@ function NPC.SpawnType(npc_type, tOverwrite)
 	return true
 end
 
-local function GetNPCType()
+-- Gets a random NPC (or gets a cheaper one)
+local function GetNPCType(max_coins)
 	local l = NPC.GetAll()
 	local n = math.Round(PRNG.Random( 1, #l))
-	return l[n]
+	local npc_type = l[n]
+	local cost = NPC.GetData(npc_type).Currency or 12
+	if max_coins < cost then -- Try find another NPC for this wave
+		local cur_cost, cur_npc = cost, npc_type
+		if n < #l then
+			for i = n + 1, #l do
+				local c_npc_type = l[i]
+				cost = NPC.GetData(c_npc_type).Currency or 12
+				if cost > cur_cost then continue end -- This NPC cost more.
+				if cost < max_coins then -- This NPC can be used.
+					return c_npc_type
+				end
+				-- This NPC is cheaper than the last one. Set it.
+				npc_type = c_npc_type
+				cur_cost = cost
+			end
+		end
+		for i = 1, n do
+			local c_npc_type = l[i]
+			cost = NPC.GetData(c_npc_type).Currency or 12
+			if cost > cur_cost then continue end -- This NPC cost more.
+			if cost < max_coins then -- This NPC can be used.
+				return c_npc_type
+			end
+			-- This NPC is cheaper than the last one. Set it.
+			npc_type = c_npc_type
+			cur_cost = cost
+		end
+	end
+	return npc_type
 end
 local function GenerateNPCList()
 	local num = GAMEMODE:GetWaveNumber()
-	local max_coins = 50 + 150 * num + math.random(75)
+	local max_coins = 50 + 50 * num + math.random(75)
 	local t = {}
 	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
 	for i = 1, n do
 		-- Get the NPC type
-		local npc_type = GetNPCType()
+		local npc_type = GetNPCType(max_coins)
 		-- Get the amount of coins spent on said NPC
 		local amount
 		if i == n then
@@ -36,14 +70,18 @@ local function GenerateNPCList()
 	end
 	-- Sort the list. In this way we can make the large amount of NPC's the primary
 	local t2 = {}
+	local total = 0
 	for k,v in pairs(t) do
+		total = total + v
 		table.insert(t2, {k,v})
 	end
 	table.sort(t2, function(a,b) return a[2] < b[2] end)
-	return t2
+	return t2, total
 end
 local npc_list, wave_coroutine = {}
+local spawn_rate = MinSpawnRate
 local function CoroutineWave()
+	local s_wave = CurTime()
 	while true do
 		if #npc_list < 1 then
 			-- We ended the wave
@@ -59,15 +97,22 @@ local function CoroutineWave()
 		if npc_list[row][2] < 1 then
 			table.remove(npc_list, row)
 		end
-		coroutine.wait( math.random(0.5, 1) )
+		-- CalcSpawnrate
+		local w_time = CurTime() - s_wave
+		local w_procent = w_time / SpawnRateAim
+		local n = (1.2 + math.sin(w_procent * SpawnWaveRatio)) -- 0.2 to 1.2
+		coroutine.wait( math.max( MaxSpawnRate, spawn_rate * n )  )
 		if PRNG.Random(1, 10) > 8 then
 			coroutine.wait( PRNG.Random(5, 10) )
 		end
 		coroutine.yield( )
 	end
 end
+local npc_total = 0
 local function GenerateWave()
-	npc_list = GenerateNPCList()
+	npc_list,npc_total = GenerateNPCList()
+	-- Calculate the spawn_rate (We will randomize it a bit)
+	spawn_rate = math.min( (SpawnRateAim / npc_total), MinSpawnRate)
 	wave_coroutine = coroutine.wrap( CoroutineWave )
 end
 -- Generate a wave
@@ -80,11 +125,12 @@ hook.Add( "Think", "WaveSpawnerThink", function()
 	if not GAMEMODE:HasWaveStarted() then return end
 	if wave_coroutine and wave_coroutine() then
 		-- No more NPCs to spawn.
-		print("No more NPCs to spawn")
+		DebugMessage("No more NPCs to spawn. Waiting for NPCs to be slain.")
 		wave_coroutine = nil
 	elseif not wave_coroutine and GAMEMODE:HasWaveStarted() and check_timer <= CurTime() then -- Need to kill the rest
 		check_timer = CurTime() + 1
 		if #ents.FindByClass("yawd_npc_base") < 1 then
+			DebugMessage("Ending wave.")
 			GAMEMODE:EndWave()
 		end
 	end
