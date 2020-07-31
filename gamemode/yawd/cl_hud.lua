@@ -287,7 +287,7 @@ HUD.Wave = {
 			local bind = input.LookupBinding("gm_showspare2")
 			local w, h = draw.SimpleText(string.format("Press %s to start waves", bind), "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 
-			ty = ty + h
+			ty = ty + h + 8
 
 			local players = player.GetAll()
 			local player_count = #players
@@ -303,7 +303,7 @@ HUD.Wave = {
 					if vote_info.Voters[ply] then
 						surface.SetDrawColor(255, 255, 255)
 						surface.SetMaterial(mat_selected)
-						surface.DrawTexturedRect(x_pos - 8, ty - 8, 64 + 16, 64 + 16)
+						surface.DrawTexturedRect(x_pos - 6, ty - 6, 64 + 12, 64 + 12)
 					end
 
 					avatar:SetPos(x_pos, ty)
@@ -312,7 +312,7 @@ HUD.Wave = {
 				end
 			end
 
-			ty = ty + 128
+			ty = ty + 64 + 8
 		end
 
 		if time_left >= 0 then
