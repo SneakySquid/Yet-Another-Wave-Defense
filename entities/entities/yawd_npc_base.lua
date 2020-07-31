@@ -391,8 +391,10 @@ function ENT:SetupDataTables()
 end
 
 hook.Add("ShouldCollide","yawd_npc_collide",function(a,b)
-	local ac = a:GetClass()
-	if ac == "yawd_npc_base" and b:GetClass() == ac then
+	if not IsValid(a) or not IsValid(b) then return end
+	local ac = a:IsPlayer() or a:GetClass() == "yawd_npc_base"
+	local bc = b:IsPlayer() or b:GetClass() == "yawd_npc_base"
+	if ac or bc then
 		return false
 	end
 end)

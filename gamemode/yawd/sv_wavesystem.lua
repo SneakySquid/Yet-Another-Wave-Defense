@@ -54,7 +54,7 @@ local function GenerateNPCList()
 	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
 	for i = 1, n do
 		-- Get the NPC type
-		local npc_type = GetNPCType(max_coins)
+		local npc_type = GetNPCType(max_coins / 2) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
 		-- Get the amount of coins spent on said NPC
 		local amount
 		if i == n then
