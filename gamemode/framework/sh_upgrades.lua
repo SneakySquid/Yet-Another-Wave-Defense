@@ -169,7 +169,7 @@ do
 
 	YAWD_UPGRADE_MOVEMENTSPEED = GM:RegisterUpgrade({
 		name = "Movement Speed",
-		price = {100, 200, 300, 400, 500},
+		price = {500, 750, 1000, 1250, 1500},
 		on_purchase = apply,
 		hooks = {
 			{
@@ -194,18 +194,25 @@ do
 		25, 50, 75, 100, 125,
 	}
 
+	local function apply(ply, old_tier, new_tier)
+		local tier = new_tier or GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR)
+		if tier > 0 then
+			timer.Simple(0, function() -- Disgusting workaround
+				ply:SetArmor(lookup[tier])
+			end)
+		end
+	end
+
 	YAWD_UPGRADE_ARMOUR = GM:RegisterUpgrade({
 		name = "Armour",
-		price = {100, 200, 300, 400, 500},
+		price = {300, 600, 900, 1200, 1500},
+		on_purchase = apply,
 		hooks = {
 			{
 				event = "PlayerSpawn",
 				realm = "server",
 				callback = function(ply, transition)
-					local tier = GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR)
-					if tier > 0 then
-						ply:SetArmor(lookup[tier])
-					end
+					apply(ply)
 				end,
 			},
 		},
