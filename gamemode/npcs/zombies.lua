@@ -75,6 +75,7 @@ zombie.Model = Model("models/Zombie/Fast.mdl")
 zombie.MoveSpeed = 220
 zombie.Currency = 22
 zombie.Skin = {0, 1}
+zombie.MinimumWave = 4
 
 zombie.Health = 65					-- Health
 zombie.JumpDown = 50				-- Allows the NPC to "jumpdown" from said areas
