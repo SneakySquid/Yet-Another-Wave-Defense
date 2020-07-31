@@ -51,8 +51,21 @@ local function GetNPCType(max_coins)
 	return npc_type
 end
 local function GenerateNPCList()
-	local num = GAMEMODE:GetWaveNumber()
+	local num = GAMEMODE:GetWaveNumber() or 0
 	local max_coins = 50 + 50 * num + math.random(75)
+	-- Easter egg :)
+	local core = Building.GetCore()
+	if num == 19 and core and IsValid(core) and core:Health() >= 1000 then
+		local n = max_coins / NPC.GetData("gman").Currency
+		return {{"gman", n}}, n
+	end
+	local t2 = {}
+	-- Dr freemaaaan
+	if num > 0 and (num + 1) % 5 then
+		local n = PRNG.Random(1,3)
+		max_coins = max_coins - (NPC.GetData("gman").Currency) * n
+		table.insert(t2, {"gman", n})
+	end
 	local t = {}
 	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
 	for i = 1, n do
@@ -72,7 +85,6 @@ local function GenerateNPCList()
 		t[npc_type] = (t[npc_type] or 0) + amount
 	end
 	-- Sort the list. In this way we can make the large amount of NPC's the primary
-	local t2 = {}
 	local total = 0
 	for k,v in pairs(t) do
 		total = total + v

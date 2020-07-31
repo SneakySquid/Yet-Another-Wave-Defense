@@ -56,3 +56,10 @@ function GM:PlayerDisconnected(ply)
 		building:Remove()
 	end
 end
+
+-- No pvp
+function GM:PlayerShouldTakeDamage(ply, attacker)
+	if attacker and IsValid(attacker) and attacker:IsPlayer() then
+		return false
+	end
+end
