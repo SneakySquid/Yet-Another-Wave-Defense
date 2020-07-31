@@ -68,15 +68,29 @@ function b:OnRemove()
 	self:StopSound("ambient/machines/spin_loop.wav")
 end
 local mat,mat2 = Material("yawd/models/trap_squre"),Material("yawd/models/trap_blade")
+local switch = true
 function b:Draw()
-	-- Renders the bottom of the trap
-	self:RenderBase(mat2)
-	-- Render turret
+	-- Calculates the hatch
 	if self:DurationProcent() > 0 then
 		self.i_hatch = math.min((1 - self:DurationProcent()) * 10, 1)
 	else
 		self.i_hatch = math.max(0, self.i_hatch - FrameTime() * 1)
 	end
+	-- Turns the light on or off.
+	local b = self:DurationProcent() > 0
+	if switch ~= b then
+		switch = b
+		if b then
+			mat2:SetInt("$detailblendfactor", 1)
+			mat2:SetTexture("$detail", "yawd/models/trap_blade_selfillum")
+		else
+			mat2:SetFloat("$detailblendfactor", 0.1)
+			mat2:SetTexture("$detail", "yawd/models/trap_blade")
+		end
+	end
+	-- Renders the bottom of the trap.
+	self:RenderBase(mat2)
+
 	local r_a = self:LocalToWorldAngles(Angle(0,180,0))
 	local h_vec =  Vector(0,hatch_size,1.8)
 	local h2_vec = -Vector(hatch_size,hatch_size,1.8)
