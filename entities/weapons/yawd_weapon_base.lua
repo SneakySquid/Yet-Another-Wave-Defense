@@ -17,6 +17,7 @@ SWEP.Weight = 5
 
 SWEP.ViewModelFOV = 74
 SWEP.ViewModelFlip = true
+SWEP.CSMuzzleFlashes = true
 
 SWEP.UseHands = true
 SWEP.ViewModel = ""
