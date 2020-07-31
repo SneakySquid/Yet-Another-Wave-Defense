@@ -197,7 +197,7 @@ end
 function ENT:InitController(target, jump_down, jump_up)
 	local controller = Controller.New(target, jump_down, jump_up)
 	if controller then
-		local path = Controller.RequestEntityPath(self, target, jump_down, jump_up, self.NPC_DATA.FuzzyAmount or 1)
+		local path = Controller.RequestEntityPath(self, target, jump_down, jump_up, self.NPC_DATA.FuzzyAmount or 1, true)
 		if path then
 			DebugMessage(string.format("Generated initial path for %s.", self))
 			controller:SetPath(path)
@@ -224,7 +224,7 @@ function ENT:CalculateGoal( stepUp )
 
 	local goal = controller:GetGoal()
 	if not goal then
-		local new_path = Controller.RequestEntityPath(self, target, jump_down, jump_up)
+		local new_path = Controller.RequestEntityPath(self, target, jump_down, jump_up, self.NPC_DATA.FuzzyAmount or 1)
 		if new_path and type(new_path) == "boolean" then
 			DebugMessage(string.format("Reached the core %s.", self))
 			if SERVER then WentIntoCore(self) end

@@ -118,6 +118,12 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 	local t = {}
 	for k, v in ipairs(links[self] or {}) do
 		local deltaheight = v[2][HULL + 1]
+		if deltaheight == -1 then
+			for i = (HULL + 1), 1  do
+				if deltaheight ~= -1 then continue end
+				deltaheight = v[2][i] or -1
+			end
+		end
 		if deltaheight == -1 then -- Invalid
 			continue
 		elseif deltaheight == 0 then -- Walk
@@ -262,7 +268,7 @@ local function ET(vec1, vec2)
 	return TraceLine( {
 		start = vec1,
 		endpos = vec2,
-		mask = MASK_PLAYERSOLID_BRUSHONLY
+		mask = MASK_SOLID_BRUSHONLY
 	} )
 end
 local function FindClosestNode(vec, NODE_TYPE, bIgnoreTrace)
@@ -413,6 +419,9 @@ end
 local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 	if not node_start or not node_goal then return false end -- Invalid
 	if node_start == node_goal then return true end	-- We're already there
+	if HULL == 7 then
+		HULL = 1
+	end
 	node_start:ClearSearchLists()
 	node_start:AddToOpenList()
 	local came_from = {}
@@ -519,15 +528,15 @@ function path_meta:GetDistance()
 	return self.distance or 0
 end
 -- Creates a new path to a point or entity. Note max_jumpdown is negative. Returns true if reached.
-function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
+function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount, bIgnoreTrace)
 	if not scanned then return false end
 	local t
 	if type(vec_or_ent_to) == "Entity" then
-		t = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
+		t = PathFind( FindClosestNode(vec_from, NODE_TYPE, bIgnoreTrace), FindClosestNode(vec_or_ent_to, NODE_TYPE, bIgnoreTrace),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 		if not t then return false end
 		t.ent_goal = true
 	else
-		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
+		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE, bIgnoreTrace), FindClosestNode(vec_or_ent_to, NODE_TYPE, bIgnoreTrace),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 		if not t then return false end
 	end
 	if type(t) == "boolean" and t then return true end
@@ -543,8 +552,8 @@ function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distan
 	return t
 end
 -- Locates the closest node
-function PathFinder.FindClosestNode( vec, NODE_TYPE )
-	return FindClosestNode( vec, NODE_TYPE )
+function PathFinder.FindClosestNode( vec, NODE_TYPE, bIgnoreTrace )
+	return FindClosestNode( vec, NODE_TYPE, bIgnoreTrace )
 end
 local type_cache = {}
 function PathFinder.GetNodes(NODE_TYPE)

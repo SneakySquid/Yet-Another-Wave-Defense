@@ -1,4 +1,4 @@
-local SpawnRateAim = 2.5 * 60 	-- 4 mins. This is how much time we aim for pr wave.
+local SpawnRateAim = 2 * 60 	-- 4 mins. This is how much time we aim for pr wave.
 local MinSpawnRate = 8			-- This is the slowest spawnrate we accept.
 local MaxSpawnRate = 0.1		-- This is the max spawnrate we accept.
 
@@ -52,7 +52,7 @@ local function GetNPCType(max_coins)
 end
 local function GenerateNPCList()
 	local num = GAMEMODE:GetWaveNumber() or 0
-	local max_coins = 50 + 80 * num + math.random(75) * (1 + (#player.GetAll() - 1) * 0.5 )
+	local max_coins = 50 + 80 * num + math.random(45) * (1 + (#player.GetAll() - 1) * 0.5 )
 	-- Easter egg :)
 	local core = Building.GetCore()
 	if num == 19 and core and IsValid(core) and core:Health() >= 1000 then

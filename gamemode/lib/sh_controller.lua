@@ -50,10 +50,10 @@ end
 
 Controller = {}
 
-function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up, fuzzy_amount)
+function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up, fuzzy_amount, bIgnoreTrace)
 	hull = hull or HULL_LARGE
 	start_pos = start_pos or Vector()
-	target_pos = target_pos or Building.GetCore():GetPos()
+	target_pos = target_pos or (Building.GetCore():GetPos() + Building.GetCore():OBBCenter())
 	jump_up = jump_up or 0
 	jump_down = jump_down or 0
 
@@ -63,13 +63,14 @@ function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up,
 		nil,
 		jump_down, jump_up,
 		hull,
-		fuzzy_amount
+		fuzzy_amount,
+		bIgnoreTrace
 	)
 end
 
-function Controller.RequestEntityPath(ent, target_pos, jump_down, jump_up, fuzzy_amount)
+function Controller.RequestEntityPath(ent, target_pos, jump_down, jump_up, fuzzy_amount, bIgnoreTrace)
 	local hull = ent:GetHULLType()
-	return Controller.RequestPath(hull, ent:GetPos(), target_pos, jump_down, jump_up, fuzzy_amount)
+	return Controller.RequestPath(hull, ent:GetPos() + ent:OBBCenter(), target_pos, jump_down, jump_up, fuzzy_amount, bIgnoreTrace)
 end
 
 function Controller.New(target, jump_down, jump_up)
@@ -111,7 +112,6 @@ if SERVER then
 			end
 			return t[i][1]
 		end
-		print("FALLBACK")
 		return fallback
 	end
 	local function AddPath(ent_spawner)
