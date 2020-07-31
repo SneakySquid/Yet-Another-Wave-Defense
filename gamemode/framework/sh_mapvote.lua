@@ -78,7 +78,9 @@ if SERVER then
 			end
 
 			local pos, ang = t[1], t[2]
-			Building.Create("Core", nil, pos, ang)
+			local core = Building.Create("Core", nil, pos, ang)
+
+			hook.Run("YAWDCorePlaced", core)
 		end
 	end
 	hook.Add("Think", "MapVote.HandleCountdown", HandleCountdown)
@@ -154,24 +156,6 @@ local function SelectNode(cmd)
 end
 hook.Add("CreateMove", "MapVote.SelectNode", SelectNode)
 
-local avatars = {}
-local function GetAvatar(ply)
-	if not IsValid(ply) then return end
-
-	local id = ply:SteamID()
-
-	if not avatars[id] then
-		local a = vgui.Create("AvatarImage")
-		a:SetSize(128, 128)
-		a:SetPlayer(ply, 128)
-		a:SetPaintedManually(true)
-
-		avatars[id] = a
-	end
-
-	return avatars[id]
-end
-
 local function RenderNode(pos, up, selected, col)
 	local end_pos = pos + up * (selected and 120 or 90)
 	local size = selected and 220 or 90
@@ -241,7 +225,7 @@ local function RenderNodes(_, drawing_skybox)
 
 					for voter, vote in pairs(vote_info.Voters) do
 						if vote == node then
-							local avatar = GetAvatar(voter)
+							local avatar = voter:GetAvatar()
 
 							if IsValid(avatar) then
 								local x_offset = (votes - 1) * 128 * 0.5
