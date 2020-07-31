@@ -192,7 +192,7 @@ end
 function ENT:InitController(target, jump_down, jump_up)
 	local controller = Controller.New(target, jump_down, jump_up)
 	if controller then
-		local path = Controller.RequestEntityPath(self, target, jump_down, jump_up)
+		local path = Controller.RequestEntityPath(self, target, jump_down, jump_up, self.NPC_DATA.FuzzyAmount or 1)
 		if path then
 			DebugMessage(string.format("Generated initial path for %s.", self))
 			controller:SetPath(path)

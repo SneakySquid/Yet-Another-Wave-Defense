@@ -410,10 +410,9 @@ local function reconstruct_path( cameFrom, current, reached_limit )
 	return total_path
 end
 -- Pathfinmds and returns true if we're at goal. Will returns a uncomplete path if given a max_distance.
-local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL)
+local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 	if not node_start or not node_goal then return false end -- Invalid
 	if node_start == node_goal then return true end	-- We're already there
-
 	node_start:ClearSearchLists()
 	node_start:AddToOpenList()
 	local came_from = {}
@@ -432,7 +431,8 @@ local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jum
 		current:AddToClosedList()
 
 		for k, neighbor in pairs( current:GetConnectedNodes(max_jump, max_jumpdown, HULL) ) do
-			local newCostSoFar = current:GetCostSoFar() + heuristic_cost_estimate( current, neighbor )
+			local heuristic = heuristic_cost_estimate( current, neighbor )
+			local newCostSoFar = current:GetCostSoFar() + heuristic + (fuzzy_amount and math.Rand(0, heuristic * fuzzy_amount) or 0)
 
 			-- Filter
 			if not neighbor:IsNodeType(NODE_TYPE) then continue end
@@ -519,15 +519,15 @@ function path_meta:GetDistance()
 	return self.distance or 0
 end
 -- Creates a new path to a point or entity. Note max_jumpdown is negative. Returns true if reached.
-function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
+function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 	if not scanned then return false end
 	local t
 	if type(vec_or_ent_to) == "Entity" then
-		t = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
+		t = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 		if not t then return false end
 		t.ent_goal = true
 	else
-		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL)
+		t,reached_limit = PathFind( FindClosestNode(vec_from, NODE_TYPE), FindClosestNode(vec_or_ent_to, NODE_TYPE),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 		if not t then return false end
 	end
 	if type(t) == "boolean" and t then return true end

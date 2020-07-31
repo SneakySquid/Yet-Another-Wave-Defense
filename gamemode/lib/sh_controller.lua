@@ -50,7 +50,7 @@ end
 
 Controller = {}
 
-function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up)
+function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up, fuzzy_amount)
 	hull = hull or HULL_LARGE
 	start_pos = start_pos or Vector()
 	target_pos = target_pos or Building.GetCore():GetPos()
@@ -62,13 +62,14 @@ function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up)
 		NODE_TYPE_GROUND,
 		nil,
 		jump_down, jump_up,
-		hull
+		hull,
+		fuzzy_amount
 	)
 end
 
-function Controller.RequestEntityPath(ent, target_pos, jump_down, jump_up)
+function Controller.RequestEntityPath(ent, target_pos, jump_down, jump_up, fuzzy_amount)
 	local hull = ent:GetHULLType()
-	return Controller.RequestPath(hull, ent:GetPos(), target_pos, jump_down, jump_up)
+	return Controller.RequestPath(hull, ent:GetPos(), target_pos, jump_down, jump_up, fuzzy_amount)
 end
 
 function Controller.New(target, jump_down, jump_up)
@@ -153,7 +154,6 @@ if SERVER then
 				a:RotateAroundAxis(a:Right(), 90)
 				a:RotateAroundAxis(a:Forward(), 180)
 			end
-			--a:RotateAroundAxis(Vector(-1,0,0), 90)
 			e:SetAngles(a)
 			e:Spawn()
 		end

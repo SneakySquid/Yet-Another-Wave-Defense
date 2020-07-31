@@ -108,6 +108,7 @@ do
 	lion.Health = 400				-- Health
 	lion.JumpDown = 150				-- Allows the NPC to "jumpdown" from said areas
 	lion.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
+	lion.FuzzyAmount = 0.5			-- Amount of "fuzzyness" for the path. Default is 1.
 
 	lion.ANIM_RUN = 16	-- We need this to "walk" towards the Core
 
