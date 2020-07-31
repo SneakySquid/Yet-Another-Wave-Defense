@@ -13,8 +13,12 @@ function ENT:Initialize()
 	if ( SERVER ) then
 		self:SetModel( self.Model )
 		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_VPHYSICS )
-		self:SetSolid( SOLID_VPHYSICS )
+		self:SetMoveType( MOVETYPE_NONE )
+		self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
+		local phys = self:GetPhysicsObject()
+		if ( IsValid( phys ) ) then
+			phys:Sleep()
+		end
 		self:EmitSound(snd,75, 30, 1)
 	else
 		self.PixVis = util.GetPixelVisibleHandle()
