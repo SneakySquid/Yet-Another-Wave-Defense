@@ -17,7 +17,7 @@ local function SpawnGoldBug()
 end
 -- Gets a random NPC (or gets a cheaper one)
 local function GetNPCType(max_coins)
-	local l = NPC.GetAll( true )
+	local l = NPC.GetAll( true, GAMEMODE:GetWaveNumber() )
 	local n = math.Round(PRNG.Random( 1, #l))
 	local npc_type = l[n]
 	local cost = NPC.GetData(npc_type).Currency or 12
@@ -125,10 +125,10 @@ hook.Add( "Think", "WaveSpawnerThink", function()
 	if not GAMEMODE:HasWaveStarted() then return end
 	if wave_coroutine and wave_coroutine() then
 		-- No more NPCs to spawn.
-		DebugMessage("No more NPCs to spawn. Waiting for NPCs to be slain.")
-		if GAMEMODE:GetWaveNumber() == 1 then
+		if GAMEMODE:GetWaveNumber() == 1 or math.random(50) <= 5 then
 			SpawnGoldBug()
 		end
+		DebugMessage("No more NPCs to spawn. Waiting for NPCs to be slain.")
 		wave_coroutine = nil
 	elseif not wave_coroutine and GAMEMODE:HasWaveStarted() and check_timer <= CurTime() then -- Need to kill the rest
 		check_timer = CurTime() + 1
