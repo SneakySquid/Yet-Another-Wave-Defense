@@ -3,9 +3,8 @@
 	"$basetexture" "yawd/models/trap_blade"
 	"$model" 1
 	"$nocull" 0
-	"$detail" "yawd/models/trap_base"
+	"$detail" "yawd/models/trap_blade_selfillum"
 	"$detailscale" 1
-	"$detailblendfactor" 0.1
+	"$detailblendfactor" 1
 	"$detailblendmode" 5
 }
-
