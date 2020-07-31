@@ -161,8 +161,10 @@ do
 			local x = lookup[tier]
 
 			timer.Simple(0, function() -- Disgusting workaround
-				ply:SetWalkSpeed(ply:GetWalkSpeed() + x)
-				ply:SetRunSpeed(ply:GetRunSpeed() + x)
+				if IsValid(ply) then
+					ply:SetWalkSpeed(ply:GetWalkSpeed() + x)
+					ply:SetRunSpeed(ply:GetRunSpeed() + x)
+				end
 			end)
 		end
 	end
@@ -220,7 +222,9 @@ do
 		local tier = new_tier or GAMEMODE:GetPlayerUpgradeTier(ply, YAWD_UPGRADE_ARMOUR)
 		if tier > 0 then
 			timer.Simple(0, function() -- Disgusting workaround
-				ply:SetArmor(lookup[tier])
+				if IsValid(ply) then
+					ply:SetArmor(lookup[tier])
+				end
 			end)
 		end
 	end
@@ -298,7 +302,9 @@ do
 
 		if mul then
 			timer.Simple(0, function() -- Disgusting workaround
-				ply:SetMaxHealth(ply:GetMaxHealth() * mul)
+				if IsValid(ply) then
+					ply:SetMaxHealth(ply:GetMaxHealth() * mul)
+				end
 			end)
 		end
 	end
