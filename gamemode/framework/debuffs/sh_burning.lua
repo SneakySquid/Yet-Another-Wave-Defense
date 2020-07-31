@@ -20,8 +20,8 @@ function DEBUFF:Think()
 			dmg_info:SetDamageType(bit.bor(DMG_BURN, DMG_DISSOLVE))
 			dmg_info:SetDamage(self.BurnDamage)
 
-			dmg_info:SetAttacker(self:GetAttacker())
-			dmg_info:SetInflictor(self:GetAttacker())
+			dmg_info:SetAttacker(self:GetAttacker() or Entity(0))
+			dmg_info:SetInflictor(self:GetAttacker() or Entity(0))
 
 			target:TakeDamageInfo(dmg_info)
 

@@ -6,7 +6,7 @@ b.Icon = Material("yawd/hud/lava.png")
 b.Health = -1
 b.CanBuild = true
 b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_RUNNER}
-b.Cost = 550
+b.Cost = 1000
 
 b.BuildingSize = {-Vector(95, 95, 12), Vector(95, 95, 12)}
 b.TrapArea = {-Vector(95, 95, 1.7), Vector(95, 95, 95)}
@@ -42,6 +42,7 @@ function b:StartTouch( ent )
 	self.OnTrap[ent] = true
 	self.BurnAmount = self.BurnAmount - 1
 	local dm = Element.DamageInfo( ELEMENT_FIRE )
+		dm:SetAttacker(self:GetBuildingOwner())
 		ent:TakeDamageInfo( dm )
 		ent:EmitSound("ambient/fire/gascan_ignite1.wav", 100)
 	--	ent:Ignite(4, 16)
