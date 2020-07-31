@@ -29,9 +29,14 @@ function GM:CreateUpgradesMenu()
 			name:SetTall(30)
 
 			for i = 1, v.tiers do
-				local price = istable(v.price) and v.price[i] or v.price
 				local owned_tier = GAMEMODE:GetPlayerUpgradeTier(localplayer, v.k)
 				local is_owned = owned_tier >= i
+				local price = istable(v.price) and v.price[i] or v.price
+
+				if is_owned then
+					price = price * GAMEMODE:GetUpgradeRefundPercentage()
+				end
+
 				local text_col = is_owned and Color(180, 0, 0, 255) or Color(0, 140, 0, 255)
 				local text = string.format("%s Tier %s for $%d", is_owned and "Sell" or "Purchase", i, price)
 
