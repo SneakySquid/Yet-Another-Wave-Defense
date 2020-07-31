@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 SWEP.Base = "weapon_base"
 SWEP.PrintName = "YAWD Weapon Base"
 SWEP.Author = "YAWD Team"
@@ -13,8 +15,9 @@ SWEP.DrawCrosshair = true
 SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
-SWEP.ViewModelFOV = 62
+SWEP.ViewModelFOV = 74
 SWEP.ViewModelFlip = true
+SWEP.CSMuzzleFlashes = true
 
 SWEP.UseHands = true
 SWEP.ViewModel = ""
@@ -62,6 +65,12 @@ function SWEP:Initialize()
 end
 
 function SWEP:Deploy()
+	self:SendWeaponAnim(ACT_VM_DRAW)
+
+	local time = CurTime()
+	self:SetNextPrimaryFire(time + self:SequenceDuration())
+	self:SetNextReload(time + self:SequenceDuration())
+
 	return true
 end
 
@@ -133,7 +142,7 @@ function SWEP:Reload()
 
 	local time = CurTime()
 	self:SetNextReload(time + self:SequenceDuration())
-	self:SetNextPrimaryFire(time + self.ReloadDelay)
+	self:SetNextPrimaryFire(time + self:SequenceDuration())
 end
 
 function SWEP:CanReload()

@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 SWEP.Base = "yawd_sniper_base"
 SWEP.PrintName = "Sniper"
 SWEP.Author = "YAWD Team"
@@ -13,7 +15,7 @@ SWEP.DrawCrosshair = true
 SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
-SWEP.ViewModelFOV = 62
+SWEP.ViewModelFOV = 74
 SWEP.ViewModelFlip = true
 
 SWEP.UseHands = true
@@ -58,5 +60,4 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = "weapons/awp/awp_bolt.wav"

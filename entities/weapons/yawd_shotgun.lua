@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 SWEP.Base = "yawd_weapon_base"
 SWEP.PrintName = "Shotgun"
 SWEP.Author = "YAWD Team"
@@ -13,7 +15,7 @@ SWEP.DrawCrosshair = true
 SWEP.DrawAmmo = true
 SWEP.Weight = 5
 
-SWEP.ViewModelFOV = 62
+SWEP.ViewModelFOV = 74
 SWEP.ViewModelFlip = true
 
 SWEP.UseHands = true
@@ -33,7 +35,7 @@ SWEP.PrimarySpread = Vector(0.1, 0.1, 0)
 SWEP.PrimaryBulletsPerFire = 8
 SWEP.PrimaryBulletsTakenPerShot = 1
 SWEP.PrimaryForce = 1
-SWEP.PrimaryMaxDistance = 128
+SWEP.PrimaryMaxDistance = 512
 SWEP.PrimarySound = "weapons/xm1014/xm1014-1.wav"
 SWEP.PrimaryDamage = {
 	min = 14,
@@ -50,5 +52,4 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = "weapons/xm1014/xm1014_insertshell.wav"
