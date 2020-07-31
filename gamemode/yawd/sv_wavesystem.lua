@@ -11,10 +11,13 @@ function NPC.SpawnType(npc_type, tOverwrite)
 	NPC.Create(npc_type, r_spawner:GetPos() + Vector(0,0,10),tOverwrite)
 	return true
 end
-
+-- Spawn a golden bug
+local function SpawnGoldBug()
+	return NPC.SpawnType("ant_lion_gold")
+end
 -- Gets a random NPC (or gets a cheaper one)
 local function GetNPCType(max_coins)
-	local l = NPC.GetAll()
+	local l = NPC.GetAll( true )
 	local n = math.Round(PRNG.Random( 1, #l))
 	local npc_type = l[n]
 	local cost = NPC.GetData(npc_type).Currency or 12
@@ -54,7 +57,7 @@ local function GenerateNPCList()
 	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
 	for i = 1, n do
 		-- Get the NPC type
-		local npc_type = GetNPCType(max_coins / 2) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
+		local npc_type = GetNPCType(max_coins * 0.40) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
 		-- Get the amount of coins spent on said NPC
 		local amount
 		if i == n then
@@ -123,6 +126,9 @@ hook.Add( "Think", "WaveSpawnerThink", function()
 	if wave_coroutine and wave_coroutine() then
 		-- No more NPCs to spawn.
 		DebugMessage("No more NPCs to spawn. Waiting for NPCs to be slain.")
+		if GAMEMODE:GetWaveNumber() == 1 then
+			SpawnGoldBug()
+		end
 		wave_coroutine = nil
 	elseif not wave_coroutine and GAMEMODE:HasWaveStarted() and check_timer <= CurTime() then -- Need to kill the rest
 		check_timer = CurTime() + 1

@@ -186,6 +186,9 @@ function ENT:Initialize()
 	end
 	self:SetHULLType(self.NPC_DATA.HullType or PathFinder.FindEntityHULL( self ))
 	self:InitController(Building.GetCore():GetPos(), 0, 0)
+	if self.NPC_DATA.Material then
+		self:SetMaterial(e.NPC_DATA.Material)
+	end
 end
 
 -- How far can we go in this direction
@@ -358,7 +361,11 @@ end
 function ENT:Draw()
 	if self:GetRagdolled() then return end
 	if self:Health() <= 0 and self:GetMaxHealth() > 0 then return end
+	if self.NPC_DATA.Color then
+		render.SetColorModulation(self.NPC_DATA.Color.r / 255,self.NPC_DATA.Color.g / 255,self.NPC_DATA.Color.b / 255)
+	end
 	self:DrawModel()
+	render.SetColorModulation(1,1,1)
 end
 
 function ENT:Think()

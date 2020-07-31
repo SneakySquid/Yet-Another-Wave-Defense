@@ -34,7 +34,7 @@ local function LookUpAnimation(ent)
 	return cache[mdl]
 end
 -- These variables can also be a table or function.
-local collapse = {"DisplayName", "Model", "Health", "Skin"}
+local collapse = {"DisplayName", "Model", "Health", "Skin", "Material", "Color"}
 function NPC.ApplyFunctions(e, sName)
 	e.NPC_DATA = NPCs[sName]
 	-- Collapse variables
@@ -42,7 +42,7 @@ function NPC.ApplyFunctions(e, sName)
 		local sTy = type(e.NPC_DATA[v])
 		if sTy == "function" then
 			e.NPC_DATA[v] = e.NPC_DATA[v]( e )
-		elseif sTy == "table" then
+		elseif sTy == "table" and not IsColor(e.NPC_DATA[v]) then
 			e.NPC_DATA[v] = table.Random( e.NPC_DATA[v] )
 		end
 	end
@@ -108,16 +108,24 @@ function NPC.GetData(sName)
 	return NPCs[sName]
 end
 -- Returns all NPCs
-function NPC.GetAll()
+function NPC.GetAll( b_OnlySpawnable )
+	if b_OnlySpawnable then
+		local t = {}
+		for npc_type,npc_data in pairs(NPCs) do
+			if npc_data.Spawnable ~= false then
+				table.insert(t, npc_type)
+			end
+		end
+		return t
+	end
 	return table.GetKeys(NPCs)
 end
 -- Reward players
 function NPC.RewardCurrency( num )
-	local t = player.GetAll()
-	num = math.ceil( num / #t )
-	for k,v in ipairs(t) do
+	for k,v in ipairs(player.GetAll()) do
 		v:AddCurrency( num )
 	end
+	hook.Run("YAWDOnCurrencyGiven", num)
 end
 -- Load the NPCs
 local files,folders = file.Find( GM.FolderName .. "/gamemode/npcs/*.lua" ,"LUA")

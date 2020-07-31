@@ -21,7 +21,36 @@ do
 	end
 
 	function lion:OnStep()
-		self:EmitSound( "npc/antlion/foot" .. math.random(1,4) .. ".wav", 75, 150 )
+		self:EmitSound( "npc/antlion/foot" .. math.random(1,4) .. ".wav", 75, 200 )
+	end
+	NPC.Add(lion)
+end
+-- Golden Ant. Can't do much
+do
+	local lion = {}
+	lion.Name = "ant_lion_gold"
+	lion.DisplayName = "Golden Ant"
+	lion.Spawnable = false 		-- We don't these to spawn by themselves.
+
+	lion.Model = Model("models/antlion.mdl")
+	lion.Color = Color(255,215,0)
+	lion.MoveSpeed = 140
+	lion.Currency = 100
+	lion.Skin = 1
+	lion.Health = 15					-- Health
+	lion.JumpDown = 100				-- Allows the NPC to "jumpdown" from said areas
+	lion.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
+
+	lion.CanTargetPlayers = false		-- Tells that we can target the players
+	lion.TargetIgnoreWalls = false	-- Ignore walls when targeting players
+	lion.TargetPlayersRange = 0		-- The radius of the target
+	lion.TargetCooldown = 15			-- The amount of times we can target the player
+	function lion:Init()
+		self:SetModelScale(0.5,0)
+	end
+
+	function lion:OnStep()
+		self:EmitSound( "npc/antlion/foot" .. math.random(1,4) .. ".wav", 75, 200 )
 	end
 	NPC.Add(lion)
 end
