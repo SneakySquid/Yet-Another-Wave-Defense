@@ -63,19 +63,21 @@ function ENTITY:RemoveDebuff(enum)
 	if not self:HasDebuff(enum) then return false end
 	self:SetDebuffs(bit.band(self:GetDebuffs(), bit.bnot(enum)))
 
-	local debuff = Debuff.Create(enum)
-	if not debuff then return false end
-
-	debuff:SetApplied(false)
-	debuff:OnRemoved(self)
-
 	self.Debuffs = self.Debuffs or {
 		Lookup = {},
 		Current = {},
 	}
 
-	table.remove(self.Debuffs.Current, self.Debuffs.Lookup[enum])
+	local debuff = table.remove(self.Debuffs.Current, self.Debuffs.Lookup[enum])
 	self.Debuffs.Lookup[enum] = nil
+
+	if not debuff then return end
+
+	debuff:SetApplied(false)
+	debuff:OnRemoved(self)
+
+	hook.Remove("Think", debuff)
+	if CLIENT then hook.Remove("PostDrawEffects", debuff) end
 
 	if SERVER then
 		net.Start("Debuff.Update")
@@ -146,7 +148,10 @@ function Debuff.Create(enum)
 	debuff = setmetatable({}, {__index = debuff})
 
 	hook.Add("Think", debuff, debuff.Think)
-	hook.Add("PostDrawEffects", debuff, debuff.DrawEffect)
+
+	if CLIENT then
+		hook.Add("PostDrawEffects", debuff, debuff.DrawEffect)
+	end
 
 	return debuff
 end

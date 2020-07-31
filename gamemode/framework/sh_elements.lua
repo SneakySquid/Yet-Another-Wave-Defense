@@ -109,12 +109,12 @@ do
 		element:Initialize()
 	end
 
-	DebugMessage("Finished initializing %i elements.", #Element.Registered)
+	DebugMessage(string.format("Finished initializing %i elements.", #Element.Registered))
 end
 
 function GM:EntityTakeDamage(target, dmg_info)
 	local dmg_type = dmg_info:GetDamageCustom()
-	if not dmg_type then return end
+	if not dmg_type or dmg_type == 0 then return end
 
 	local element = Element.Get(dmg_type)
 	if not element then return end

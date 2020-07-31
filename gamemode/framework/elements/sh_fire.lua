@@ -1,7 +1,7 @@
 local ELEMENT = Element.New()
 
 function ELEMENT:Initialize()
-	self:SetDamageType(DMG_BURN)
+	self:SetDamageType(bit.bor(DMG_BURN, DMG_DISSOLVE))
 
 	self:SetWeakAgainst(ELEMENT_WATER, ELEMENT_ROCK, ELEMENT_FIRE)
 	self:SetStrongAgainst(ELEMENT_SCOURGE, ELEMENT_ICE, ELEMENT_GRASS)
