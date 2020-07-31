@@ -305,13 +305,13 @@ end
 function ENT:MoveTowards( pos, ignoreAnimation )
 	local mov_speed = self:GetMoveSpeed()
 	local delta = (pos - self:GetPos())
-	local l = delta:Length()
+	local l = Vector(delta.x,delta.y,0):Length()
 	local vel = delta:GetNormalized() * mov_speed
 	if not ignoreAnimation then self:HandleAnimation(mov_speed) end
 	if self.NPC_DATA.OnStep and (self.m_StepDur or 0) < CurTime() then
 		self.m_StepDur = CurTime() + (self.NPC_DATA.OnStep(self) or 40 / mov_speed)
 	end
-	if l < 50 then return true end
+	if l < 60 then return true end
 	self.loco:SetVelocity(vel)
 	self.loco:Approach(pos, 1)
 	return false
