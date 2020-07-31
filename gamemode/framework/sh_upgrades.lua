@@ -178,16 +178,38 @@ do
 				callback = function(ply, is_transition)
 					apply(ply)
 				end,
-			}
+			},
 		},
 	})
 end
 
--- TODO: There should probably be a resistance upgrade for each element
-YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
-	name = "Resistance",
-	price = 500,
-})
+-- TODO: Resistance upgrade for each element?
+do
+	local lookup = {
+		0.98, 0.96, 0.94, 0.92, 0.9,
+	}
+
+	YAWD_UPGRADE_RESISTANCE = GM:RegisterUpgrade({
+		name = "Resistance",
+		price = {1000, 1500, 2000, 2500, 3000},
+		hooks = {
+			{
+				event = "EntityTakeDamage",
+				realm = "server",
+				callback = function(ent, dmg)
+					if ent:IsPlayer() then
+						local tier = GAMEMODE:GetPlayerUpgradeTier(ent, YAWD_UPGRADE_RESISTANCE)
+						local mul = lookup[tier]
+
+						if mul then
+							dmg:ScaleDamage(mul)
+						end
+					end
+				end,
+			},
+		},
+	})
+end
 
 do
 	local lookup = {
