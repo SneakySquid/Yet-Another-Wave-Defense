@@ -108,11 +108,12 @@ function NPC.GetData(sName)
 	return NPCs[sName]
 end
 -- Returns all NPCs
-function NPC.GetAll( b_OnlySpawnable )
+function NPC.GetAll( b_OnlySpawnable, n_WaveNumber )
+	if not n_WaveNumber then n_WaveNumber = GAMEMODE:GetWaveNumber() end
 	if b_OnlySpawnable then
 		local t = {}
 		for npc_type,npc_data in pairs(NPCs) do
-			if npc_data.Spawnable ~= false then
+			if npc_data.Spawnable ~= false and (npc_data.MinimumWave or 0) <= n_WaveNumber then
 				table.insert(t, npc_type)
 			end
 		end
