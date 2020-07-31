@@ -52,5 +52,4 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = "weapons/ak47/ak47_clipin.wav"

@@ -52,5 +52,4 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = "weapons/m249/m249_boxout.wav"

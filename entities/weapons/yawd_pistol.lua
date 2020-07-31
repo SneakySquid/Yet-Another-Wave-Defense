@@ -52,5 +52,4 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = "weapons/fiveseven/fiveseven_clipout.wav"

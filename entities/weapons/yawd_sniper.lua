@@ -60,5 +60,4 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = "weapons/awp/awp_bolt.wav"

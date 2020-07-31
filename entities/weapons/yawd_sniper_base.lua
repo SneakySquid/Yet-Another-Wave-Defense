@@ -60,7 +60,6 @@ SWEP.PrimaryViewPunch = {
 	},
 }
 
-SWEP.ReloadDelay = 1
 SWEP.ReloadSound = ""
 
 function SWEP:SecondaryAttack()
