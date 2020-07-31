@@ -27,4 +27,20 @@ if SERVER then
 
 		return true
 	end
+else
+	local avatars = {}
+	function PLAYER:GetAvatar()
+		local id = self:SteamID()
+
+		if not avatars[id] then
+			local a = vgui.Create("AvatarImage")
+			a:SetSize(128, 128)
+			a:SetPlayer(self, 128)
+			a:SetPaintedManually(true)
+
+			avatars[id] = a
+		end
+
+		return avatars[id]
+	end
 end

@@ -89,6 +89,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_purchase = function(ply)
 				if SERVER then
 					ply:Give("weapon_crowbar")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -97,6 +98,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("weapon_crowbar")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -111,6 +113,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 				if SERVER then
 					ply.m_StartingAmmo["Pistol"] = 50
 					ply:Give("yawd_pistol")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -119,6 +122,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_pistol")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -138,6 +142,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 					end
 
 					ply:Give("weapon_smg1")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -146,6 +151,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_pistol")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -166,8 +172,8 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 				if SERVER then
 					ply.m_StartingAmmo["grenade"] = 15
 					ply:Give("weapon_frag")
+					ply:Spawn()
 				else
-					GAMEMODE:PrecacheSlots()
 					GAMEMODE:PrecacheSlots()
 				end
 			end,
@@ -175,6 +181,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("grenade_frag")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -193,6 +200,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 				if SERVER then
 					ply.m_StartingAmmo["RPG_Round"] = 15
 					ply:Give("weapon_rpg")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -201,6 +209,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("weapon_rpg")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -222,6 +231,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 				if SERVER then
 					ply.m_StartingAmmo["Buckshot"] = 164
 					ply:Give("yawd_shotgun")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -230,6 +240,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_shotgun")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -250,6 +261,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 				if SERVER then
 					ply.m_StartingAmmo["AR2"] = 300
 					ply:Give("yawd_rifle")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -258,6 +270,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_rifle")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -277,6 +290,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_purchase = function(ply)
 				if SERVER then
 					ply:Give("weapon_medkit")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -285,6 +299,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("weapon_medkit")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -306,6 +321,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 				if SERVER then
 					ply.m_StartingAmmo["AR2"] = 500
 					ply:Give("yawd_lmg")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end
@@ -314,6 +330,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			on_sell = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_lmg")
+					ply:Spawn()
 				else
 					GAMEMODE:PrecacheSlots()
 				end

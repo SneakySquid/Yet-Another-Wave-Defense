@@ -61,6 +61,7 @@ local left_mouse_indicator = Material("gui/lmb.png")
 local wavedisplay_bg = Material("effects/ar2_altfire1")
 local wavedisplay_bg2 = Material("effects/splashwake1")
 local wavedisplay_bg3 = Material("effects/splashwake3")
+local mat_selected = Material("vgui/spawnmenu/hover")
 
 local HUD = {
 	StatusStrings = {
@@ -203,7 +204,7 @@ HUD.Status = {
 	end,
 
 	Currency = function(ply, sw, sh)
-		draw.SimpleText(string.format("$%i", currency_lerp(ply:GetCurrency())), "HUD.Status", sw / 2, sh * 0.6, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		draw.SimpleText(string.format("$%s", string.Comma(math.floor(currency_lerp(ply:GetCurrency())))), "HUD.Status", sw / 2, sh * 0.6, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 	end,
 
 	WaveDisplay = function(ply, sw, sh)
@@ -213,7 +214,7 @@ HUD.Status = {
 		local alive = false
 		if core and IsValid(core) then
 			local n = core:Health()
-			if n > 0 then 
+			if n > 0 then
 				alive = true
 				c_col = HSVToColor(n / 5, 1,1)
 			end
@@ -240,7 +241,7 @@ HUD.Status = {
 			surface.DrawTexturedRectRotated(x, y, 100, 100, CurTime() * - 44)
 			surface.SetMaterial(wavedisplay_bg3)
 			surface.DrawTexturedRectRotated(x, y, 80, 80, CurTime() * 34)
-		
+
 			surface.SetMaterial(wavedisplay_bg)
 			surface.SetDrawColor(color_white)
 			surface.DrawTexturedRect(x - 50, y - 50, 100, 100)
@@ -256,6 +257,10 @@ HUD.Status = {
 
 HUD.Wave = {
 	Status = function(ply, sw, sh)
+		if GAMEMODE.m_WaveStatus == WAVE_POST then
+			local time_left = math.max(0, GAMEMODE.m_NextWaveStart - CurTime())
+			draw.SimpleText(string.format("%s until next wave", string.NiceTime(time_left)), "HUD.VoteStatus", sw * 0.5, sh * 0.25, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		end
 	end,
 
 	Vote = function(ply, sw, sh)
@@ -278,6 +283,36 @@ HUD.Wave = {
 			render.PopFilterMag()
 
 			ty = ty + h
+		elseif GAMEMODE.m_VoteType == VOTE_TYPE_WAVE then
+			local bind = input.LookupBinding("gm_showspare2")
+			local w, h = draw.SimpleText(string.format("Press %s to start waves", bind), "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+
+			ty = ty + h
+
+			local players = player.GetAll()
+			local player_count = #players
+
+			local x_offset = (player_count - 1) * 64 * 0.5 + (player_count - 1) * 10 * 0.5
+
+			for i, ply in ipairs(players) do
+				local avatar = ply:GetAvatar()
+
+				if IsValid(avatar) then
+					local x_pos = sw * 0.5 + math.floor(((i - 1) * 64 - x_offset - 32) + ((i - 1) * 10))
+
+					if vote_info.Voters[ply] then
+						surface.SetDrawColor(255, 255, 255)
+						surface.SetMaterial(mat_selected)
+						surface.DrawTexturedRect(x_pos - 8, ty - 8, 64 + 16, 64 + 16)
+					end
+
+					avatar:SetPos(x_pos, ty)
+					avatar:SetSize(64, 64)
+					avatar:PaintManual()
+				end
+			end
+
+			ty = ty + 128
 		end
 
 		if time_left >= 0 then
