@@ -138,10 +138,10 @@ function ENT:OnRemove()
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 end
 function ENT:OnKilled( dmginfo )
+	if self.Weapon then SafeRemoveEntity( self.Weapon) end
 	hook.Call( "OnNPCKilled", GAMEMODE, self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
 	self:BecomeRagdoll( dmginfo )
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
-	if self.Weapon then SafeRemoveEntity( self.Weapon) end
 	if self.m_IgnoreMoney then return end
 	NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
 end
