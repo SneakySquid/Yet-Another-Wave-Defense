@@ -141,14 +141,19 @@ if SERVER then
 			table.insert(spawners, pos)
 			-- Spawn entity
 			local tr = util.TraceLine( {
-				start = pos + Vector(0,0,50),
-				endpos = pos - Vector(0,0,50),
+				start = pos + Vector(0,0,60),
+				endpos = pos - Vector(0,0,100),
 				mask = MASK_PLAYERSOLID_BRUSHONLY
 			} )
 			local e = ents.Create("yawd_npc_spawner")
 			e:SetPos( tr.Hit and (tr.HitPos + tr.HitNormal * 0.03) or pos )
-			local a = tr.Hit and tr.HitNormal:Angle() or Angle(0,0,0)
-			a:RotateAroundAxis(Vector(0,1,0), 90)
+			local a = Angle(0,0,0)
+			if tr.Hit then
+				a = tr.HitNormal:Angle()
+				a:RotateAroundAxis(a:Right(), 90)
+				a:RotateAroundAxis(a:Forward(), 180)
+			end
+			--a:RotateAroundAxis(Vector(-1,0,0), 90)
 			e:SetAngles(a)
 			e:Spawn()
 		end
