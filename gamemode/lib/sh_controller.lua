@@ -171,5 +171,8 @@ if SERVER then
 		core = Building.GetCore()
 		return true
 	end
+	function Controller.ResetSpawnerCheck()
+		spawned = false
+	end
 	hook.Add("YAWDPathFinderNodesLoaded", "YAWD.SpawnSpawners", Controller.TrySpawnSpawners)
 end
