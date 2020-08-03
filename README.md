@@ -7,6 +7,9 @@ A Garry's Mod wave defense gamemode submission for the [gmodstore Gamemode Compe
 - [SneakySquid](https://github.com/SneakySquid)
 - [lewis](https://github.com/c4fe)
 
+## Workshop
+You can also download  the gamemode on the workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2186473733
+
 ## License
 TBD
 
