@@ -54,6 +54,10 @@ if SERVER then
 		end
 		ply:SetCurrency(ply:GetCurrency() - (bd.Cost or 100))
 	end)
+	-- Fix
+	function SWEP:PrimaryAttack()
+		if ( game.SinglePlayer() ) then self:CallOnClient( "PrimaryAttack" ) end
+	end
 else
 	function SWEP:SetBuilding(str)
 		self.Building = str
@@ -206,5 +210,4 @@ else
 	local n2_timer = 0
 	function SWEP:SecondaryAttack()
 	end
-	
 end
