@@ -132,7 +132,7 @@ end
 do
 	local lion = {}
 	lion.Name = "ant_guardian"
-	lion.DisplayName = "Ant Guarding"
+	lion.DisplayName = "Ant Guardian"
 	lion.MinimumWave = 5
 
 	lion.Model = Model("models/antlion_guard.mdl")
