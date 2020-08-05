@@ -8,6 +8,15 @@ if SERVER then
 			ply:ChatPrint(reason)
 		end
 	end)
+	-- Singleplayer Fix
+	if game.SinglePlayer() then
+		util.AddNetworkString("YAWD.SPlayerClassFix")
+		hook.Add("PlayerButtonDown", "YAWD.KeyFix", function( ply, button )
+			net.Start("YAWD.SPlayerClassFix")
+				net.WriteInt(button,32)
+			net.Send( ply )
+		end)
+	end
 else
 	function GM:CreateSelectionMenu()
 		if self.ClassMenu then
@@ -70,4 +79,18 @@ else
 			chat.AddText("Use 'yawd_select_class' to change classes.")
 		end
 	end)
+
+	-- We look after the button 'G' if yawd_class_select isn't bound.
+	local function OnKey( _, button_code )
+		if button_code ~= KEY_G then return end
+		if input.LookupBinding( "yawd_change_class" ) then return end -- Command already bound
+		GAMEMODE:OpenSelectionMenu()
+	end
+	hook.Add("PlayerButtonDown", "YAWD.ClassMenuDefault", OnKey)
+	-- Singleplayer fix
+	if game.SinglePlayer() then
+		net.Receive("YAWD.SPlayerClassFix", function()
+			OnKey(_, net.ReadInt(32))
+		end)
+	end
 end
