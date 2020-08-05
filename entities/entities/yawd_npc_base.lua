@@ -163,7 +163,6 @@ function ENT:Initialize()
 	self:AddSolidFlags( FSOLID_NOT_STANDABLE )
 
 	if CLIENT then
-		hook.Add("PreDrawHalos", self, self.DrawHalo) -- shitcode alert
 		NPC.ApplyFunctions(self, self:GetNPCType())
 	end
 
@@ -391,7 +390,7 @@ function ENT:Draw()
 		local bw, bh = 125, 5
 		local bx, by = 0, 0
 
-		local hp = self:Health()
+		local hp = self._FIXHP or self:Health()
 		local max_hp = self:GetMaxHealth()
 
 		self.m_HealthLerp = self.m_HealthLerp or PercentLerp(0.5, 0.25, true)
@@ -455,8 +454,24 @@ hook.Add("ShouldCollide","yawd_npc_collide",function(a,b)
 end)
 
 if CLIENT then
-	ENT.HaloColour = Color(234, 60, 83) -- team.GetColor(TEAM_ATTACKER) -- not defined yet smh, manual include master race
-	function ENT:DrawHalo()
-		halo.Add({self}, self.HaloColour)
+    hook.Add("PreDrawHalos", "NPC.DrawHalo", function()
+        halo.Add(ents.FindByClass("yawd_npc_base"), team.GetColor(TEAM_ATTACKER), nil, nil, nil, nil, false)
+    end)
+	if game.SinglePlayer() then
+		net.Receive("YAWD.SinglePlayerHPFix", function()
+			local ent = net.ReadEntity()
+			local hp = net.ReadInt(32)
+			if not ent or not IsValid(ent) then return end
+			ent._FIXHP = hp
+		end)
 	end
+elseif SERVER and game.SinglePlayer() then
+	util.AddNetworkString("YAWD.SinglePlayerHPFix")
+	hook.Add("PostEntityTakeDamage", "YAWD.SinglePlayerHPFix", function(ent, dmg, took)
+		if not ent or not IsValid(ent) then return end
+		net.Start("YAWD.SinglePlayerHPFix")
+			net.WriteEntity(ent)
+			net.WriteInt(ent:Health(), 32)
+		net.Broadcast()
+	end)
 end
