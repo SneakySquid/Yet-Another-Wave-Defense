@@ -58,6 +58,8 @@ if SERVER then
 	function SWEP:PrimaryAttack()
 		if ( game.SinglePlayer() ) then self:CallOnClient( "PrimaryAttack" ) end
 	end
+	function SWEP:SecondaryAttack()
+	end
 else
 	function SWEP:SetBuilding(str)
 		self.Building = str
