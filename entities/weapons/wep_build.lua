@@ -136,16 +136,22 @@ else
 	function SWEP:Deploy()		self:MakeGhost() return end
 	function SWEP:Holster()		self:RemoveGhost() return end
 	function SWEP:OnRemove()	self:RemoveGhost() return end
-	local m_Reload = false
+	local is_holding_rotate = false
 	function SWEP:Think()
 		if self:GetOwner() ~= LocalPlayer() then return end
 		self:MakeGhost()
-		local b = LocalPlayer():KeyDown( IN_RELOAD ) or LocalPlayer():KeyDown( IN_ATTACK2 )
-		if m_Reload~=b then
-			m_Reload = b
-			if m_Reload then
-				Rotate = (Rotate + 1) % 4
-				self:EmitSound("garrysmod/ui_click.wav")
+
+		if IsFirstTimePredicted() then
+			local b = LocalPlayer():KeyDown( IN_RELOAD ) or LocalPlayer():KeyDown( IN_ATTACK2 )
+
+			if b then
+				if not is_holding_rotate then
+					is_holding_rotate = true
+					Rotate = (Rotate + 1) % 4
+					self:EmitSound("garrysmod/ui_click.wav")
+				end
+			else
+				is_holding_rotate = false
 			end
 		end
 	end
