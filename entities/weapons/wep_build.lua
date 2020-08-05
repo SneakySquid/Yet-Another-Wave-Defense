@@ -147,7 +147,7 @@ else
 			if b then
 				if not is_holding_rotate then
 					is_holding_rotate = true
-					Rotate = (Rotate + 1) % 4
+					Rotate = (Rotate - 1) % 4
 					self:EmitSound("garrysmod/ui_click.wav")
 				end
 			else
