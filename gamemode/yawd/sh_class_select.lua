@@ -52,8 +52,8 @@ else
 		if not IsValid(self.ClassMenu) then
 			self:CreateSelectionMenu()
 		end
-
 		self.ClassMenu:SetVisible(true)
+		surface.PlaySound("garrysmod/ui_click.wav")
 	end
 
 	function GM:CloseSelectionMenu()
