@@ -466,7 +466,7 @@ else
 	end
 	-- Anything rendered after this, will be cut to match the mask.
 	function Building.StencilRender()
-			render.SetStencilCompareFunction( STENCIL_EQUAL );
+		render.SetStencilCompareFunction( STENCIL_EQUAL );
 		render.ClearBuffersObeyStencil( 0,0,0,0, true );
 	end
 	-- Ends the stencil.
