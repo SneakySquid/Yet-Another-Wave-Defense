@@ -176,13 +176,14 @@ if SERVER then
 				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
 				return
 			end]]
-			local t = self:GetEnemiesOn()
-			if self:OnTrapTrigger( t ) == false then -- Trap returned false
+			local t = self:OnTrapTrigger( self:GetEnemiesOn() )
+			if not t and t == false then -- Trap returned false
 				self.i_triggerpoint = nil
 				DebugMessage(string.format("%s: I'm not allowe to trigger", self))
 				return
 			end
 			-- Trigger it
+			t = t or self:GetEnemiesOn()
 			net.Start("yawd.traptrigger")
 				net.WriteEntity(self)
 				net.WriteInt(#t, 32)
