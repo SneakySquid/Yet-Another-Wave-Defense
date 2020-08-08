@@ -369,9 +369,22 @@ else
 
 			local bw, bh = 250, 25
 			local bx, by = 0, 0
-
-			local _, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-			local y_offset = th + 5
+			local building_icon = self:GetBuildingData().Icon
+			local tw,th = 0,0
+			if not building_icon then
+				tw, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			else
+				surface.SetFont("HUD.Building")
+				surface.SetDrawColor(color_white)
+				surface.SetMaterial(building_icon)
+				local text = self:GetBuildingName() or "Unknown Building"
+				local i_s = 48
+				tw,th = surface.GetTextSize(text)
+				surface.DrawTexturedRect(-tw / 2 - i_s * 0.75,by,i_s,i_s)
+				tw, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx + i_s / 2, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			end
+			
+			local y_offset = th + 10
 
 			if max_hp > 0 then
 				by = by + y_offset
