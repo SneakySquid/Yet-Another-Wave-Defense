@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "yawd/models/trap_side"
+	"$model" 1
+	"$nocull" 0
+	"$detail" "yawd/models/trap_side"
+	"$detailscale" 1
+	"$detailblendfactor" 0.1
+	"$detailblendmode" 5
+	"$basetexturetransform" "center 0 0 scale 0.2 0.5 rotate 0 translate 0 0"
+}
+
