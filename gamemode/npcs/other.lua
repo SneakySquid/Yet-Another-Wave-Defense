@@ -8,6 +8,7 @@ do
 	dog.Currency = 12
 	dog.Skin = {0, 1}
 	dog.MinimumWave = 7
+	dog.MaxPrWave = 3 			-- This model cost too much.
 
 	dog.Health = 525					-- Health
 	dog.JumpDown = 10				-- Allows the NPC to "jumpdown" from said areas

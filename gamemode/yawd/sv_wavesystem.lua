@@ -68,19 +68,42 @@ local function GenerateNPCList()
 	end
 	local t = {}
 	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
+	-- Create a NPC list
+	local max_runs = 10
 	for i = 1, n do
 		-- Get the NPC type
 		local npc_type = GetNPCType(max_coins * 0.40) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
-		-- Get the amount of coins spent on said NPC
+		local npc_data = NPC.GetData(npc_type)
+		local cur_amount = t[npc_type] or 0
+		-- Get the amount of coins we spent on said NPC
 		local amount
 		if i == n then
 			amount = 1
 		else
 			amount = PRNG.Random(0.2,0.5)
 		end
+		-- Calculate the amount
 		local cost = NPC.GetData(npc_type).Currency or 12
 		local spent = (max_coins * amount)
 		local amount = math.ceil( spent / cost + 0.01 )
+		-- Check the max amount
+		local max_amount = npc_data.MaxPrWave or -1
+		if max_amount > -1 then
+			amount = math.min(max_amount, amount - cur_amount)
+		end
+		-- If amount is 0, then spawn something else
+		if amount <= 0 then
+			i = i - 1
+			max_runs = max_runs - 1
+			if max_runs > 0 then
+				continue
+			else -- After 10 times, we give up and give some golden antlions instead
+				npc_type = "ant_lion_gold"
+				amount = max_coins / NPC.GetData(npc_type).Currency
+			end
+		else
+			max_runs = 10
+		end
 		max_coins = max_coins - amount * cost
 		t[npc_type] = (t[npc_type] or 0) + amount
 	end
