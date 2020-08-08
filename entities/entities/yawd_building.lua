@@ -442,7 +442,19 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "String", 0, "BuildingName" )
 	self:NetworkVar( "Entity", 0, "BuildingOwner" )
 	self:NetworkVar( "Int", 0, "Upgrades" )
-	self:NetworkVar( "Bool", 1, "Disabled" )
+	self:NetworkVar( "Bool", 0, "bDisabled" )
+end
+
+function ENT:SetDisabled( b )
+	self:SetbDisabled( b )
+	if b and self.OnDisabled then
+		self:OnDisabled()
+	elseif not b and self.OnEnabled then
+		self:OnEnabled()
+	end
+end
+function ENT:GetDisabled()
+	return self:GetbDisabled()
 end
 
 function ENT:Use(ply)
