@@ -1,7 +1,7 @@
 -- Simple Spikes
 
 local b = {}
-b.Name = "Explosive Barrel"
+b.Name = "Explosives"
 b.Icon = Material("yawd/hud/explosive.png")
 b.BuildClass = {CLASS_BOMBER}
 b.Cost = 1100
@@ -144,11 +144,8 @@ function b:Draw()
 			end
 		end
 	end
-	-- Renders the trap area
-	self:RenderTrapArea()
 end
 function b:DrawSelection( )
 	self:RenderBase()
-	self:RenderTrapArea()
 end
 return b
