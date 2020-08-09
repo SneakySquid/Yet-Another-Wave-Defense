@@ -68,7 +68,7 @@ function ENT:MakeRagdoll( duration )
 end
 -- Makes the nextbot unragdoll
 function ENT:UnRagdoll()
-	if self.e_Ragdoll then
+	if self.e_Ragdoll and IsValid(self.e_Ragdoll) then
 		self:SetPos(self.e_Ragdoll:GetPos() + Vector(0,0,4))
 		SafeRemoveEntity( self.e_Ragdoll )
 	end
@@ -504,7 +504,9 @@ end
 
 function ENT:Think()
 	if self:GetRagdolled() then
-		if SERVER and (self.i_RagdollTime or 0) < CurTime() and (self.e_Ragdoll or self):GetVelocity():Length() < 10 then
+		if SERVER and not IsValid(self.e_Ragdoll) then
+			self:UnRagdoll()
+		elseif SERVER and (self.i_RagdollTime or 0) < CurTime() and (self.e_Ragdoll or self):GetVelocity():Length() < 10 then
 			self:UnRagdoll()
 		else
 			self.b_WasRagdolled = true
