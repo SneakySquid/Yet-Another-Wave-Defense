@@ -229,6 +229,7 @@ function ENT:InitController(target, jump_down, jump_up)
 end
 
 local function WentIntoCore(self)
+	if CLIENT then return end
 	local core = Building.GetCore()
 	if IsValid(core) then
 		local n = math.random(1,3)
