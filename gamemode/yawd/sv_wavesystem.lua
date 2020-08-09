@@ -107,7 +107,7 @@ local function GenerateNPCList( num)
 		max_coins = max_coins - amount * cost
 		t[npc_type] = (t[npc_type] or 0) + amount
 	end
-	if PRNG.Random(1, 5) > 3 then
+	if PRNG.Random(1, 5) > 3 or num == 0 then
 		t["ant_lion_gold"] = 1
 	end
 	-- Sort the list. In this way we can make the large amount of NPC's the primary
