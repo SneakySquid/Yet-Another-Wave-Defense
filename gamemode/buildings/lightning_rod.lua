@@ -49,7 +49,7 @@ function b:OnTrapTrigger( tListOfEnemies )
 		-- Find a randomish enemy
 		local c
 		for k,v in ipairs( tListOfEnemies ) do
-			if IsValid(v) then
+			if IsValid(v) and v:Health() > 0 then
 				c = v
 			end
 		end
@@ -140,6 +140,25 @@ function b:Draw()
 				part:SetGravity( Vector( 0, 0, 0 ) ) -- Gravity of the particle
 			end
 		end
+	end
+	-- Render connection
+	if (self._nextcon or 0) < CurTime() then
+		self._nextcon = CurTime() + math.random(7,12)
+		self._nextren = CurTime() + 0.2
+		for k,v in ipairs( ents.FindInSphere(self:GetPos(), 300)) do
+			if not IsValid(v) or v:GetClass() ~= self:GetClass() then continue end
+			if v:GetBuildingName() ~= self:GetBuildingName() or (v.i_reset or v:GetDisabled()) then continue end
+			self._nextpos = v:LocalToWorld(Vector(0,0,72))
+			self:EmitSound("ambient/energy/spark" .. math.random(1,6) .. ".wav")
+			break
+		end
+	elseif self._nextpos and (self._nextren or 0) > CurTime() then
+		render.SetMaterial(mat)
+		local p = self:LocalToWorld(Vector(0,0,72))
+		render.StartBeam(2)
+			render.AddBeam(p, 16, 0, color_white)
+			render.AddBeam(self._nextpos, 16, p:Distance(self._nextpos) / 200, color_white)
+		render.EndBeam()
 	end
 	-- Render trap trigger effect
 	if not self._tList then return end -- No shock
