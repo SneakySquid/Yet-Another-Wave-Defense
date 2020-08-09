@@ -16,8 +16,8 @@ local function SpawnGoldBug()
 	return NPC.SpawnType("ant_lion_gold")
 end
 -- Gets a random NPC (or gets a cheaper one)
-local function GetNPCType(max_coins)
-	local l = NPC.GetAll( true, GAMEMODE:GetWaveNumber() )
+local function GetNPCType(max_coins , num)
+	local l = NPC.GetAll( true, num )
 	local n = math.Round(PRNG.Random( 1, #l))
 	local npc_type = l[n]
 	local cost = NPC.GetData(npc_type).Currency or 12
@@ -50,8 +50,8 @@ local function GetNPCType(max_coins)
 	end
 	return npc_type
 end
-local function GenerateNPCList()
-	local num = GAMEMODE:GetWaveNumber() or 0
+local function GenerateNPCList( num)
+	num = num or GAMEMODE:GetWaveNumber() or 0
 	local max_coins = 50 + 80 * num + math.random(45) * (1 + (#player.GetAll() - 1) * 0.5 )
 	-- Easter egg :)
 	local core = Building.GetCore()
@@ -67,12 +67,12 @@ local function GenerateNPCList()
 		table.insert(t2, {"gman", n})
 	end
 	local t = {}
-	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
+	local n = math.max(2, num / 2) + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
 	-- Create a NPC list
 	local max_runs = 10
 	for i = 1, n do
 		-- Get the NPC type
-		local npc_type = GetNPCType(max_coins * 0.40) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
+		local npc_type = GetNPCType(max_coins * 0.40, num) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
 		local npc_data = NPC.GetData(npc_type)
 		local cur_amount = t[npc_type] or 0
 		-- Get the amount of coins we spent on said NPC
@@ -80,7 +80,7 @@ local function GenerateNPCList()
 		if i == n then
 			amount = 1
 		else
-			amount = PRNG.Random(0.2,0.5)
+			amount = PRNG.Random(0.1,0.2)
 		end
 		-- Calculate the amount
 		local cost = NPC.GetData(npc_type).Currency or 12
