@@ -5,9 +5,10 @@ do
 
 	dog.Model = Model("models/dog.mdl")
 	dog.MoveSpeed = 65
-	dog.Currency = 12
+	dog.Currency = 70
 	dog.Skin = {0, 1}
 	dog.MinimumWave = 7
+	dog.MaxPrWave = 3 			-- This model cost too much.
 
 	dog.Health = 525					-- Health
 	dog.JumpDown = 10				-- Allows the NPC to "jumpdown" from said areas
@@ -67,9 +68,8 @@ do
 	NPC.Add(dog)
 end
 
-do
-	
-local gman = {}
+do	
+	local gman = {}
 	gman.Name = "gman"
 	gman.DisplayName = "Gman"
 
@@ -108,7 +108,7 @@ local gman = {}
 	end
 
 	local function TeleportPlayer( self, target )
-		self:EmitSound("vo/gman_misc/gman_04.wav")
+		self:SpeakSnd("vo/gman_misc/gman_04.wav")
 		self:PlaySequenceAndWait("tiefidget")
 		self:StopSound("vo/gman_misc/gman_04.wav")
 		if self:GetRagdolled() then return end
@@ -127,7 +127,7 @@ local gman = {}
 	end
 
 	function gman:OnAttack( target )
-		self:EmitSound("vo/gman_misc/gman_riseshine.wav")
+		self:SpeakSnd("vo/gman_misc/gman_riseshine.wav")
 		-- Move closer to the player
 		local target_time = CurTime() + 3
 		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
@@ -145,4 +145,77 @@ local gman = {}
 		return false
 	end
 	NPC.Add(gman)
+end
+
+do	
+	local hunter = {}
+	hunter.Name = "hunter"
+	hunter.DisplayName = "Hunter"
+
+	hunter.Model = Model("models/odessa.mdl")
+	hunter.MoveSpeed = 260
+	hunter.Currency = 120
+	hunter.MinimumWave = 7
+
+	hunter.Health = 250				-- Health
+	hunter.JumpDown =450			-- Allows the NPC to "jumpdown" from said areas
+	hunter.JumpUp = 0				-- Allows the NPC to "jumpup" from said areas
+
+	hunter.HuntPlayer	= true			-- Tries to hunt the player
+	hunter.CanTargetPlayers = true		-- Tells that we can target the players
+	hunter.TargetIgnoreWalls = false	-- Ignore walls when targeting players
+	hunter.TargetPlayersRange = 1000	-- The radius of the target
+	hunter.TargetCooldown = 1			-- The amount of times we can target the player
+
+	hunter.ANIM_RUN = 16 -- sprint_all
+
+	local spawnsnd = {"vo/coast/odessa/nlo_cub_hello.wav","vo/coast/odessa/nlo_cub_carry.wav"}
+	local targetspot = {"vo/coast/odessa/nlo_cub_farewell.wav","vo/coast/odessa/nlo_cub_freeman.wav"}
+	local targetdown = {"vo/coast/odessa/nlo_cub_thatsthat.wav","vo/coast/odessa/nlo_cub_wherewasi.wav"}
+	function hunter:Init()
+		self:SpeakSnd(spawnsnd, 170)
+	end
+
+	local function AttackPlayer( self, target )
+		self:PlaySequenceAndWait( "meleeattack01" )
+		if self:GetRagdolled() then return end
+		if target:GetPos():Distance(self:GetPos()) < 100 then
+			if target:IsPlayer() then
+				target:ViewPunch( AngleRand() * 0.3 ) 
+			end
+			local info = DamageInfo()
+				info:SetAttacker( self )
+				info:SetInflictor( self )
+				info:SetDamage( math.random(40,70) )
+			target:TakeDamageInfo( info )
+		end
+	end
+
+	function hunter:OnAttack( target )
+		-- Move closer to the player
+		self._tsnd = table.Random(targetspot)
+		self:SpeakSnd(self._tsnd)
+		
+		local target_time = CurTime() + 10
+		local snd = true
+		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() and target:Health() > 0 do
+			if target:GetPos():Distance(self:GetPos()) < 70 then -- We are close
+				if snd then
+					snd = false
+					self:SpeakSnd("vo/coast/odessa/nlo_cub_youllmakeit.wav")
+				end
+				AttackPlayer(self,target)
+			else
+				self:MoveTowards(target:GetPos())
+			end
+			coroutine.yield()
+		end
+		if target:Health() < 1 then
+			self:SpeakSnd(targetdown)
+			self:PlaySequenceAndWait("lookoutidle")
+		end
+		
+		return false
+	end
+	NPC.Add(hunter)
 end

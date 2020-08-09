@@ -9,7 +9,7 @@ if CLIENT then
 		local enum = net.ReadUInt(32)
 		local target = net.ReadEntity()
 		local applied = net.ReadBool()
-
+		if not IsValid(target) then return end
 		if applied then
 			target:AddDebuff(enum)
 		else

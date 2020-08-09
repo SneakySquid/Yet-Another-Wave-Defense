@@ -14,6 +14,19 @@ AccessorFunc(ENT, "m_MaxSpeed", "MaxSpeed") -- max velocity in m/s
 AccessorFunc(ENT, "m_Controller", "Controller") -- Controller object, set with ENT:InitController
 AccessorFunc(ENT, "m_HULLTYPE", "HULLType") -- Max steering force in m/s
 
+-- "Talk"
+function ENT:SpeakSnd( snd_or_tab, ... )
+	if self._sndspeak then
+		self:StopSound( self._sndspeak )
+	end
+	if type(snd_or_tab) == "table" then
+		self._sndspeak = table.Random(snd_or_tab)
+	else
+		self._sndspeak = snd_or_tab
+	end
+	self:EmitSound(self._sndspeak, ...)
+end
+
 -- Modifiles the speed
 function ENT:SetSpeedMult( mul )
 	self.speedMul = mul or 1
@@ -55,7 +68,7 @@ function ENT:MakeRagdoll( duration )
 end
 -- Makes the nextbot unragdoll
 function ENT:UnRagdoll()
-	if self.e_Ragdoll then
+	if self.e_Ragdoll and IsValid(self.e_Ragdoll) then
 		self:SetPos(self.e_Ragdoll:GetPos() + Vector(0,0,4))
 		SafeRemoveEntity( self.e_Ragdoll )
 	end
@@ -135,6 +148,9 @@ function ENT:ShootWeapon( target, bullet_data )
 end
 
 function ENT:OnRemove()
+	if self._sndspeak then
+		self:StopSound( self._sndspeak )
+	end
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 end
 function ENT:OnKilled( dmginfo )
@@ -143,6 +159,9 @@ function ENT:OnKilled( dmginfo )
 	self:BecomeRagdoll( dmginfo )
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 	if self.m_IgnoreMoney then return end
+	if self._sndspeak then
+		self:StopSound( self._sndspeak )
+	end
 	NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
 end
 
@@ -163,7 +182,6 @@ function ENT:Initialize()
 	self:AddSolidFlags( FSOLID_NOT_STANDABLE )
 
 	if CLIENT then
-		hook.Add("PreDrawHalos", self, self.DrawHalo) -- shitcode alert
 		NPC.ApplyFunctions(self, self:GetNPCType())
 	end
 
@@ -187,7 +205,10 @@ function ENT:Initialize()
 		self.loco:SetStepHeight(50)
 	end
 	self:SetHULLType(self.NPC_DATA.HullType or PathFinder.FindEntityHULL( self ))
-	self:InitController(Building.GetCore():GetPos(), 0, 0)
+	self:InitController(Building.GetCore(), 0, 0)
+	if self.NPC_DATA.HuntPlayer then
+		self:HuntPlayers()
+	end
 	if self.NPC_DATA.Material then
 		self:SetMaterial(e.NPC_DATA.Material)
 	end
@@ -195,9 +216,10 @@ end
 
 -- How far can we go in this direction
 function ENT:InitController(target, jump_down, jump_up)
-	local controller = Controller.New(target, jump_down, jump_up)
+	local controller = Controller.New(target:GetPos(), jump_down, jump_up)
 	if controller then
-		local path = Controller.RequestEntityPath(self, target, jump_down, jump_up, self.NPC_DATA.FuzzyAmount or 1, true)
+		controller:SetTarget( target )
+		local path = controller:RequestEntityPath(self, target:GetPos(), self.NPC_DATA.FuzzyAmount or 1, true)
 		if path then
 			DebugMessage(string.format("Generated initial path for %s.", self))
 			controller:SetPath(path)
@@ -207,6 +229,7 @@ function ENT:InitController(target, jump_down, jump_up)
 end
 
 local function WentIntoCore(self)
+	if CLIENT then return end
 	local core = Building.GetCore()
 	if IsValid(core) then
 		local n = math.random(1,3)
@@ -218,21 +241,84 @@ local function WentIntoCore(self)
 	SafeRemoveEntity(self)
 end
 
-function ENT:CalculateGoal( stepUp )
+function ENT:CreatePathToTarget( target )
+	if not target then target = Building.GetCore() end
+	local controller = self:GetController()
+	if not controller then return false end
+	local new_path = controller:RequestEntityPath(self, target:GetPos() + target:OBBCenter(), self.NPC_DATA.FuzzyAmount or 1)
+	if new_path then
+		controller:SetTarget( target )
+	end
+	return new_path
+end
+
+-- Gets called when the NPC reaches the end. Returns true if it is getting removed.
+function ENT:OnPathEnd()
+	local controller = self:GetController()
+	if not controller then SafeRemoveEntity(self) return false end -- No controller. Deleting.
+	if IsValid(controller:GetTarget()) and controller:GetTarget():GetClass() == "yawd_building_core" then
+		-- Reached the core
+		WentIntoCore(self)
+		return true
+	else -- Go to the core
+		local path = self:CreatePathToTarget()
+		if type(path) == "boolean" then
+			if path then -- We are already there.
+				WentIntoCore(self)
+				return true
+			else
+				DebugMessage(string.format("Failed to generate new path for %s to core.", self))
+				if SERVER then
+					self:Remove()
+				end
+			end
+		end
+	end
+end
+
+function ENT:TryHuntPlayer( ply )
+	if not self:CreatePathToTarget( ply ) then
+		ply.m_NoHunt = CurTime() + math.random(7, 14)
+		return false
+	end
+	return true
+end
+
+function ENT:HuntPlayers()
+	local c,d
+	for k,v in ipairs( player.GetAll() ) do
+		if not IsValid(v) or v:Health() <= 0 then continue end
+		if (v.m_NoHunt or 0) >= CurTime() then continue end
+		local dis = v:GetPos():Distance( self:GetPos() )
+		if not d or d > dis then
+			d = dis
+			c = v
+		end
+	end
+	if c then
+		self:TryHuntPlayer(c)
+	end
+end
+
+function ENT:CalculateGoal( )
 	local controller = self:GetController()
 	if not controller then return false end
 
+	-- Hunt for players
+	if self.NPC_DATA.HuntPlayer and controller:CreationAge() > 4 then
+		self:HuntPlayers()
+	end
+
 	local goal = controller:GetGoal()
 	if not goal then
-		local new_path = Controller.RequestEntityPath(self, target, jump_down, jump_up, self.NPC_DATA.FuzzyAmount or 1)
+		local new_path = self:CreatePathToTarget( )
 		if new_path and type(new_path) == "boolean" then
-			DebugMessage(string.format("Reached the core %s.", self))
-			if SERVER then WentIntoCore(self) end
-			return
+			if self:OnPathEnd() then
+				return false
+			end
 		elseif new_path then
 			DebugMessage(string.format("Generated new path for %s.", self))
 			controller:SetPath(new_path)
-
 			goal = controller:GetGoal()
 
 			if not goal then
@@ -348,9 +434,7 @@ function ENT:RunBehaviour()
 			if goal then
 				if self:MoveTowards(goal) then
 					local finished = controller:NextGoal()
-					if finished then
-						DebugMessage(string.format("%s reached the end of the path, removing.", self))
-						if SERVER then self:Remove() end
+					if finished and self:OnPathEnd() then
 						return false
 					end
 				end
@@ -391,7 +475,7 @@ function ENT:Draw()
 		local bw, bh = 125, 5
 		local bx, by = 0, 0
 
-		local hp = self:Health()
+		local hp = self._FIXHP or self:Health()
 		local max_hp = self:GetMaxHealth()
 
 		self.m_HealthLerp = self.m_HealthLerp or PercentLerp(0.5, 0.25, true)
@@ -420,7 +504,9 @@ end
 
 function ENT:Think()
 	if self:GetRagdolled() then
-		if SERVER and (self.i_RagdollTime or 0) < CurTime() and (self.e_Ragdoll or self):GetVelocity():Length() < 10 then
+		if SERVER and not IsValid(self.e_Ragdoll) then
+			self:UnRagdoll()
+		elseif SERVER and (self.i_RagdollTime or 0) < CurTime() and (self.e_Ragdoll or self):GetVelocity():Length() < 10 then
 			self:UnRagdoll()
 		else
 			self.b_WasRagdolled = true
@@ -455,8 +541,24 @@ hook.Add("ShouldCollide","yawd_npc_collide",function(a,b)
 end)
 
 if CLIENT then
-	ENT.HaloColour = Color(234, 60, 83) -- team.GetColor(TEAM_ATTACKER) -- not defined yet smh, manual include master race
-	function ENT:DrawHalo()
-		halo.Add({self}, self.HaloColour)
+    hook.Add("PreDrawHalos", "NPC.DrawHalo", function()
+        halo.Add(ents.FindByClass("yawd_npc_base"), team.GetColor(TEAM_ATTACKER), nil, nil, nil, nil, false)
+    end)
+	if game.SinglePlayer() then
+		net.Receive("YAWD.SinglePlayerHPFix", function()
+			local ent = net.ReadEntity()
+			local hp = net.ReadInt(32)
+			if not ent or not IsValid(ent) then return end
+			ent._FIXHP = hp
+		end)
 	end
+elseif SERVER and game.SinglePlayer() then
+	util.AddNetworkString("YAWD.SinglePlayerHPFix")
+	hook.Add("PostEntityTakeDamage", "YAWD.SinglePlayerHPFix", function(ent, dmg, took)
+		if not ent or not IsValid(ent) then return end
+		net.Start("YAWD.SinglePlayerHPFix")
+			net.WriteEntity(ent)
+			net.WriteInt(ent:Health(), 32)
+		net.Broadcast()
+	end)
 end

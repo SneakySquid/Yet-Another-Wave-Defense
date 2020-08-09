@@ -12,6 +12,12 @@ do
 		outline = true
 	})
 
+	surface.CreateFont("HUD.Key", {
+		font = "Tahoma",
+		size = 20,
+		weight = 1500,
+	})
+
 	surface.CreateFont("HUD.WaveDisplayNumber", {
 		font = "Tahoma",
 		size = 40,
@@ -67,6 +73,7 @@ local wavedisplay_bg = Material("effects/ar2_altfire1")
 local wavedisplay_bg2 = Material("effects/splashwake1")
 local wavedisplay_bg3 = Material("effects/splashwake3")
 local mat_selected = Material("vgui/spawnmenu/hover")
+local key_mat = Material("gui/key.png")
 
 local HUD = {
 	StatusStrings = {
@@ -325,6 +332,22 @@ HUD.Status = {
 			::CONTINUE::
 		end
 	end,
+
+	ChangeClassMenu = function(ply, sw, sh)
+		if GAMEMODE:GetWaveStatus() ~= WAVE_WAITING then return end
+		local tw,th = draw.SimpleText("Press", "HUD.WaveDisplay", 20, sh * 0.3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+		-- key
+		surface.SetMaterial(key_mat)
+		surface.SetDrawColor(color_white)
+		-- Lookup how long the text-binding for the key-length.
+		local key_text = string.upper(input.LookupBinding( "yawd_change_class" ) or "G")
+		surface.SetFont("HUD.Key")
+		local k_w, k_h = surface.GetTextSize(key_text)
+		k_w = math.max(k_w, k_h)
+		surface.DrawTexturedRectRotated(26 + tw + k_w / 2, sh * 0.3, k_w, k_h,0)
+		draw.SimpleText( key_text, "HUD.Key", 26 + tw + k_w / 2, sh * 0.3, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText("to change class", "HUD.WaveDisplay", 32 + tw + k_w, sh * 0.3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+	end
 }
 
 HUD.Wave = {
@@ -428,6 +451,10 @@ function GM:HUDPaint()
 
 			if CanDraw("HUD.Status.Currency") then
 				HUD.Status.Currency(ply, sw, sh)
+			end
+
+			if CanDraw("HUD.Status.ChangeClassKey") then
+				HUD.Status.ChangeClassMenu(ply, sw, sh)
 			end
 		end
 

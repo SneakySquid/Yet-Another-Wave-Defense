@@ -11,6 +11,10 @@ function CONTROLLER:Age()
 	return CurTime() - self.m_LastUpdate
 end
 
+function CONTROLLER:CreationAge()
+	return CurTime() - (self.m_Creation or 0)
+end
+
 function CONTROLLER:IsValid()
 	return self.m_Path and self.m_PathPoint > 0 and self:Age() <= 30
 end
@@ -22,7 +26,7 @@ end
 function CONTROLLER:SetPath(path)
 	self:SetPathPoint(#path)
 	self:SetLastUpdate(CurTime())
-
+	self.m_Creation = CurTime()
 	self.m_Path = path
 end
 
@@ -46,6 +50,26 @@ function CONTROLLER:NextGoal()
 	self:SetLastUpdate(CurTime())
 
 	return false
+end
+
+function CONTROLLER:RequestPath(hull, start_pos, target_pos, fuzzy_amount, bIgnoreTrace)
+	local path = Controller.RequestPath(hull, start_pos, target_pos, self.m_JumpRange[1] or 0, self.m_JumpRange[2] or 0, fuzzy_amount, bIgnoreTrace)
+	if type(path) ~= "boolean" then
+		self:SetPath(path)
+	end
+	return path
+end
+
+function CONTROLLER:RequestEntityPath(ent, target_pos, fuzzy_amount, bIgnoreTrace)
+	local path = Controller.RequestEntityPath(ent, target_pos, self.m_JumpRange[1] or 0, self.m_JumpRange[2] or 0, fuzzy_amount, bIgnoreTrace)
+	if type(path) ~= "boolean" then
+		self:SetPath(path)
+	end
+	return path
+end
+
+function CONTROLLER:RequestEntityTarget( ent, target_pos, fuzzy_amount, bIgnoreTrace )
+
 end
 
 Controller = {}

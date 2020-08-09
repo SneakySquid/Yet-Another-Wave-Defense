@@ -8,7 +8,6 @@ if CLIENT then
    SWEP.ViewModelFOV       = 54
 
    SWEP.Icon               = "vgui/ttt/icon_glock"
-   SWEP.IconLetter         = "c"
 end
 
 SWEP.Primary.ClipSize		= -1
@@ -18,7 +17,7 @@ SWEP.Primary.Ammo			= "none"
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
-SWEP.Secondary.Automatic	= true
+SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
 SWEP.ShootSound = Sound( "NPC_CScanner.TakePhoto" )
@@ -54,6 +53,22 @@ if SERVER then
 		end
 		ply:SetCurrency(ply:GetCurrency() - (bd.Cost or 100))
 	end)
+	-- Singleplayer Fix
+	if game.SinglePlayer() then
+		function SWEP:PrimaryAttack()
+			if not IsFirstTimePredicted() then return end
+			self:CallOnClient( "PrimaryAttack" )
+		end
+		function SWEP:SecondaryAttack()
+			if not IsFirstTimePredicted() then return end
+			self:CallOnClient( "Rotate" )
+		end
+		function SWEP:Reload()
+			if not IsFirstTimePredicted() then return end
+			if ( !self.Owner:KeyPressed( IN_RELOAD ) ) then return end -- Semi-automatic
+			self:CallOnClient( "Rotate" )
+		end
+	end
 else
 	function SWEP:SetBuilding(str)
 		self.Building = str
@@ -130,18 +145,10 @@ else
 	function SWEP:Deploy()		self:MakeGhost() return end
 	function SWEP:Holster()		self:RemoveGhost() return end
 	function SWEP:OnRemove()	self:RemoveGhost() return end
-	local m_Reload = false
+	local is_holding_rotate = false
 	function SWEP:Think()
 		if self:GetOwner() ~= LocalPlayer() then return end
 		self:MakeGhost()
-		local b = LocalPlayer():KeyDown( IN_RELOAD ) or LocalPlayer():KeyDown( IN_ATTACK2 )
-		if m_Reload~=b then
-			m_Reload = b
-			if m_Reload then
-				Rotate = (Rotate + 1) % 4
-				self:EmitSound("garrysmod/ui_click.wav")
-			end
-		end
 	end
 	local mat_invalid = Material("effects/select_dot")
 	function SWEP:DrawBuilding()
@@ -203,8 +210,17 @@ else
 			net.WriteBool(input.IsShiftDown())
 		net.SendToServer()
 	end
-	local n2_timer = 0
-	function SWEP:SecondaryAttack()
+	function SWEP:Rotate()
+		Rotate = (Rotate - 1) % 4
+		self:EmitSound("garrysmod/ui_click.wav")
 	end
-	
+	function SWEP:SecondaryAttack()
+		if not IsFirstTimePredicted() then return end
+		self:Rotate()
+	end
+	function SWEP:Reload()
+		if not IsFirstTimePredicted() then return end
+		if ( !self.Owner:KeyPressed( IN_RELOAD ) ) then return end
+		self:Rotate()
+	end
 end

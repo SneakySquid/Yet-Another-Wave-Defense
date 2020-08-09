@@ -176,13 +176,14 @@ if SERVER then
 				DebugMessage(string.format("%s: I'm empty. Reset trigger.", self))
 				return
 			end]]
-			local t = self:GetEnemiesOn()
-			if self:OnTrapTrigger( t ) == false then -- Trap returned false
+			local t = self:OnTrapTrigger( self:GetEnemiesOn() )
+			if not t and t == false then -- Trap returned false
 				self.i_triggerpoint = nil
 				DebugMessage(string.format("%s: I'm not allowe to trigger", self))
 				return
 			end
 			-- Trigger it
+			t = t or self:GetEnemiesOn()
 			net.Start("yawd.traptrigger")
 				net.WriteEntity(self)
 				net.WriteInt(#t, 32)
@@ -368,9 +369,22 @@ else
 
 			local bw, bh = 250, 25
 			local bx, by = 0, 0
-
-			local _, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-			local y_offset = th + 5
+			local building_icon = self:GetBuildingData().Icon
+			local tw,th = 0,0
+			if not building_icon then
+				tw, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			else
+				surface.SetFont("HUD.Building")
+				surface.SetDrawColor(color_white)
+				surface.SetMaterial(building_icon)
+				local text = self:GetBuildingName() or "Unknown Building"
+				local i_s = 48
+				tw,th = surface.GetTextSize(text)
+				surface.DrawTexturedRect(-tw / 2 - i_s * 0.75,by,i_s,i_s)
+				tw, th = draw.SimpleText(self:GetBuildingName() or "Unknown Building", "HUD.Building", bx + i_s / 2, by, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			end
+			
+			local y_offset = th + 10
 
 			if max_hp > 0 then
 				by = by + y_offset
@@ -441,7 +455,19 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "String", 0, "BuildingName" )
 	self:NetworkVar( "Entity", 0, "BuildingOwner" )
 	self:NetworkVar( "Int", 0, "Upgrades" )
-	self:NetworkVar( "Bool", 1, "Disabled" )
+	self:NetworkVar( "Bool", 0, "bDisabled" )
+end
+
+function ENT:SetDisabled( b )
+	self:SetbDisabled( b )
+	if b and self.OnDisabled then
+		self:OnDisabled()
+	elseif not b and self.OnEnabled then
+		self:OnEnabled()
+	end
+end
+function ENT:GetDisabled()
+	return self:GetbDisabled()
 end
 
 function ENT:Use(ply)

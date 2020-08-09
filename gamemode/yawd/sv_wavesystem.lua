@@ -16,8 +16,8 @@ local function SpawnGoldBug()
 	return NPC.SpawnType("ant_lion_gold")
 end
 -- Gets a random NPC (or gets a cheaper one)
-local function GetNPCType(max_coins)
-	local l = NPC.GetAll( true, GAMEMODE:GetWaveNumber() )
+local function GetNPCType(max_coins , num)
+	local l = NPC.GetAll( true, num )
 	local n = math.Round(PRNG.Random( 1, #l))
 	local npc_type = l[n]
 	local cost = NPC.GetData(npc_type).Currency or 12
@@ -50,8 +50,8 @@ local function GetNPCType(max_coins)
 	end
 	return npc_type
 end
-local function GenerateNPCList()
-	local num = GAMEMODE:GetWaveNumber() or 0
+local function GenerateNPCList( num)
+	num = num or GAMEMODE:GetWaveNumber() or 0
 	local max_coins = 50 + 80 * num + math.random(45) * (1 + (#player.GetAll() - 1) * 0.5 )
 	-- Easter egg :)
 	local core = Building.GetCore()
@@ -67,22 +67,48 @@ local function GenerateNPCList()
 		table.insert(t2, {"gman", n})
 	end
 	local t = {}
-	local n = 2 + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
+	local n = math.max(2, num / 2) + math.Round( PRNG.Random(#NPC.GetAll() - 1) ) // The amount of diffrent types
+	-- Create a NPC list
+	local max_runs = 10
 	for i = 1, n do
 		-- Get the NPC type
-		local npc_type = GetNPCType(max_coins * 0.40) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
-		-- Get the amount of coins spent on said NPC
+		local npc_type = GetNPCType(max_coins * 0.40, num) -- (By lieing to the NPC picker, we can get some weaker enemies in the start of the wave)
+		local npc_data = NPC.GetData(npc_type)
+		local cur_amount = t[npc_type] or 0
+		-- Get the amount of coins we spent on said NPC
 		local amount
 		if i == n then
 			amount = 1
 		else
-			amount = PRNG.Random(0.2,0.5)
+			amount = PRNG.Random(0.1,0.2)
 		end
+		-- Calculate the amount
 		local cost = NPC.GetData(npc_type).Currency or 12
 		local spent = (max_coins * amount)
 		local amount = math.ceil( spent / cost + 0.01 )
+		-- Check the max amount
+		local max_amount = npc_data.MaxPrWave or -1
+		if max_amount > -1 then
+			amount = math.min(max_amount, amount - cur_amount)
+		end
+		-- If amount is 0, then spawn something else
+		if amount <= 0 then
+			i = i - 1
+			max_runs = max_runs - 1
+			if max_runs > 0 then
+				continue
+			else -- After 10 times, we give up and give some golden antlions instead
+				npc_type = "ant_lion_gold"
+				amount = max_coins / NPC.GetData(npc_type).Currency
+			end
+		else
+			max_runs = 10
+		end
 		max_coins = max_coins - amount * cost
 		t[npc_type] = (t[npc_type] or 0) + amount
+	end
+	if PRNG.Random(1, 5) > 3 or num == 0 then
+		t["ant_lion_gold"] = 1
 	end
 	-- Sort the list. In this way we can make the large amount of NPC's the primary
 	local total = 0

@@ -23,7 +23,7 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 				self.t_model = ClientsideModel(mdl)
 				self.t_model:SetPos(self:GetPos())
 				self.t_model:SetNoDraw(true)
-				self.t_model:SetModelScale(2)
+				self.t_model:SetModelScale(1.5)
 			end
 		end
 	end
