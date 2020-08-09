@@ -148,6 +148,9 @@ function ENT:ShootWeapon( target, bullet_data )
 end
 
 function ENT:OnRemove()
+	if self._sndspeak then
+		self:StopSound( self._sndspeak )
+	end
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 end
 function ENT:OnKilled( dmginfo )
@@ -156,6 +159,9 @@ function ENT:OnKilled( dmginfo )
 	self:BecomeRagdoll( dmginfo )
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 	if self.m_IgnoreMoney then return end
+	if self._sndspeak then
+		self:StopSound( self._sndspeak )
+	end
 	NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
 end
 
