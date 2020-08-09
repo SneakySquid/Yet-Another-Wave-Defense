@@ -261,7 +261,7 @@ end
 local function GetNodesFromGrid(vec)
 	local x = floor(vec.x / gridSize)
 	local y = floor(vec.y / gridSize)
-	return Grid[x][y]
+	return Grid[x] and Grid[x][y]
 end
 local TraceLine = util.TraceLine
 local function ET(vec1, vec2)
