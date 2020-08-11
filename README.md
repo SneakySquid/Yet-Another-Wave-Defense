@@ -11,7 +11,7 @@ A Garry's Mod wave defense gamemode submission for the [gmodstore Gamemode Compe
 You can also download  the gamemode on the workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2186473733
 
 ## License
-TBD
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
 
 ## Acknowledgments
 - Bugs exist
