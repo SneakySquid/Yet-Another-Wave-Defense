@@ -95,17 +95,16 @@ do
 	function lion:OnAttack( target )
 		self:EmitSound("npc/antlion/distract1.wav")
 		-- Move (faster) to the player
-		self:SetMaxSpeed( self:GetMaxSpeed() * 1.5 )
+		self:SetSpeedMultTemp( 1.5 )
 		self.m_NewTarget = true
 		local target_time = CurTime() + 5
-		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
+		while target_time > CurTime() and IsValid(target) do
 			if target:GetPos():Distance(self:GetPos()) < 100 then -- We are close
 				local seq = self:LookupSequence( "attack" .. math.random(1,6) )
 				self:ResetSequence( seq )
 				self:EmitSound("npc/antlion/attack_single" .. math.random(1, 3) .. ".wav")
 				TakeDamage(self, target)
 				coroutine.wait(self:SequenceDuration( seq ) or 0.2)
-				if self:GetRagdolled() then return end
 			else
 				if self.m_NewTarget then
 					self:PlaySequenceAndWait( "charge_start")
@@ -118,12 +117,11 @@ do
 		end
 		-- We gave up
 			self:EmitSound("npc/antlion/pain1.wav")
-			if self:GetRagdolled() then return end
 			self:PlaySequenceAndWait("charge_end")
 		return false
 	end
 	function lion:OnAttackEnd( target )
-		self:SetMaxSpeed( 160 )
+		self:SetSpeedMultTemp( )
 	end
 	NPC.Add(lion)
 end
@@ -174,7 +172,7 @@ do
 		self:SetMaxSpeed( 400 )
 		self.m_NewTarget = true
 		local target_time = CurTime() + 5
-		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
+		while target_time > CurTime() and IsValid(target) do
 			if not self.m_NewTarget and target:GetPos():Distance(self:GetPos()) < 170 then -- We are close
 				self:EmitSound("npc/antlion_guard/shove1.wav")
 				TakeDamage(self, target)
@@ -192,7 +190,6 @@ do
 		end
 		-- We gave up
 			self:EmitSound("npc/antlion_guard/angry" .. math.random(1,3) .. ".wav")
-			if self:GetRagdolled() then return end
 			self:PlaySequenceAndWait("charge_stop")
 		return false
 	end
