@@ -32,13 +32,12 @@ function zombie:OnAttack( target )
 	self:EmitSound("npc/zombie/zombie_alert" .. math.random(1, 3) .. ".wav")
 	-- Move closer to the player
 	local target_time = CurTime() + 5
-	while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
+	while target_time > CurTime() and IsValid(target) do
 		self:MoveTowards(target:GetPos())
 		if target:GetPos():Distance(self:GetPos()) < 50 then -- We are close
 			self:ResetSequence("attack" .. table.Random({"a", "b", "c", "d", "e", "f"}) )
 			self:SetPlaybackRate(1.5)
 			coroutine.wait(0.3)
-			if self:GetRagdolled() then return end
 			if target:GetPos():Distance(self:GetPos()) < 70 then
 				self:EmitSound("npc/zombie/claw_strike" .. math.random(1,2) .. ".wav")
 				TakeDamage(self, target)
@@ -54,7 +53,6 @@ function zombie:OnAttack( target )
 				end
 				--return true -- Why wait? Keep attacking.
 				coroutine.wait(0.7)
-				if self:GetRagdolled() then return end
 			else
 				self:EmitSound("npc/zombie/claw_miss" .. math.random(1, 2) .. ".wav")
 				return false
@@ -105,13 +103,12 @@ function zombie:OnAttack( target )
 	self:EmitSound("npc/zombie/zombie_alert" .. math.random(1, 3) .. ".wav")
 	-- Move closer to the player
 	local target_time = CurTime() + 5
-	while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
+	while target_time > CurTime() and IsValid(target) do
 		if target:GetPos():Distance(self:GetPos()) < 70 then -- We are close
 			self:ResetSequence( "melee" )
 			self:EmitSound("npc/zombie/claw_strike" .. math.random(1,2) .. ".wav")
 			TakeDamage(self, target)
 			coroutine.wait(0.2)
-			if self:GetRagdolled() then return end
 		else
 			self:MoveTowards(target:GetPos())
 		end
@@ -119,7 +116,6 @@ function zombie:OnAttack( target )
 	end
 	-- We gave up
 	self:EmitSound("npc/fast_zombie/wake1.wav")
-		if self:GetRagdolled() then return end
 		self:PlaySequenceAndWait("br2_roar")
 	return false
 end

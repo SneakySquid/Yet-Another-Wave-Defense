@@ -50,12 +50,11 @@ do
 		self:EmitSound("npc/dog/dog_playfull3.wav" .. math.random(3, 5) .. ".wav")
 		-- Move closer to the player
 		local target_time = CurTime() + 5
-		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
+		while target_time > CurTime() and IsValid(target) do
 			self:MoveTowards(target:GetPos())
 			if target:GetPos():Distance(self:GetPos()) < 50 then -- We are close
 				self:ResetSequence("throw")
 				coroutine.wait(0.4)
-				if self:GetRagdolled() then return end
 				if target:GetPos():Distance(self:GetPos()) < 70 then
 					TakeDamage(self, target)
 				end
@@ -96,7 +95,6 @@ do
 
 	local function AttackPlayer( self, target )
 		self:PlaySequenceAndWait( "meleeattack01" )
-		if self:GetRagdolled() then return end
 		if target:IsPlayer() then
 			target:ViewPunch( AngleRand() * 0.3 ) 
 		end
@@ -111,7 +109,6 @@ do
 		self:SpeakSnd("vo/gman_misc/gman_04.wav")
 		self:PlaySequenceAndWait("tiefidget")
 		self:StopSound("vo/gman_misc/gman_04.wav")
-		if self:GetRagdolled() then return end
 		-- Find any ground nodes
 			local d,c = -1
 			for k, v in ipairs( PathFinder.GetNodes(NODE_TYPE_GROUND) ) do
@@ -130,10 +127,9 @@ do
 		self:SpeakSnd("vo/gman_misc/gman_riseshine.wav")
 		-- Move closer to the player
 		local target_time = CurTime() + 3
-		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() do
+		while target_time > CurTime() and IsValid(target) do
 			if target:GetPos():Distance(self:GetPos()) < 70 then -- We are close
 				AttackPlayer(self,target)
-				if self:GetRagdolled() then return end
 			else
 				self:MoveTowards(target:GetPos())
 			end
@@ -152,33 +148,51 @@ do
 	hunter.Name = "hunter"
 	hunter.DisplayName = "Hunter"
 
-	hunter.Model = Model("models/odessa.mdl")
+	hunter.Model = Model("models/police.mdl")
 	hunter.MoveSpeed = 260
 	hunter.Currency = 120
 	hunter.MinimumWave = 7
 
 	hunter.Health = 250				-- Health
 	hunter.JumpDown =450			-- Allows the NPC to "jumpdown" from said areas
-	hunter.JumpUp = 0				-- Allows the NPC to "jumpup" from said areas
+	hunter.JumpUp = 225				-- Allows the NPC to "jumpup" from said areas
 
 	hunter.HuntPlayer	= true			-- Tries to hunt the player
 	hunter.CanTargetPlayers = true		-- Tells that we can target the players
 	hunter.TargetIgnoreWalls = false	-- Ignore walls when targeting players
-	hunter.TargetPlayersRange = 1000	-- The radius of the target
+	hunter.TargetPlayersRange = 600		-- The radius of the target
 	hunter.TargetCooldown = 1			-- The amount of times we can target the player
 
-	hunter.ANIM_RUN = 16 -- sprint_all
+	hunter.ANIM_RUN = 105 -- sprint_all
+	hunter.ANIM_SPEED = 2
+	hunter.ANIM_JUMP_END = 150 -- jump_holding_land
+	hunter.ANIM_JUMP_LOOP = 149 -- jump_holding_glide
+	hunter.ANIM_JUMP_START = 148 -- jump_holding_land
+	
 
-	local spawnsnd = {"vo/coast/odessa/nlo_cub_hello.wav","vo/coast/odessa/nlo_cub_carry.wav"}
-	local targetspot = {"vo/coast/odessa/nlo_cub_farewell.wav","vo/coast/odessa/nlo_cub_freeman.wav"}
-	local targetdown = {"vo/coast/odessa/nlo_cub_thatsthat.wav","vo/coast/odessa/nlo_cub_wherewasi.wav"}
+	local spawnsnd = {"npc/metropolice/vo/searchingforsuspect.wav", "npc/metropolice/vo/standardloyaltycheck.wav"}
+	local targetspot = {"npc/metropolice/vo/contactwith243suspect.wav","npc/metropolice/vo/hesrunning.wav", "npc/metropolice/takedown.wav", "npc/metropolice/vo/possible10-103alerttagunits.wav", "npc/metropolice/vo/prepareforjudgement.wav", "npc/metropolice/vo/readytoprosecutefinalwarning.wav"}
+	local targetdown = {"npc/metropolice/vo/anyonepickup647e.wav", "npc/metropolice/vo/chuckle.wav", "npc/metropolice/vo/control100percent.wav", "npc/metropolice/vo/clearandcode100.wav"}
+	
+	local w_t = 0
+	local function WarnPlayers()
+		if w_t >= CurTime() then return end
+		w_t = CurTime() + 8
+		for k,v in ipairs( player.GetAll() ) do
+			v:EmitSound("ambient/atmosphere/city_skybeam1.wav")
+		end
+	end
+	
 	function hunter:Init()
 		self:SpeakSnd(spawnsnd, 170)
 	end
 
 	local function AttackPlayer( self, target )
-		self:PlaySequenceAndWait( "meleeattack01" )
-		if self:GetRagdolled() then return end
+		if math.random(1,2) == 1 then
+			self:PlaySequenceAndWait( "thrust", 2 )
+		else
+			self:PlaySequenceAndWait( "swing", 2 )
+		end
 		if target:GetPos():Distance(self:GetPos()) < 100 then
 			if target:IsPlayer() then
 				target:ViewPunch( AngleRand() * 0.3 ) 
@@ -186,24 +200,73 @@ do
 			local info = DamageInfo()
 				info:SetAttacker( self )
 				info:SetInflictor( self )
-				info:SetDamage( math.random(40,70) )
+				info:SetDamage( math.random(40, 60) )
 			target:TakeDamageInfo( info )
 		end
 	end
 
+	function hunter:OnJumpDown( aimPos )
+		-- debugoverlay.Cross(aimPos, 50,15, Color( 255, 255, 255 ), true)
+		self:SetSpeedMultTemp(2) -- Overwrites the speed multiplier
+		local t = CurTime() + 3
+		
+		local dur = self:SetSequence("canal3jump1") -- 2.56
+		self:SetCycle(.5)
+		local g = CurTime() + dur * .1
+		self:SetPlaybackRate(2)
+		while self:GetPos():DistToSqr(aimPos) > 4900 and t > CurTime() do
+			if g >= CurTime() then
+				self:MoveTowards( Vector(aimPos.x,aimPos.y, 0), true )
+			else
+				self:ResetSequence( "jump_holding_glide" )
+				self:MoveTowards( aimPos, true )
+			end
+			coroutine.yield()
+		end
+		self:SetSpeedMultTemp() -- Resets the speed multiplier
+		local n = math.random(1,2)
+		if n > 1 then n = 3 end
+		self:EmitSound("player/pl_fallpain".. n .. ".wav")
+		self:PlaySequenceAndWait("jump_holding_land")
+	end
+
+	local jumpSnd = {"npc/metropolice/vo/ten97suspectisgoa.wav", "npc/metropolice/vo/readytoprosecutefinalwarning.wav", "npc/metropolice/vo/rodgerthat.wav", "npc/metropolice/vo/sweepingforsuspect.wav"}
+	function hunter:OnJump( aimpos )
+		local t = CurTime() + 1
+		-- Most jump potitions are 64 units away from the edge
+		local aimpos_2 = aimpos + (  self:GetPos() - Vector(aimpos.x, aimpos.y, self:GetPos().z)):GetNormalized() * 64
+		self:SpeakSndNoSpam(jumpSnd)
+		self:ForceMoveTowards( aimpos_2, self:GetPos():Distance( aimpos_2 ) / 700, 	hunter.ANIM_JUMP_START )
+		
+	--	self:SetSpeedMultTemp( 2 )
+	--	self:MoveTowards(aimpos_2, true) -- Start to fly towards the point
+	--	coroutine.wait( aimpos_2:Distance( self:GetPos() ) / self:GetMoveSpeed() * 0.9 )
+		-- We should be there, if not try MoveTowards.
+	--	self:SetSpeedMultTemp(1)
+	--	while self:GetPos():DistToSqr(aimpos) > 3600 and t > CurTime() do
+	--		self:MoveTowards(aimpos, true)
+	--		coroutine.yield()
+	--	end
+		-- If everything fails, setpos it.
+	--	if t <= CurTime() then
+	--		self:SetPos(aimpos)
+	--		self.loco:SetVelocity(Vector(0,0,0))
+	--	end
+		local n = math.random(1,2)
+		if n > 1 then n = 3 end
+		self:EmitSound("player/pl_fallpain".. n .. ".wav")
+		self:PlaySequenceAndWait("jump_holding_land")
+
+	end
+
 	function hunter:OnAttack( target )
 		-- Move closer to the player
-		self._tsnd = table.Random(targetspot)
-		self:SpeakSnd(self._tsnd)
+		self:SpeakSnd( targetspot )
 		
 		local target_time = CurTime() + 10
-		local snd = true
-		while target_time > CurTime() and IsValid(target) and not self:GetRagdolled() and target:Health() > 0 do
+		while target_time > CurTime() and IsValid(target) do
 			if target:GetPos():Distance(self:GetPos()) < 70 then -- We are close
-				if snd then
-					snd = false
-					self:SpeakSnd("vo/coast/odessa/nlo_cub_youllmakeit.wav")
-				end
+				self:SpeakSndNoSpam( targetspot )
 				AttackPlayer(self,target)
 			else
 				self:MoveTowards(target:GetPos())
@@ -212,7 +275,7 @@ do
 		end
 		if target:Health() < 1 then
 			self:SpeakSnd(targetdown)
-			self:PlaySequenceAndWait("lookoutidle")
+			self:PlaySequenceAndWait("plazathreat2", 3)
 		end
 		
 		return false

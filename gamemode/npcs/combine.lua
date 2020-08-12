@@ -27,7 +27,6 @@ function combine:OnAttack( target )
 		if not IsValid(target) then return end
 		self:ShootWeapon( target )
 		self:EmitSound("weapons/smg1/npc_smg1_fire1.wav")
-		if self:GetRagdolled() then return end
 		coroutine.wait(0.1)
 	end
 end
