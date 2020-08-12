@@ -89,12 +89,12 @@ function ENT:MakeRagdoll( duration )
 	self.m_ForceMoving = nil
 	self.m_ForceMovingt = nil
 	self.m_ForceMovingd = nil
+	-- Reset AI
+	self:ResetBehavior()
 	return rag
 end
 -- Makes the nextbot unragdoll
 function ENT:UnRagdoll()
-	-- Reset AI.
-	self:BehaveStart()
 	-- Remove ragdoll
 	CUR_RAG = math.max(0, CUR_RAG - 1)
 	if self.e_Ragdoll and IsValid(self.e_Ragdoll) then
@@ -195,11 +195,9 @@ function ENT:Initialize()
 	self:SetCustomCollisionCheck(true)
 	-- leave these ones alone
 	self:AddSolidFlags( FSOLID_NOT_STANDABLE )
-
 	if CLIENT then
 		NPC.ApplyFunctions(self, self:GetNPCType())
 	end
-
 	if SERVER then
 		self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
 		local hp_boost = 1 + math.max(1, GAMEMODE:GetWaveNumber()) * .025
@@ -227,6 +225,13 @@ function ENT:Initialize()
 	if self.NPC_DATA.Material then
 		self:SetMaterial(e.NPC_DATA.Material)
 	end
+end
+-- Resets the AI
+function ENT:ResetBehavior()
+	self:BehaveStart()
+	self:SetSpeedMultTemp()
+	self:SetSpeedMult( 1 )
+	self:SetTarget(nil)
 end
 -- Creats the controller for the NPC.
 function ENT:InitController(target, jump_down, jump_up)
@@ -679,7 +684,6 @@ function ENT:BehaveUpdate( fInterval )
 		SafeRemoveEntity( self )
 		return
 	end
-
 	-- Don't run AI if ragdolled or health is 0 or if we're flying towards a point
 	if not self:GetRagdolled() and self:Health() > 0 and not self.m_ForceMoving then
 		if self.b_WasRagdolled then
@@ -694,7 +698,7 @@ function ENT:BehaveUpdate( fInterval )
 	elseif self:GetRagdolled() then
 		if SERVER and not IsValid(self.e_Ragdoll) then -- Ragdoll got removed
 			self:UnRagdoll()
-		elseif SERVER and (self.i_RagdollTime or 0) < CurTime() and (self.e_Ragdoll or self):GetVelocity():Length() < 10 then -- Ragdoll timeout
+		elseif SERVER and ( (self.i_RagdollTime or 0) < CurTime() or (self.e_Ragdoll or self):GetVelocity():Length() < 10 ) then -- Ragdoll timeout
 			self:UnRagdoll()
 		else
 			self.b_WasRagdolled = true
@@ -733,7 +737,10 @@ end
 -- Don't collide with each other
 hook.Add("ShouldCollide","yawd_npc_collide",function(a,b)
 	local ac = a:GetClass()
-	if ac == "yawd_npc_base" and b:GetClass() == ac then
+	local bc = b:GetClass()
+	local b1 = ac == "yawd_npc_base" or ac == "prop_ragdoll"
+	local b2 = bc == "yawd_npc_base" or bc == "prop_ragdoll"
+	if b1 and b2 then
 		return false
 	end
 end)
