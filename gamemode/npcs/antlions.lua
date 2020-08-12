@@ -142,7 +142,7 @@ do
 	lion.JumpUp = 0					-- Allows the NPC to "jumpup" from said areas
 	lion.FuzzyAmount = 0.5			-- Amount of "fuzzyness" for the path. Default is 1.
 
-	lion.ANIM_RUN = 16	-- We need this to "walk" towards the Core
+	lion.ANIM_RUN = "walkN"	-- We need this to "walk" towards the Core
 
 	lion.CanTargetPlayers = true		-- Tells that we can target the players
 	lion.TargetIgnoreWalls = false	-- Ignore walls when targeting players
