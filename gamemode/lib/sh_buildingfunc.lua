@@ -408,6 +408,9 @@ if SERVER then
 		if type(target) == "Player" then
 			target:SetVelocity(target:GetVelocity() + Vector(vec.x / 2, vec.y / 2, vec.z))
 		else
+			if target.GetRagdolled and target:GetRagdolled() then
+				return
+			end
 			if target.Fling and not target.m_CantBePushed then
 				target:Fling( vec )
 			else
