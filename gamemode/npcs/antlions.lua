@@ -35,7 +35,7 @@ do
 	lion.Model = Model("models/antlion.mdl")
 	lion.Color = Color(255,215,0)
 	lion.MoveSpeed = 140
-	lion.Currency = 100
+	lion.Currency = 150
 	lion.Skin = 1
 	lion.Health = 15					-- Health
 	lion.JumpDown = 100				-- Allows the NPC to "jumpdown" from said areas
