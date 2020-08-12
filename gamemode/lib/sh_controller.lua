@@ -40,16 +40,25 @@ function CONTROLLER:GetGoal()
 	return self.m_Path[self.m_PathPoint]:GetPos()
 end
 
+function CONTROLLER:GetPathAmountLeft()
+	if not self:IsValid() then return 0 end
+	return self.m_PathPoint / #self.m_Path
+end
+
 function CONTROLLER:NextGoal()
+	local node, jump = self.m_Path[self.m_PathPoint]
+	if node then
+		jump = self.m_Path.jump[self.m_PathPoint - 2] or 0
+	end 
 	self:SetPathPoint(self.m_PathPoint - 1)
 
 	if self.m_PathPoint == 0 then
-		return true
+		return true, 0
 	end
 
 	self:SetLastUpdate(CurTime())
 
-	return false
+	return false, jump
 end
 
 function CONTROLLER:RequestPath(hull, start_pos, target_pos, fuzzy_amount, bIgnoreTrace)
@@ -65,6 +74,7 @@ function CONTROLLER:RequestEntityPath(ent, target_pos, fuzzy_amount, bIgnoreTrac
 	if type(path) ~= "boolean" then
 		self:SetPath(path)
 	end
+	
 	return path
 end
 
@@ -80,7 +90,6 @@ function Controller.RequestPath(hull, start_pos, target_pos, jump_down, jump_up,
 	target_pos = target_pos or (Building.GetCore():GetPos() + Building.GetCore():OBBCenter())
 	jump_up = jump_up or 0
 	jump_down = jump_down or 0
-
 	return PathFinder.CreateNewPath(
 		start_pos, target_pos,
 		NODE_TYPE_GROUND,
@@ -103,7 +112,6 @@ function Controller.New(target, jump_down, jump_up)
 	controller:SetTarget(target)
 	controller:SetLastUpdate(CurTime())
 	controller:SetJumpRange({jump_down or 0, jump_up or 0})
-
 	return controller
 end
 
@@ -149,17 +157,14 @@ if SERVER then
 	end
 	-- Locates and (re)spawns all spawners on the map
 	local function SpawnSpawners()
-		-- Remove any old spawners
-		for _,ent in ipairs(ents.FindByClass("yawd_npc_spawner")) do
-			SafeRemoveEntity(ent)
-		end
+		if #ents.FindByClass("yawd_npc_spawner") > 0 then return end
 		-- Place new spawners
 		local core = Building.GetCore()
 		local c_node = PathFinder.FindClosestNode( core:GetPos(), NODE_TYPE_GROUND )
 		if not c_node then return false end -- No node?
 		spawners = {}
-		local paths = PRNG.Random(2, 3)
-		for i = 1, paths do
+		local num = PRNG.Random(3, 4)
+		for i = 1, num do
 			local yaw = PRNG.Random(360)
 			local node = LocateSpawnerNode( c_node, yaw )
 			local pos = node:GetPos()

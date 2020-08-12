@@ -5,7 +5,7 @@ local floor = math.floor
 local version = 0
 local map_version = 0
 local nodes = {}
-local links = {}
+links = {}
 local lookup = {}
 PathFinder = {}
 
@@ -57,18 +57,20 @@ NODE_TYPE_AIR = 3
 NODE_TYPE_CLIMB = 4
 NODE_TYPE_WATER = 5
 
---[[ Hulls
-HULL_HUMAN 			= 0		30w, 73t
-HULL_SMALL_CENTERED = 1		40w, 40t
-HULL_WIDE_HUMAN		= 2		?
-HULL_TINY			= 3		24w, 24t
-HULL_WIDE_SHORT		= 4		?
-HULL_MEDIUM			= 5		36w, 65t
-HULL_TINY_CENTERED	= 6		16w, 8t
-HULL_LARGE			= 7		80w, 100t
-HULL_LARGE_CENTERED = 8		?
-HULL_MEDIUM_TALL	= 9		36w, 100t
-]]
+--[[ Hulls]]
+if CLIENT then -- Client don't know them by default
+	HULL_HUMAN 			= 0	--	30w, 73t
+	HULL_SMALL_CENTERED = 1	--	40w, 40t
+	HULL_WIDE_HUMAN		= 2	--	?
+	HULL_TINY			= 3	--	24w, 24t
+	HULL_WIDE_SHORT		= 4	--	?
+	HULL_MEDIUM			= 5	--	36w, 65t
+	HULL_TINY_CENTERED	= 6	--	16w, 8t
+	HULL_LARGE			= 7	--	80w, 100t
+	HULL_LARGE_CENTERED = 8	--	?
+	HULL_MEDIUM_TALL	= 9	--	36w, 100t
+end
+
 function PathFinder.GetHULLs()
 	return {HULL_TINY_CENTERED, HULL_TINY, HULL_SMALL_CENTERED, HULL_MEDIUM, HULL_HUMAN, HULL_MEDIUM_TALL, HULL_LARGE}
 end
@@ -91,7 +93,8 @@ function PathFinder.FindHULL(wide, tall)
 end
 function PathFinder.FindEntityHULL( ent )
 	local s = ent:OBBMaxs() - ent:OBBMins()
-	return PathFinder.FindHULL(math.max(s.x, s.y) / 2, s.z)
+	local wide,height = math.max(s.x, s.y), s.z
+	return PathFinder.FindHULL(wide,height)
 end
 
 local scanned = false -- Will be true after the map got scanned
@@ -112,27 +115,27 @@ function node_meta:GetZone()
 	return self.zone
 end
 function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
-	if not HULL then HULL = 1 end
+	if not HULL then HULL = 0 end
 	if not max_jumpdown then max_jumpdown = 0 end
 	if not max_jump then max_jump = 0 end
 	local t = {}
-	for k, v in ipairs(links[self] or {}) do
+	for k, v in ipairs(links[self] or {}) do -- v = {node, connections}
 		local deltaheight = v[2][HULL + 1]
-		if deltaheight == -1 then
-			for i = (HULL + 1), 1  do
-				if deltaheight ~= -1 then continue end
-				deltaheight = v[2][i] or -1
-			end
-		end
+		--if deltaheight == -1 then
+			--for i = (HULL + 1), 1  do -- Check all lower connectons
+			--	if deltaheight ~= -1 then continue end
+			--	deltaheight = v[2][i] or -1
+			--end
+		--end
 		if deltaheight == -1 then -- Invalid
 			continue
 		elseif deltaheight == 0 then -- Walk
-			table.insert(t, v[1])
+			table.insert(t, {v[1]})
 		else -- Jump down or up
 			if deltaheight > 0 and deltaheight < max_jump then -- Jump
-				table.insert(t, v[1])
-			elseif deltaheight < 0 and deltaheight > max_jumpdown then --Jumpdown
-				table.insert(t, v[1])
+				table.insert(t, {v[1], 1})
+			elseif deltaheight < 0 and deltaheight > -max_jumpdown then --Jumpdown
+				table.insert(t, {v[1], -1})
 			end
 		end
 	end
@@ -155,7 +158,7 @@ function node_meta:GetHigestHull()
 	if cache[self] then return cache[self] end
 	local n = 1
 	local t = 1 -- We need two nodes with the higest number
-	for k, v in ipairs(links[self] or {}) do
+	for k, v in ipairs(links[self] or {}) do -- v = {node, connections}
 		local l_n = 1
 		for i = 1, 10 do
 			if v[2][i] ~= 0 then break end
@@ -211,6 +214,13 @@ local total_cost_list = {}
 	function node_meta:GetTotalCost()
 		return total_cost_list[self]
 	end
+local jump_list = {}
+	function node_meta:SetJump( n)
+		jump_list[self] = n
+	end
+	function node_meta:GetJump()
+		return jump_list[self] or 0
+	end
 
 
 
@@ -218,6 +228,7 @@ local valid_mapnodes = {}
 function node_meta:ClearSearchLists()
 	open_list = {}
 	close_list = {}
+	jump_list = {}
 end
 
 -- Gird table This will make it cheaper to lookup nodes
@@ -356,8 +367,13 @@ local function ReadLink(f)
 		else -- Jump up or down
 			local delta = l.node1:GetPos().z - l.node2:GetPos().z
 			if delta == -1 then delta = -1.1 end -- We already use -1
-			l.node1moves[i] = -delta
-			l.node2moves[i] = delta
+			if delta > -25 and delta < 25 then -- Some sort of gab. Need to jump here.
+				l.node1moves[i] = 50
+				l.node2moves[i] = 50
+			else
+				l.node1moves[i] = -delta
+				l.node2moves[i] = delta
+			end
 		end
 	end
 	return l
@@ -401,16 +417,17 @@ local function LoadAin()
 	DebugMessage(string.format("AIN loaded. %i nodes. %i links.", #nodes, num_link))
 end
 -- Pathfinder.
-local function heuristic_cost_estimate( start, goal )
-	// Perhaps play with some calculations on which corner is closest/farthest or whatever
-	return start:GetPos():Distance( goal:GetPos() )
+local function heuristic_cost_estimate( start, goal, b_jump )
+	return start:GetPos():Distance( goal:GetPos() ) * (b_jump and 6 or 0)
 end
 local function reconstruct_path( cameFrom, current, reached_limit )
 	local total_path = { current }
+	total_path.jump = { current:GetJump() }
 	current = current:GetID()
 	while ( cameFrom[ current ] ) do
 		current = cameFrom[ current ]
 		table.insert( total_path, nodes[current] )
+		table.insert( total_path.jump, nodes[current]:GetJump() )
 	end
 	total_path.reached_limit = reached_limit or false
 	return total_path
@@ -439,17 +456,20 @@ local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jum
 		end
 		current:AddToClosedList()
 
-		for k, neighbor in pairs( current:GetConnectedNodes(max_jump, max_jumpdown, HULL) ) do
-			local heuristic = heuristic_cost_estimate( current, neighbor )
+		for k, tab in pairs( current:GetConnectedNodes(max_jump, max_jumpdown, HULL) ) do
+			local neighbor = tab[1]
+			local heuristic = heuristic_cost_estimate( current, neighbor, tab[2] and tab[2] ~= 0 )
+			
 			local newCostSoFar = current:GetCostSoFar() + heuristic + (fuzzy_amount and math.Rand(0, heuristic * fuzzy_amount) or 0)
-
+			
 			-- Filter
 			if not neighbor:IsNodeType(NODE_TYPE) then continue end
 			if ( ( neighbor:IsOpen() or neighbor:IsClosed() ) and neighbor:GetCostSoFar() <= newCostSoFar ) then
 				continue
 			else
+				neighbor:SetJump( tab[2] or 0 )
 				neighbor:SetCostSoFar( newCostSoFar );
-				neighbor:SetTotalCost( newCostSoFar + heuristic_cost_estimate( neighbor, node_goal ) )
+				neighbor:SetTotalCost( newCostSoFar + heuristic_cost_estimate( neighbor, node_goal, 0 ) )
 
 				if ( neighbor:IsClosed() ) then
 					neighbor:RemoveFromClosedList()
@@ -528,8 +548,8 @@ function path_meta:GetDistance()
 	return self.distance or 0
 end
 -- Creates a new path to a point or entity. Note max_jumpdown is negative. Returns true if reached.
-function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount, bIgnoreTrace)
-	if not scanned then return false end
+function PathFinder.CreateNewPath(vec_from, vec_or_ent_to, NODE_TYPE, max_distance, max_jumpdown, max_jump, HULL, fuzzy_amount, bIgnoreTrace)
+	if not scanned then print("NOT SCANNED") return false end
 	local t
 	if type(vec_or_ent_to) == "Entity" then
 		t = PathFind( FindClosestNode(vec_from, NODE_TYPE, bIgnoreTrace), FindClosestNode(vec_or_ent_to, NODE_TYPE, bIgnoreTrace),NODE_TYPE, max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
@@ -598,7 +618,8 @@ local function scan_map(starting_nodes)
 	for i = 1, n * 2 do
 		local node = table.remove(starting_nodes, 1)
 		if not node then break end -- Done scanning
-		for k, v in ipairs(node:GetConnectedNodes()) do
+		for k, tab in ipairs(node:GetConnectedNodes()) do
+			local v = tab[1]
 			if valid_mapnodes[ v ] then continue end -- Already scanned
 			local n = v:GetHigestHull()
 			if n <= higest then continue end
@@ -709,12 +730,18 @@ if CLIENT then
 			end
 			render.DrawBox(v.pos, Angle(0,v.yaw,0), min,max, c)
 			local c = Color(155,155,155)
-			for k, c2 in ipairs( v:GetConnectedNodes() ) do
+			for k, tab in ipairs( v:GetConnectedNodes(900,900) ) do
+				local c2 = tab[1]
+				local b = tab[2] or 0
 				if v.nodeType == NODE_TYPE_AIR or c2.nodeType == NODE_TYPE_AIR then
 					c = Color(0,0,255)
 				elseif v.nodeType == NODE_TYPE_GROUND then
 					if v:IsMapNode() and c2:IsMapNode() then
-						c = Color(0,255,0)
+						if b ~= 0 then
+							c = Color(0,0,255)
+						else
+							c = Color(0,255,0)
+						end
 					else
 						c = Color(55,55,55)
 					end
