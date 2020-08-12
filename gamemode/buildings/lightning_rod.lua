@@ -18,14 +18,14 @@ b.TrapResetTime = 22.5			-- Time it takes to reset
 b.TrapDurationTime = 0.5	-- Time it takes to stop
 
 local mdl = "models/props_c17/utilitypole03a.mdl"
-function b:Init()
-	if CLIENT then
-		if not self.t_model then
-			self.t_model = ClientsideModel(mdl)
-			self.t_model:SetPos(self:GetPos())
-			self.t_model:SetNoDraw(true)
-			self.t_model:SetModelScale(0.18)
-		end
+if CLIENT then
+	local function on_create(self, c_ent)
+		c_ent:SetPos(self:GetPos())
+		c_ent:SetNoDraw(true)
+		c_ent:SetModelScale(0.18)
+	end
+	function b:Init()
+		self:CreateClientMdl( mdl, on_create )
 	end
 end
 
@@ -91,7 +91,6 @@ if CLIENT then
 		self._tList = nil
 	end
 	function b:OnRemove()
-		SafeRemoveEntity(self.t_model)
 		if IsValid(self.emitter) then
 			self.emitter:Finish()
 			self.emitter = nil
@@ -111,10 +110,11 @@ function b:Draw()
 	-- Renders the bottom of the trap
 	self:RenderBase(mat2)
 	self:RenderTrapArea()
-	if self.t_model then -- There can be some cliping problems over 0.7
-		self.t_model:SetRenderOrigin( self:GetPos() )
-		self.t_model:SetRenderAngles( self:GetAngles() )
-		self.t_model:DrawModel()
+	local c_ent = self:GetClientMdl( mdl ) 
+	if c_ent and IsValid(c_ent) then -- There can be some cliping problems over 0.7
+		c_ent:SetRenderOrigin( self:GetPos() )
+		c_ent:SetRenderAngles( self:GetAngles() )
+		c_ent:DrawModel()
 	end
 	-- Render sparks
 	if not IsValid(LocalPlayer()) then return end

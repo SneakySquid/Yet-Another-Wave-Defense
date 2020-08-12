@@ -15,14 +15,16 @@ b.TrapDurationTime = 2	-- Time it takes to stop
 
 local mdl = Model("models/props_c17/oildrum001_explosive.mdl")
 -- Trap logic
-	function b:Init()
-		if CLIENT then
-			if not self.t_model then
-				self.t_model = ClientsideModel(mdl)
-				self.t_model:SetPos(self:GetPos())
-				self.t_model:SetNoDraw(true)
-			end
-		else
+	if CLIENT then
+		local function on_create(self, c_ent)
+			c_ent:SetPos(self:GetPos())
+			c_ent:SetNoDraw(true)
+		end
+		function b:Init()		
+			self:CreateClientMdl( mdl, on_create )
+		end
+	else
+		function b:Init()
 			self.b_spawned = false
 		end
 	end
@@ -85,10 +87,6 @@ end
 local mat = Material("yawd/models/trap_base")
 if SERVER then return b end
 
-function b:OnRemove()
-	SafeRemoveEntity(self.t_model)
-end
-
 local function IsNearLocal(self)
 	if not IsValid(LocalPlayer()) then return false end
 	local dis = LocalPlayer():GetPos():DistToSqr(self:GetPos())
@@ -118,7 +116,8 @@ function b:Draw()
 			render.DrawBox(self:GetPos(), self:GetAngles(), h2_vec, h_vec, Color(0,0,0))
 			render.DrawBox(self:GetPos(), r_a, h2_vec, h_vec, Color(0,0,0))
 		else
-			local r_model = self.t_model and (self:DurationProcent() > 0 or self.i_hatch > 0.9)
+			local c_ent = self:GetClientMdl( mdl )
+			local r_model = c_ent and (self:DurationProcent() > 0 or self.i_hatch > 0.9)
 			Building.StencilMask()
 			-- Render the mask
 				render.DrawBox(self:GetPos(), self:GetAngles(), Vector(-hatch_size,-hatch_size,-1.8), Vector(hatch_size,hatch_size,1.8), Color(0,0,0))
@@ -134,13 +133,13 @@ function b:Draw()
 				render.DrawBox(self:GetPos(), r_a, Vector(-hatch_size - n,-hatch_size,-1.8), Vector(-n,hatch_size,1.8), Color(0,0,0))
 
 				if r_model then
-					self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self:DurationProcent() * -50)))
-					self.t_model:SetRenderAngles(self:GetAngles())
-					self.t_model:DrawModel()
+					c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self:DurationProcent() * -50)))
+					c_ent:SetRenderAngles(self:GetAngles())
+					c_ent:DrawModel()
 				end
 			Building.StencilEnd()
 			if r_model then
-				self.t_model:DrawModel()
+				c_ent:DrawModel()
 			end
 		end
 	end

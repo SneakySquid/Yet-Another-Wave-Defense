@@ -429,7 +429,43 @@ else
 			end
 		cam.End3D2D()
 	end
+	-- Gets/Creats clientmdl. Since the client can delete them by random.
+	function ENT:CreateClientMdl( mdl, func_on_create )
+		if not self._mdllist then self._mdllist = {} end
+		if not self._mdllist[ mdl ] or not IsValid(self._mdllist[ mdl ][1]) then
+			local c_ent = ClientsideModel( mdl )
+			if not IsValid( c_ent ) then return end -- Unable to create client mdl
+			self._mdllist[ mdl ] = {c_ent, func_on_create}
+		end
+		if func_on_create then
+			func_on_create(self, self._mdllist[ mdl ][1])
+		end
+	end
+	function ENT:GetClientMdl( mdl )
+		if not self._mdllist or not self._mdllist[ mdl ] then return end
+		local c_ent = self._mdllist[ mdl ][1]
+		if c_ent and IsValid( c_ent ) then
+			return c_ent
+		end
+		c_ent = ClientsideModel( mdl )
+		if not IsValid( c_ent ) then
+			ErrorNoHalt("Unable to create clientmdl [" .. mdl .. "]\n")
+			self._mdllist[ mdl ] = nil
+			return
+		end
+		self._mdllist[ mdl ][1] = c_ent
+		if self._mdllist[ mdl ][2] then
+			self._mdllist[ mdl ][2](self, c_ent)
+		end
+		return c_ent
+	end
 	function ENT:OnRemove()
+		if self._mdllist then
+			for _,ent in pairs( self._mdllist ) do
+				if not IsValid( ent ) then continue end
+				SafeRemoveEntity( ent )
+			end
+		end
 		if self.b_OnRemove then
 			self.b_OnRemove(self)
 		end

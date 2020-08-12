@@ -16,15 +16,15 @@ b.TrapDurationTime = 5	-- Time it takes to stop
 
 local mdl = Model("models/combine_turrets/ground_turret.mdl")
 -- Trap logic
-	function b:Init()
-		if CLIENT then
+	if CLIENT then
+		local function on_create(self, c_ent)
+			c_ent:SetPos(self:GetPos())
+			c_ent:SetNoDraw(true)
+			c_ent:SetModelScale(1.5)
+		end
+		function b:Init()	
 			self.i_hatch = 0
-			if not self.t_model then
-				self.t_model = ClientsideModel(mdl)
-				self.t_model:SetPos(self:GetPos())
-				self.t_model:SetNoDraw(true)
-				self.t_model:SetModelScale(1.5)
-			end
+			self:CreateClientMdl( mdl, on_create )
 		end
 	end
 	function b:OnTrapTrigger( )
@@ -116,8 +116,8 @@ local mdl = Model("models/combine_turrets/ground_turret.mdl")
 					dlight.Decay = 512
 					dlight.DieTime = CurTime() + 0.05
 				end
-				if self.t_model then
-					self.t_model:MuzzleFlash()
+				if c_ent then
+					c_ent:MuzzleFlash()
 				end
 				local effectdata = EffectData()
 				local m_pos = b_pos + f_norm * 25
@@ -144,16 +144,11 @@ local mat = Material("yawd/models/trap_base")
 local hatch_size = 37
 if SERVER then return b end
 
-function b:OnRemove()
-	SafeRemoveEntity(self.t_model)
-end
-
 local mat,mat2 = Material("yawd/models/trap_squre"),Material("yawd/models/trap_side")
 function b:Draw()
 	-- Renders the bottom of the trap
 	self:RenderBase()
 	-- Render turret
-
 	if self:DurationProcent() > 0 then
 		self.i_hatch = math.min((1 - self:DurationProcent()) * 10, 1)
 	else
@@ -170,21 +165,23 @@ function b:Draw()
 		render.SetMaterial(mat)
 		render.DrawBox(self:GetPos(), self:GetAngles(), h2_vec, h_vec, Color(0,0,0))
 		render.DrawBox(self:GetPos(), r_a, h2_vec, h_vec, Color(0,0,0))
-		if self.t_model then
-			self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - 40)))
-			self.t_model:DrawModel()
+		local c_ent = self:GetClientMdl( mdl )
+		if c_ent and IsValid( c_ent ) then
+			c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - 40)))
+			c_ent:DrawModel()
 			if IsValid(self.e_target) then
-				local a = (self.e_target:GetPos() - self.t_model:GetPos()):Angle()
-				self.t_model:SetRenderAngles(Angle(0,a.y,180))
+				local a = (self.e_target:GetPos() - c_ent:GetPos()):Angle()
+				c_ent:SetRenderAngles(Angle(0,a.y,180))
 			else
-				local a = self.t_model:GetAngles().y
-				self.t_model:SetRenderAngles(Angle(0,a + FrameTime() * 65,180))
+				local a = c_ent:GetAngles().y
+				c_ent:SetRenderAngles(Angle(0,a + FrameTime() * 65,180))
 			end
 		end
 	else -- Within Animation
-		if self.t_model and self.i_hatch >0.8 then -- There can be some cliping problems over 0.7
-			self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - 40)))
-			self.t_model:DrawModel()
+		local c_ent = self:GetClientMdl( mdl )
+		if c_ent and IsValid( c_ent ) and self.i_hatch >0.8 then -- There can be some cliping problems over 0.7
+			c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - 40)))
+			c_ent:DrawModel()
 		end
 		Building.StencilMask()
 		-- Render the mask
@@ -201,10 +198,10 @@ function b:Draw()
 			render.SetMaterial(mat)
 			render.DrawBox(self:GetPos(), self:GetAngles(), Vector(-hatch_size - n,-hatch_size,-1.8), Vector(-n,hatch_size,1.8), Color(0,0,0))
 			render.DrawBox(self:GetPos(), r_a, Vector(-hatch_size - n,-hatch_size,-1.8), Vector(-n,hatch_size,1.8), Color(0,0,0))
-			if self.t_model and self.i_hatch <= 0.9 then
+			if c_ent and IsValid(c_ent) and self.i_hatch <= 0.9 then
 				local mdl_h = 40
-				self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - mdl_h)))
-				self.t_model:DrawModel()
+				c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - mdl_h)))
+				c_ent:DrawModel()
 			end
 		Building.StencilEnd()
 	end

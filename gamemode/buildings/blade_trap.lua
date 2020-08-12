@@ -16,17 +16,17 @@ b.TrapDurationTime = 5	-- Time it takes to stop
 
 local mdl = Model("models/props_c17/TrapPropeller_Blade.mdl")
 -- Trap logic
-	function b:Init()
-		if CLIENT then
+	if CLIENT then
+		local function on_create(self, c_ent)
+			c_ent:SetPos(self:GetPos())
+			c_ent:SetNoDraw(true)
+			c_ent:EnableMatrix("RenderMultiply", self.m_matrix)
+		end
+		function b:Init()	
 			self.i_hatch = 0
-			if not self.t_model then
-				self.t_model = ClientsideModel(mdl)
-				self.t_model:SetPos(self:GetPos())
-				self.t_model:SetNoDraw(true)
-				self.m_matrix = Matrix()
-				self.m_matrix:Scale(Vector(0.7,0.7,0.7))
-				self.t_model:EnableMatrix("RenderMultiply", self.m_matrix)
-			end
+			self.m_matrix = Matrix()
+			self.m_matrix:Scale(Vector(0.7,0.7,0.7))
+			self:CreateClientMdl( mdl, on_create )
 		end
 	end
 	function b:OnTrapTrigger( )
@@ -64,7 +64,6 @@ local hatch_size = 37
 if SERVER then return b end
 
 function b:OnRemove()
-	SafeRemoveEntity(self.t_model)
 	self:StopSound("ambient/machines/spin_loop.wav")
 end
 local mat,mat2 = Material("yawd/models/trap_squre"),Material("yawd/models/trap_blade")
@@ -94,6 +93,7 @@ function b:Draw()
 	local r_a = self:LocalToWorldAngles(Angle(0,180,0))
 	local h_vec =  Vector(0,hatch_size,1.8)
 	local h2_vec = -Vector(hatch_size,hatch_size,1.8)
+	local c_ent = self:GetClientMdl( mdl )
 	if self.i_hatch <= 0 then
 		render.SetMaterial(mat)
 		render.DrawBox(self:GetPos(), self:GetAngles(), h2_vec, h_vec, Color(0,0,0))
@@ -102,29 +102,29 @@ function b:Draw()
 		render.SetMaterial(mat)
 		render.DrawBox(self:GetPos(), self:GetAngles(), h2_vec, h_vec, Color(0,0,0))
 		render.DrawBox(self:GetPos(), r_a, h2_vec, h_vec, Color(0,0,0))
-		if self.t_model then
-			self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 50 - 40)))
-			self.t_model:SetBodygroup( 1, 1 )
-			self.t_model:SetModelScale(1, 0)
+		if c_ent and IsValid( c_ent ) then
+			c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 50 - 40)))
+			c_ent:SetBodygroup( 1, 1 )
+			c_ent:SetModelScale(1, 0)
 			local mat = Matrix()
 			mat:Scale(Vector(1,1,1))
-			self.t_model:EnableMatrix("RenderMultiply", mat)
+			c_ent:EnableMatrix("RenderMultiply", mat)
 
-			self.t_model:DrawModel()
-			local a = self.t_model:GetAngles().y
-			self.t_model:SetRenderAngles(Angle(0,(a + FrameTime() * 700) % 360,0))
+			c_ent:DrawModel()
+			local a = c_ent:GetAngles().y
+			c_ent:SetRenderAngles(Angle(0,(a + FrameTime() * 700) % 360,0))
 		end
 	else -- Within Animation
-		if self.t_model then
+		if c_ent and IsValid( c_ent ) then
 			local n = 0.4 + self.i_hatch * 0.6
 			local mat = Matrix()
 				mat:Scale(Vector(n,n,n))
-			self.t_model:EnableMatrix("RenderMultiply", mat)
-		end
-		if self.t_model and self.i_hatch >0.8 then -- There can be some cliping problems over 0.7
-			self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 50 - 40)))
-			self.t_model:DrawModel()
-			self.t_model:SetBodygroup( 1, 0 )
+			c_ent:EnableMatrix("RenderMultiply", mat)
+			if self.i_hatch >0.8 then
+				c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 50 - 40)))
+				c_ent:DrawModel()
+				c_ent:SetBodygroup( 1, 0 )
+			end
 		end
 		Building.StencilMask()
 		-- Render the mask
@@ -141,10 +141,10 @@ function b:Draw()
 			render.SetMaterial(mat)
 			render.DrawBox(self:GetPos(), self:GetAngles(), Vector(-hatch_size - n,-hatch_size,-1.8), Vector(-n,hatch_size,1.8), Color(0,0,0))
 			render.DrawBox(self:GetPos(), r_a, Vector(-hatch_size - n,-hatch_size,-1.8), Vector(-n,hatch_size,1.8), Color(0,0,0))
-			if self.t_model and self.i_hatch <= 0.9 then
+			if c_ent and IsValid( c_ent ) and self.i_hatch <= 0.9 then
 				local mdl_h = 40
-				self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - mdl_h)))
-				self.t_model:DrawModel()
+				c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,self.i_hatch * 40 - mdl_h)))
+				c_ent:DrawModel()
 			end
 		Building.StencilEnd()
 	end

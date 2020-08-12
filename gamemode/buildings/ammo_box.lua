@@ -12,14 +12,14 @@ b.TrapDurationTime = 0	-- Time it takes to stop
 
 local mdl = Model("models/Items/ammocrate_smg1.mdl")
 -- Trap logic
-	function b:Init()
-		if CLIENT then
-			if not self.t_model then
-				self.t_model = ClientsideModel(mdl)
-				self.t_model:SetPos(self:GetPos())
-				self.t_model:SetNoDraw(true)
-				self.t_model:SetModelScale(1)
-			end
+	if CLIENT then
+		local on_create = function(self, mdl)
+			mdl:SetPos(self:GetPos())
+			mdl:SetNoDraw(true)
+			mdl:SetModelScale(1)
+		end
+		function b:Init()
+			self:CreateClientMdl( mdl, on_create)
 		end
 	end
 	function b:StartTouch( ent )
@@ -50,11 +50,17 @@ local mdl = Model("models/Items/ammocrate_smg1.mdl")
 			if not IsValid(LocalPlayer()) then return end
 			local b = LocalPlayer():GetPos():DistToSqr(self:GetPos()) < 9400
 			if not self.n_Open and b then
-				self.t_model:ResetSequence("close")
+				local c_ent = self:GetClientMdl( mdl )
+				if c_ent and IsValid( c_ent ) then
+					c_ent:ResetSequence("close")
+				end
 				self.n_Open = true
 				self:EmitSound("items/ammocrate_open.wav")
 			elseif self.n_Open and not b then
-				self.t_model:ResetSequence("open")
+				local c_ent = self:GetClientMdl( mdl )
+				if c_ent and IsValid( c_ent ) then
+					c_ent:ResetSequence("open")
+				end
 				self.n_Open = false
 				self:EmitSound("items/ammocrate_close.wav")
 			end
@@ -63,22 +69,22 @@ local mdl = Model("models/Items/ammocrate_smg1.mdl")
 if SERVER then return b end 
 
 function b:OnTrapTrigger( )
-	if self.t_model and IsValid(self.t_model) then
-		self.t_model:ResetSequence("close")
+	local c_ent = self:GetClientMdl( mdl )
+	if c_ent and IsValid( c_ent ) then
+		c_ent:ResetSequence("close")
 	end
-end
-
-function b:OnRemove()
-	SafeRemoveEntity(self.t_model)
 end
 
 function b:Draw()
 	-- Renders the bottom of the trap
 	self:RenderBase()
 	-- Render turret
-	self.t_model:SetRenderOrigin(self:LocalToWorld(Vector(0,0,16)))
-	self.t_model:DrawModel()
-	self.t_model:SetRenderAngles(self:GetAngles())
+	local c_ent = self:GetClientMdl( mdl )
+	if c_ent and IsValid( c_ent ) then
+		c_ent:SetRenderOrigin(self:LocalToWorld(Vector(0,0,16)))
+		c_ent:DrawModel()
+		c_ent:SetRenderAngles(self:GetAngles())
+	end
 	-- Renders the trap area
 	self:RenderTrapArea()
 end
