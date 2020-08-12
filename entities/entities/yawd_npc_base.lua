@@ -434,12 +434,13 @@ function ENT:MoveTowards( pos, ignoreAnimation )
 	return false
 end
 -- "Floats" the entity towards the point
-function ENT:ForceMoveTowards( pos, time )
+function ENT:ForceMoveTowards( pos, time, sequence )
 	if self:GetRagdolled() then return end
 	self.m_ForceMoving = pos
 	self.m_ForceMovingt = time + CurTime()
 	self.m_ForceMovings = self:GetPos():Distance( pos ) / time
 	self.m_ForceMovingg = self.loco:GetGravity()
+	self.m_ForceMovinga = sequence
 	self.loco:SetGravity(0)
 	self.loco:Approach(pos, 1)
 	self:SetSpeedMultTemp(self.m_ForceMovings)
@@ -560,6 +561,7 @@ function ENT:Think()
 			self.m_ForceMovingd = nil
 			self.loco:SetGravity(self.m_ForceMovingg or 1000)
 			self.m_ForceMovingg = nil
+			self.m_ForceMovinga = nil
 			self:SetSpeedMultTemp()
 		else
 			local delta = (self.m_ForceMoving - self:GetPos())
@@ -569,7 +571,11 @@ function ENT:Think()
 				self.loco:SetVelocity( delta:GetNormalized() * math.min(len * 1.5, self.m_ForceMovings) )
 				self:NextThink(CurTime())
 				self.BaseClass.Think(self)
+				if self.m_ForceMovinga then
+					self:ResetSequence( self.m_ForceMovinga )
+				end
 			else
+				self.m_ForceMovinga = nil
 				self.m_ForceMoving = nil
 				self.m_ForceMovingt = nil
 				self.m_ForceMovingd = nil
@@ -577,6 +583,10 @@ function ENT:Think()
 				self.m_ForceMovingg = nil
 				self:SetSpeedMultTemp()
 			end
+			local cur = self:GetAngles()
+			local ang = delta:Angle()
+			local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -4, 4)
+			self:SetAngles(Angle(0,cur.y + a,0))
 		end
 		return
 	else
