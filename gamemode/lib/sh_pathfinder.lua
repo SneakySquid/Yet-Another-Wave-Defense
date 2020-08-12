@@ -418,7 +418,6 @@ local function ReadLink(f)
 			for i = 7,10 do
 				l.node1moves[i] = -1
 				l.node2moves[i] = -1
-				print("OI")
 			end
 		end
 	end
