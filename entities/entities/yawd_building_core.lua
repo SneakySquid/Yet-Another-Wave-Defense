@@ -36,7 +36,7 @@ end
 
 
 function ENT:TakeCoreDamage( amount )
-	local new_hp = self:Health() - amount
+	local new_hp = self:Health() - amount / 2
 	local p = new_hp / self:GetMaxHealth()
 	if p <= .50 and math.random(1,5) < 2 then
 		self:EmitSound("ambient/machines/wall_move" .. math.random(1, 3) .. ".wav", 140)
