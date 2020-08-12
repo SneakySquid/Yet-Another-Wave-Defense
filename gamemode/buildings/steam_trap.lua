@@ -8,7 +8,7 @@ b.CanBuild = true
 b.BuildClass = {CLASS_CONSTRUCTOR, CLASS_BOMBER}
 b.Cost = 450
 
-local damage = 35 -- This allows to balance traps
+local damage = 25 -- This allows to balance traps
 
 b.BuildingSize = {-Vector(95, 95, 12), Vector(95, 95, 12)}
 b.TrapArea = {-Vector(95, 95, 1.7), Vector(95, 95, 95)}
@@ -21,12 +21,15 @@ if SERVER then
 	function b:OnTrapTrigger( tListOfEnemies )
 		local dm = self:DamageInfo()
 		dm:SetDamage( damage )
-		dm:SetDamageType( DMG_SLASH )
+		dm:SetDamageType( DMG_BLAST )
 		for k,v in ipairs( tListOfEnemies ) do
 			--v:TakeDamageInfo( dm )
 			if (v.i_lastpush or 0) > CurTime() then continue end
 			v.i_lastpush = CurTime() + 1
-			Building.ApplyTrapForce(v, Vector(0,0,450) + self:GetAngles():Forward() * 1000)
+			v:TakeDamageInfo(dm)
+			if v:Health() > 0 then
+				Building.ApplyTrapForce(v, Vector(0,0,450) + self:GetAngles():Forward() * 1000)
+			end
 		end
 	end
 else
