@@ -140,22 +140,29 @@ if CLIENT then
 	local corpses = {}
 	hook.Add( "CreateClientsideRagdoll", "YAWD_Ragdoll", function( entity, ragdoll )
 		if not IsValid(ragdoll) then return end
-		if ragdoll:GetModelScale() ~= 1 then
-			ragdoll:SetSaveValue( "m_bFadingOut", true )
-		else
-			table.insert(corpses, {ragdoll, CurTime() + 2})
-		end
+		ragdoll:SetSaveValue( "m_bFadingOut", true )
+		table.insert(corpses, {ragdoll, CurTime() + 1})
 	end )
 	hook.Add("Think", "Yawd_CorpseRemoval", function()
 		for i = #corpses, 1, -1 do
 			local ragdoll = corpses[i][1]
 			local time = corpses[i][2]
-			if not IsValid(ragdoll) then
-				table.remove(corpses, i)
-			elseif time < CurTime() then
-				table.remove(corpses, i)
-				ragdoll:SetSaveValue( "m_bFadingOut", true )
+			if time > CurTime() then continue end
+			if IsValid(ragdoll) then
+				ragdoll:Remove()
 			end
+			table.remove(corpses, i)
+		end
+	end)
+end
+
+-- Stop ragdolls from playing the scrape sound
+if CLIENT then
+	hook.Add("EntityEmitSound","YAWD_CorpseMute", function(data)
+		if not data.Entity or not IsValid( data.Entity ) then return end
+		if data.Entity:GetClass() ~= "class C_ClientRagdoll" then return end
+		if data.SoundName == "physics/body/body_medium_scrape_smooth_loop1.wav" or data.SoundName == "physics/body/body_medium_scrape_rough_loop1.wav" then
+			return false
 		end
 	end)
 end
