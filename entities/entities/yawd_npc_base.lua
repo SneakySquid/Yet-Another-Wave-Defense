@@ -401,7 +401,9 @@ local function ET(self, from, to, target)
 	return not t.Hit or (t.Entity and t.Entity == target)
 end
 -- Searches for players nearby.
+local con = GetConVar("ai_ignoreplayers")
 local function SearchPlayers(self, distance, vPos)
+	if con:GetBool() then return end 
 	local c,e
 	vPos = vPos or self:GetPos() + self:OBBCenter()
 	for k,v in ipairs(player.GetAll()) do
