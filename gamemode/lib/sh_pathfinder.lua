@@ -5,7 +5,7 @@ local floor = math.floor
 local version = 0
 local map_version = 0
 local nodes = {}
-links = {}
+local links = {}
 local lookup = {}
 PathFinder = {}
 
@@ -114,20 +114,23 @@ end
 function node_meta:GetZone()
 	return self.zone
 end
+function node_meta:GetLinks()
+	return links[self] or {}
+end
 function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 	if not HULL then HULL = 0 end
 	if not max_jumpdown then max_jumpdown = 0 end
 	if not max_jump then max_jump = 0 end
 	local t = {}
 	for k, v in ipairs(links[self] or {}) do -- v = {node, connections}
-		local deltaheight = v[2][HULL + 1]
+		local deltaheight = v[2][HULL + 1] or 0
 		--if deltaheight == -1 then
 			--for i = (HULL + 1), 1  do -- Check all lower connectons
 			--	if deltaheight ~= -1 then continue end
 			--	deltaheight = v[2][i] or -1
 			--end
 		--end
-		if deltaheight == -1 then -- Invalid
+		if deltaheight == -1 or deltaheight == 100 then -- Invalid
 			continue
 		elseif deltaheight == 0 then -- Walk
 			table.insert(t, {v[1]})
@@ -141,6 +144,29 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 	end
 	return t
 end
+function node_meta:GetConnectedNodesMax( aim )
+	local t = {}
+	for k, v in ipairs(links[self] or {}) do -- v = {node, connections}
+		local n = 0
+		if aim == 8 or aim == 4 or ain == 2 then
+			ain = ain + 1
+		end
+		for i = 1, 10 do
+			if v[2][ i ] == 0 then
+				n = i
+			else
+				break
+			end
+		end
+		if aim > n then
+			continue
+		else
+			table.insert(t, {v[1], n})
+		end
+	end
+	return t
+end
+
 function node_meta:GetID()
 	return self.id or -1
 end
@@ -348,6 +374,18 @@ local function ReadNode(f)
 	end
 	return n
 end
+local function GetCapabilities( byte )
+	--[[
+		00000000 = no connection
+		00000001 = walk
+		00000010 = jump
+		00000100 = fly
+		00001000 = climb
+		00010000 = swim
+		00100000 = crawl
+	]]
+end
+
 local function ReadLink(f)
 	local l = {}
 	local srcId = f:ReadShort() + 1 		-- Short
@@ -358,13 +396,12 @@ local function ReadLink(f)
 	l.node2moves = {}
 	for i = 1, (NUM_HULLS or 10) do
 		local n = f:ReadByte() 	-- Byte
-		if n == 0 then -- Invalid
-			l.node1moves[i] = -1
-			l.node2moves[i] = -1
-		elseif n == 1 then 		-- Walkable
+		l.node1moves[i] = -1
+		l.node2moves[i] = -1
+		if bit.band(n, 1) == 1 then 		-- Walkable
 			l.node1moves[i] = 0
 			l.node2moves[i] = 0
-		else -- Jump up or down
+		elseif bit.band(n, 2) == 2 then -- Jump up or down
 			local delta = l.node1:GetPos().z - l.node2:GetPos().z
 			if delta == -1 then delta = -1.1 end -- We already use -1
 			if delta > -25 and delta < 25 then -- Some sort of gab. Need to jump here.
@@ -373,6 +410,15 @@ local function ReadLink(f)
 			else
 				l.node1moves[i] = -delta
 				l.node2moves[i] = delta
+			end
+		end
+	end
+	if l.node1moves[7] == 0 then
+		if ET(nodes[srcId]:GetPos() + Vector(0,0,120), nodes[destId]:GetPos() + Vector(0,0,120)).Hit then
+			for i = 7,10 do
+				l.node1moves[i] = -1
+				l.node2moves[i] = -1
+				print("OI")
 			end
 		end
 	end
@@ -436,9 +482,6 @@ end
 local function PathFind(node_start, node_goal, NODE_TYPE,  max_distance, max_jump, max_jumpdown, HULL, fuzzy_amount)
 	if not node_start or not node_goal then return false end -- Invalid
 	if node_start == node_goal then return true end	-- We're already there
-	if HULL == 7 then
-		HULL = 1
-	end
 	node_start:ClearSearchLists()
 	node_start:AddToOpenList()
 	local came_from = {}
@@ -611,20 +654,26 @@ local function scan_map(starting_nodes)
 	for k,v in ipairs(starting_nodes) do
 		valid_mapnodes[ v ] = true
 	end
-	local higest = -1 -- Accept any size node at the start
+	local higest = 1 -- Accept any size node at the start
 	-- For each of those nodes, find the connected nodes and add them to a list.
 	local n = #nodes
 	DebugMessage("Starting nodes: " .. table.Count(starting_nodes))
 	for i = 1, n * 2 do
 		local node = table.remove(starting_nodes, 1)
 		if not node then break end -- Done scanning
-		for k, tab in ipairs(node:GetConnectedNodes()) do
+		for k, tab in ipairs(node:GetConnectedNodesMax( higest )) do
 			local v = tab[1]
 			if valid_mapnodes[ v ] then continue end -- Already scanned
-			local n = v:GetHigestHull()
-			if n <= higest then continue end
-			if n > higest and higest < 4 then
-				higest = math.min(n, 4)
+		--	local n = v:GetHigestHull()
+		--	if n <= higest then continue end
+		--	if n > higest and higest < 4 then
+		--		higest = math.min(n, 4)
+		--	end
+			-- Ignore few starting nodes ..
+			if tab[2] > higest and higest < 7 then
+				higest = higest + 1
+			elseif higest >= 7 then
+
 			end
 			table.insert(starting_nodes, v) -- Scan this node next
 			valid_mapnodes[ v ] = true -- Add it to the list of valid nodes
