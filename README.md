@@ -5,10 +5,10 @@ A Garry's Mod wave defense gamemode submission for the [gmodstore Gamemode Compe
 ## Authors
 - [Nak](https://github.com/Nak2)
 - [SneakySquid](https://github.com/SneakySquid)
-- [lewis](https://github.com/c4fe)
+- [lewis](https://github.com/lewisclark)
 
 ## Workshop
-You can also download  the gamemode on the workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=2186473733
+You can also download the gamemode on the Steam Workshop [here](https://steamcommunity.com/sharedfiles/filedetails/?id=2186473733).
 
 ## License
 This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
