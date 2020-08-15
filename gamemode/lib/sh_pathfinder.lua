@@ -146,6 +146,7 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 end
 function node_meta:GetConnectedNodesMax( aim )
 	local t = {}
+	if not aim then aim = 1 end
 	for k, v in ipairs(links[self] or {}) do -- v = {node, connections}
 		local n = 0
 		if aim == 8 or aim == 4 or ain == 2 then
@@ -671,8 +672,6 @@ local function scan_map(starting_nodes)
 			-- Ignore few starting nodes ..
 			if tab[2] > higest and higest < 7 then
 				higest = higest + 1
-			elseif higest >= 7 then
-
 			end
 			table.insert(starting_nodes, v) -- Scan this node next
 			valid_mapnodes[ v ] = true -- Add it to the list of valid nodes
