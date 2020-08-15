@@ -90,6 +90,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 	do -- Base class weapons
 		YAWD_UPGRADE_CROWBAR = GM:RegisterUpgrade({
 			name = "Crowbar",
+			icon = Material("entities/weapon_crowbar.png"),
 			price = 50,
 
 			on_purchase = function(ply)
@@ -114,6 +115,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_PISTOL = GM:RegisterUpgrade({
 			name = "Pistol",
 			price = 200,
+			icon = Material("entities/yawd_pistol.png"),
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -138,6 +140,7 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_SMG = GM:RegisterUpgrade({
 			name = "SMG",
 			price = 400,
+			icon = Material("entities/weapon_smg1.png"),
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -169,10 +172,12 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_GRENADE = GM:RegisterUpgrade({
 			name = "Grenades",
 			price = 500,
+			icon = Material("entities/weapon_frag.png"),
 
 			can_purchase = function(ply)
 				return ply:GetPlayerClass() == CLASS_BOMBER
 			end,
+			can_purchase_class = { CLASS_BOMBER },
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -197,10 +202,12 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_RPG = GM:RegisterUpgrade({
 			name = "RPG",
 			price = 1000,
+			icon = Material("entities/weapon_rpg.png"),
 
 			can_purchase = function(ply)
 				return ply:GetPlayerClass() == CLASS_BOMBER
 			end,
+			can_purchase_class = { CLASS_BOMBER },
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -227,11 +234,13 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_SHOTGUN = GM:RegisterUpgrade({
 			name = "Shotgun",
 			price = 750,
+			icon = Material("entities/yawd_shotgun.png"),
 
 			can_purchase = function(ply)
 				local class = ply:GetPlayerClass()
 				return class == CLASS_FIGHTER or class == CLASS_GUNNER
 			end,
+			can_purchase_class = { CLASS_FIGHTER, CLASS_GUNNER },
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -258,10 +267,12 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_RIFLE = GM:RegisterUpgrade({
 			name = "Rifle",
 			price = 750,
+			icon = Material("entities/yawd_rifle.png"),
 
 			can_purchase = function(ply)
 				return ply:GetPlayerClass() == CLASS_GUNNER
 			end,
+			can_purchase_class = { CLASS_GUNNER },
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -288,10 +299,12 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_MEDKIT = GM:RegisterUpgrade({
 			name = "Medkit",
 			price = 350,
+			icon = Material("entities/weapon_medkit.png"),
 
 			can_purchase = function(ply)
 				return ply:GetPlayerClass() == CLASS_HEALER
 			end,
+			can_purchase_class = { CLASS_HEALER },
 
 			on_purchase = function(ply)
 				if SERVER then
@@ -317,11 +330,12 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 		YAWD_UPGRADE_LMG = GM:RegisterUpgrade({
 			name = "LMG",
 			price = 750,
-
+			icon = Material("entities/yawd_lmg.png"),
 			can_purchase = function(ply)
 				local class = ply:GetPlayerClass()
 				return class == CLASS_JUGGERNAUT or class == CLASS_GUNNER
 			end,
+			can_purchase_class = { CLASS_JUGGERNAUT, CLASS_GUNNER },
 
 			on_purchase = function(ply)
 				if SERVER then
