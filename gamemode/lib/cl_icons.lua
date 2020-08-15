@@ -110,19 +110,19 @@ function GM:RenderKeyBetween( x, y, font, bCenter, ... )
 	local box_size = th * 1.3
 	local args = { ... }
 	-- Calculate the width
-	local total_w = 0
-	if bCenter then
-		total_w = #args * offset
-		for k,v in ipairs( args ) do
-			if type(v) == "string" then
-				total_w = total_w + surface.GetTextSize( v )
-			else
-				total_w = total_w + box_size
-			end
+	local total_w = #args * offset
+	for k,v in ipairs( args ) do
+		if type(v) == "string" then
+			total_w = total_w + surface.GetTextSize( v )
+		else
+			total_w = total_w + box_size
 		end
 	end
 	-- Start rendering
-	local c_x = -total_w / 2
+	local c_x = 0
+	if bCenter then
+		c_x = -total_w / 2
+	end
 	for k,v in ipairs( args ) do
 		local w = 0
 		if type(v) == "string" then
@@ -138,6 +138,7 @@ function GM:RenderKeyBetween( x, y, font, bCenter, ... )
 		end
 		c_x = c_x + w + offset
 	end
+	return total_w, box_size
 end
 
 local hint_y = 0

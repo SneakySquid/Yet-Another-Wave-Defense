@@ -62,7 +62,6 @@ local wavedisplay_core_hp = -1
 local wavedisplay_core_shakespeed = 0
 
 
-local left_mouse_indicator = Material("gui/lmb.png")
 local wavedisplay_bg = Material("effects/ar2_altfire1")
 local wavedisplay_bg2 = Material("effects/splashwake1")
 local wavedisplay_bg3 = Material("effects/splashwake3")
@@ -332,6 +331,7 @@ HUD.Status = {
 		local keyCode = input.GetKeyCode( input.LookupBinding( "yawd_change_class" ) or "g")
 		GAMEMODE:RenderKeyBetween( 26, sh * 0.3, "HUD.Key", false, "Press", keyCode, "to switch class." )
 	end,
+
 	BuildingInfo = function(ply, sw, sh)
 		local t = ply:GetEyeTrace()
 		if not IsValid( t.Entity ) then return end
@@ -349,6 +349,13 @@ HUD.Status = {
 			return			
 		end
 		GAMEMODE:RenderKeyHint( "Press", KEY_E, t2 )
+	end,
+
+	NoNodes = function(ply, sw, sh)
+		local tx, ty = sw * 0.5, sh * 0.25
+		local _,h = draw.SimpleText("This map does not have any Nodegraph!", "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+		ty = ty + h
+		draw.SimpleText("Try and find another map. :c", "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
 	end
 }
 
@@ -371,14 +378,8 @@ HUD.Wave = {
 		local tx, ty = sw * 0.5, sh * 0.25
 
 		if GAMEMODE.m_VoteType == VOTE_TYPE_CORE then
-			local w, h = draw.SimpleText("Choose your Core location", "HUD.VoteStatus", tx, ty, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-
-			render.PushFilterMag(TEXFILTER.ANISOTROPIC)
-				surface.SetDrawColor(255, 255, 255, 255)
-				surface.SetMaterial(left_mouse_indicator)
-				surface.DrawTexturedRect(tx - w * 0.5 - h, ty, h, h)
-			render.PopFilterMag()
-
+			surface.SetDrawColor( HSLToColor( CurTime() * 30, 1, 0.5))
+			local w, h = GAMEMODE:RenderKeyBetween( tx, ty, "HUD.VoteStatus", true, MOUSE_LEFT, "Choose your Core location" )
 			ty = ty + h
 		elseif GAMEMODE.m_VoteType == VOTE_TYPE_WAVE then
 			local bind = input.LookupBinding("gm_showspare2")
@@ -423,6 +424,10 @@ function GM:HUDPaint()
 	local ply = LocalPlayer()
 	local sw, sh = ScrW(), ScrH()
 
+	if PathFinder and #PathFinder.GetMapNodes() < 1 and PathFinder.HasScannedMapNodes() then
+		HUD.Status.NoNodes(ply, sw, sh)
+		return
+	end
 	if CanDraw("HUD.Wave") then
 		if CanDraw("HUD.Wave.Status") then
 			HUD.Wave.Status(ply, sw, sh)
