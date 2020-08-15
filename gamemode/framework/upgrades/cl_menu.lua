@@ -32,10 +32,12 @@ function GM:CreateUpgradesMenu()
 
 			for i = 1, v.tiers do
 				local is_owned = owned_tier >= i
-				local price = GAMEMODE:GetUpgradePrice(v.k, i, owned_tier)
 
+				local price = 0
 				if is_owned then
-					price = price * GAMEMODE:GetUpgradeRefundPercentage()
+					price = GAMEMODE:GetUpgradeRefundAmount(v.k, i - 1, owned_tier)
+				else
+					price = GAMEMODE:GetUpgradePrice(v.k, i, owned_tier)
 				end
 
 				local text_col = is_owned and Color(180, 0, 0, 255) or Color(0, 140, 0, 255)
