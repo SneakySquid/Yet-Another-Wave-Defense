@@ -49,6 +49,13 @@ do
 		font = "Arial",
 		size = 24,
 	})
+
+	surface.CreateFont("HUD.Building", {
+		font = "Tahoma",
+		size = 32,
+		weight = 1500,
+	})
+
 end
 
 local vote_info = GM.VoteInfo
