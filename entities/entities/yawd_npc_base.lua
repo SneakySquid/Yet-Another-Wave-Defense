@@ -140,6 +140,7 @@ function ENT:SetCanBePushed( bool )
 end
 -- Gives the nextbot a weapon
 function ENT:GiveWeapon(wep)
+	if CLIENT then return end
 	local wep = ents.Create(wep)
 	local pos = self:GetAttachment(self:LookupAttachment("anim_attachment_RH")).Pos
 	wep:SetOwner(self)
@@ -670,19 +671,25 @@ function ENT:OnRemove()
 	end
 	if self:GetRagdolled() then CUR_RAG = math.max(0, CUR_RAG - 1) end
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
+	if CLIENT then
+		self:BecomeRagdollOnClient()
+	end
 end
 
 -- Gets called when the NPC dies.
 function ENT:OnKilled( dmginfo )
 	if self.Weapon then SafeRemoveEntity( self.Weapon) end
 	hook.Call( "OnNPCKilled", GAMEMODE, self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
-	self:BecomeRagdoll( dmginfo )
-	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
-	if self.m_IgnoreMoney then return end
 	if self._sndspeak then
 		self:StopSound( self._sndspeak )
 	end
-	NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
+	if self.e_Ragdoll then 
+		SafeRemoveEntity( self.e_Ragdoll)
+	end
+	if not self.m_IgnoreMoney then
+		NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
+	end
+	self:Remove()
 end
 -- Our own BehaveUpdate
 function ENT:BehaveUpdate( fInterval )
