@@ -146,12 +146,13 @@ function node_meta:GetConnectedNodes( max_jump, max_jumpdown, HULL )
 end
 function node_meta:GetConnectedNodesMax( aim )
 	local t = {}
-	if not aim then aim = 1 end
+	if not aim then 
+		aim = 1
+	elseif aim == 8 or aim == 4 or ain == 2 then
+		ain = ain + 1
+	end
 	for k, v in ipairs(links[self] or {}) do -- v = {node, connections}
 		local n = 0
-		if aim == 8 or aim == 4 or ain == 2 then
-			ain = ain + 1
-		end
 		for i = 1, 10 do
 			if v[2][ i ] == 0 then
 				n = i
