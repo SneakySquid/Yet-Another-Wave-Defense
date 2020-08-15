@@ -36,7 +36,7 @@ end
 -- These variables can also be a table or function.
 local collapse = {"DisplayName", "Model", "Health", "Skin", "Material", "Color"}
 function NPC.ApplyFunctions(e, sName)
-	e.NPC_DATA = NPCs[sName]
+	e.NPC_DATA = table.Copy(NPCs[sName])
 	-- Collapse variables
 	for _,v in ipairs(collapse) do
 		local sTy = type(e.NPC_DATA[v])
@@ -50,6 +50,10 @@ function NPC.ApplyFunctions(e, sName)
 	local t = LookUpAnimation( e )
 	for k,v in pairs( t ) do
 		e.NPC_DATA[k] = e.NPC_DATA[k] or v
+	end
+	-- Call Init
+	if e.NPC_DATA.Init then
+		e.NPC_DATA.Init(e)
 	end
 	e:SetMaxSpeed(e.MoveSpeed or 25)
 end
