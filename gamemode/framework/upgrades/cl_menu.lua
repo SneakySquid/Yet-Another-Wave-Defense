@@ -28,10 +28,11 @@ function GM:CreateUpgradesMenu()
 			name:Dock(TOP)
 			name:SetTall(30)
 
+			local owned_tier = GAMEMODE:GetPlayerUpgradeTier(localplayer, v.k)
+
 			for i = 1, v.tiers do
-				local owned_tier = GAMEMODE:GetPlayerUpgradeTier(localplayer, v.k)
 				local is_owned = owned_tier >= i
-				local price = istable(v.price) and v.price[i] or v.price
+				local price = GAMEMODE:GetUpgradePrice(v.k, i, owned_tier)
 
 				if is_owned then
 					price = price * GAMEMODE:GetUpgradeRefundPercentage()
