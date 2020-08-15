@@ -343,7 +343,7 @@ HUD.Status = {
 			t2 = "to pickup barrel"
 		elseif e_class == "yawd_building_core" then
 			t2 = "to open store"
-		elseif string.sub(e_class,0,13) == "yawd_building" then
+		elseif string.sub(e_class,0,13) == "yawd_building" and ent:IsMine() then
 			t2 = "to sell"
 		else
 			return			
