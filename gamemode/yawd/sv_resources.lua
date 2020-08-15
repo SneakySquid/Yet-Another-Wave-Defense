@@ -23,6 +23,8 @@ AddMaterial("hud/lightning_rod.png")
 AddMaterial("hud/spikes.png")
 AddMaterial("hud/steam_trap.png")
 AddMaterial("hud/tar.png")
+AddMaterial("hud/icon_sheet.png")
+AddMaterial("hud/icon_sheet_overlay.png")
 
 AddMaterial("models/trap_base.vmt")
 AddMaterial("models/trap_blade.vmt")
