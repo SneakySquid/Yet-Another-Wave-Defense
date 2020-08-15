@@ -262,3 +262,8 @@ local function RenderNodes(_, drawing_skybox)
 	end
 end
 hook.Add("PreDrawOpaqueRenderables", "MapVote.RenderNodes", RenderNodes)
+
+hook.Add("YAWDVoteFinished", "MapVote.RemoveSelected", function()
+	selected_node = nil
+	hovered_node = nil
+end)
