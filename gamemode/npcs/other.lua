@@ -67,7 +67,7 @@ do
 	NPC.Add(dog)
 end
 
-do	
+do
 	local gman = {}
 	gman.Name = "gman"
 	gman.DisplayName = "Gman"
@@ -88,9 +88,42 @@ do
 	gman.TargetCooldown = 25			-- The amount of times we can target the player
 
 	gman.ANIM_RUN = 17 -- sprint_all
-
+	-- Easter egg for wave 20
+	local GGC2020
+	if CLIENT then
+		GGC2020 = {
+			{"Nak", 		"76561198009860285"},
+			{"Squid", 		"76561197961746985"},
+			{"Lewis", 		"76561198059760564"},
+			{"add___123", 	"76561198110055555"},
+			{"Bleck", 		"76561198109623483"},
+			{"DangerKiddy", "76561198132964487"},
+			{"Doc",			"76561198108011282"},
+			{"Ferb", 		"76561198035821384"},
+			{"HMM'", 		"76561198115172591"},
+			{"johnjoemcbob","76561197996461831"},
+			{"Madi boi",	"76561198119753316"},
+			{"Periapsis", 	"76561198190869035"},
+			{"Phatso", 		"76561198002607474"},
+			{"R1nlz3r", 	"76561198282400426"},
+			{"Sammy boi", 	"76561198053582133"},
+			{"VictorienXP", "76561197996826023"},
+			{"Tripperful", 	"76561197960465565"}
+		}
+		for k,v in ipairs(GGC2020) do
+			steamworks.RequestPlayerInfo(v[2],function(name)
+				GGC2020[k][1] = name or GGC2020[k][1]
+			end)
+		end
+	end
 	function gman:Init()
-		self:EmitSound("npc/crow/alert" .. math.random(1,3) ..".wav", 170)
+		if CLIENT then
+			self:EmitSound("npc/crow/alert" .. math.random(1,3) ..".wav", 170)
+			local core = Building.GetCore()
+			if GAMEMODE:GetWaveNumber() == 20 and core and IsValid(core) and core:Health() >= 1000 then
+				self.NPC_DATA.DisplayName = GGC2020[math.random(1,#GGC2020)][1]
+			end
+		end
 	end
 
 	local function AttackPlayer( self, target )
