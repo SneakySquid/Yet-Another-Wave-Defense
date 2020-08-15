@@ -140,6 +140,7 @@ if CLIENT then
 	local corpses = {}
 	hook.Add( "CreateClientsideRagdoll", "YAWD_Ragdoll", function( entity, ragdoll )
 		if not IsValid(ragdoll) then return end
+		if ragdoll:GetClass() ~= "class C_ClientRagdoll" then return end
 		ragdoll:SetSaveValue( "m_bFadingOut", true )
 		table.insert(corpses, {ragdoll, CurTime() + 1})
 	end )
