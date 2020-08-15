@@ -5,6 +5,16 @@ GM.Author 	= "SneakySquid & Nak"
 
 -- Ensure the convar is created - wasn't created for me clientside on 64-bit Linux
 CreateConVar("yawd_debug", 0, FCVAR_ARCHIVE)
+CreateConVar("yawd_seed", "", {FCVAR_REPLICATED, FCVAR_ARCHIVE})
+CreateConVar("yawd_votecountdown", 60, {FCVAR_REPLICATED, FCVAR_ARCHIVE})
+
+-- Limits
+CreateConVar("yawd_max_ragdoll", 20, FCVAR_ARCHIVE)
+CreateConVar("yawd_max_npcs", 200, FCVAR_ARCHIVE)
+
+-- Start convars
+CreateConVar("yawd_start_wave", 0, FCVAR_ARCHIVE)
+CreateConVar("yawd_start_currency", 0, FCVAR_ARCHIVE)
 
 -- Include sandbox
 local yawd_debug = GetConVar("yawd_debug")

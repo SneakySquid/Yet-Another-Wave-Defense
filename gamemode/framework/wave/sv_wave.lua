@@ -121,6 +121,12 @@ net.Receive("Wave.RequestInfo", function(_, ply)
 	net.Send(ply)
 end)
 
+-- Set the wave number
+local con = GetConVar("yawd_start_wave")
+if con and con:GetInt() > 0 then
+	gmod.GetGamemode():SetWaveNumber( con:GetInt() )
+end
+
 -- Check if the map has a building core, else we have to vote on a location.
 hook.Add("YAWDPostEntity", "Wave.CheckMap", function()
 	local core = ents.FindByClass("yawd_building_core")

@@ -15,8 +15,6 @@ AccessorFunc(ENT, "m_Controller", "Controller") -- Controller object, set with E
 AccessorFunc(ENT, "m_HULLTYPE", "HULLType") -- Max steering force in m/s
 AccessorFunc(ENT, "m_InJump", "InJump") -- Is in jump
 
-local MAX_RAGDOLL = 20 -- Server protection. Don't want to ragdoll too many NPCs
-
 -- "Talk" functions. This will ensure only one can be played at a time.
 function ENT:SpeakSnd( snd_or_tab, ... )
 	if self._sndspeak then
@@ -56,8 +54,9 @@ function ENT:GetMoveSpeed()
 end
 -- Makes the nextbot become a ragdoll
 local CUR_RAG = 0
+local con = GetConVar( "yawd_max_ragdoll" )
 function ENT:MakeRagdoll( duration )
-	if CUR_RAG >= MAX_RAGDOLL then return end 
+	if CUR_RAG >= (con and con:GetInt() or 20) then return end 
 	if self:Health() <= 0 then return end
 	if self.e_Ragdoll then SafeRemoveEntity( self.e_Ragdoll) end
 	local rag = ents.Create("prop_ragdoll")
@@ -240,7 +239,7 @@ function ENT:InitController(target, jump_down, jump_up)
 		controller:SetTarget( target )
 		local path = controller:RequestEntityPath(self, target:GetPos(), self.NPC_DATA.FuzzyAmount or 1, true)
 		if path then
-			DebugMessage(string.format("Generated initial path for %s.", self))
+			--DebugMessage(string.format("Generated initial path for %s.", self))
 			controller:SetPath(path)
 		end
 		self:SetController(controller)

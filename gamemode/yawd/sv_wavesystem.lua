@@ -50,7 +50,8 @@ local function GetNPCType(max_coins , num)
 	end
 	return npc_type
 end
-local function GenerateNPCList( num)
+
+local function GenerateNPCList( num )
 	num = num or GAMEMODE:GetWaveNumber() or 0
 	local max_coins = 70 + 140 * num + math.random(25) * (1 + (#player.GetAll() - 1) * 0.5 )
 	-- Easter egg :)
@@ -121,9 +122,18 @@ local function GenerateNPCList( num)
 end
 local npc_list, wave_coroutine = {}
 local spawn_rate = MinSpawnRate
+local con = GetConVar( "yawd_max_npcs" )
 local function CoroutineWave()
 	local s_wave = CurTime()
 	while true do
+		-- Check limit
+		local max_npcs = con and con:GetInt() or 400
+		if #ents.FindByClass("yawd_npc_base") - 1 >= max_npcs then
+			DebugMessage("Max NPCs reached. Waiting for NPCs to be slain.")
+			coroutine.wait( 2 )
+			coroutine.yield( )
+			continue
+		end
 		if #npc_list < 1 then
 			-- We ended the wave
 			coroutine.yield( true )
@@ -132,7 +142,7 @@ local function CoroutineWave()
 		local row = math.Round(math.sqrt( PRNG.Random(1, (#npc_list) ^ 2) )) -- This will try and select the higest
 		local npc_tab = npc_list[row]
 		if not NPC.SpawnType(npc_tab[1]) then 
-			coroutine.yield( true ) -- No spawners
+			coroutine.yield( true ) -- No spawners?
 		end
 		npc_list[row][2] = npc_tab[2] - 1
 		if npc_list[row][2] < 1 then

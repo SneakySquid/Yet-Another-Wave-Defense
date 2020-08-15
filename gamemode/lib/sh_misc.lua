@@ -7,7 +7,8 @@ function GM:CreateTeams()
 end
 
 if SERVER then
-	GM:Accessor("TotalCurrency", 0)
+	local con = GetConVar("yawd_start_currency")
+	GM:Accessor("TotalCurrency", con and con:GetInt() or 0)
 	function GM:YAWDOnCurrencyGiven(amt)
 		self.m_TotalCurrency = self.m_TotalCurrency + amt
 	end
