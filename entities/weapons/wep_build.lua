@@ -223,4 +223,11 @@ else
 		if ( !self.Owner:KeyPressed( IN_RELOAD ) ) then return end
 		self:Rotate()
 	end
+	function SWEP:DrawHUD()
+		if self.Owner ~= LocalPlayer() then return end
+		local ghost = self.GhostEntity
+		if IsValid(ghost) and not ghost:GetNoDraw() then
+			GAMEMODE:RenderKeyHint( "Press", MOUSE_LEFT, "to place. Press", MOUSE_RIGHT,"/", KEY_R, "to rotate." )
+		end
+	end
 end

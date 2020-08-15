@@ -66,16 +66,32 @@ function ENT:OnTakeDamage( dmginfo )
 	end
 end
 
+if SERVER then
+	function ENT:Think()
+		if self:GetBeingHeld() and not self:IsPlayerHolding() then 
+			self:SetBeingHeld(false)
+		end
+		self:NextThink(CurTime() + 2)
+		return true
+	end
+end
+
 function ENT:Use(act)
 	if not act or not IsValid(act) or not act:IsPlayer() then return end
 	if self:IsPlayerHolding() then 
+		self:SetBeingHeld(false)
 		act:DropObject()
 	else
 		act:PickupObject( self )
 		self.b_picked = true
+		self:SetBeingHeld(true)
 	end
 end
 
 function ENT:Draw()
 	self:DrawModel()
+end
+
+function ENT:SetupDataTables()
+	self:NetworkVar( "Bool", 0, "BeingHeld" )
 end
