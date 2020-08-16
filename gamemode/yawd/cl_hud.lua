@@ -56,6 +56,13 @@ do
 		weight = 1500,
 	})
 
+	surface.CreateFont("HUD.NPCKillCurrency", {
+		font = "Tahoma",
+		size = 50,
+		weight = 1500,
+		outline = true
+	})
+
 end
 
 local vote_info = GM.VoteInfo
@@ -73,6 +80,18 @@ local wavedisplay_bg = Material("effects/ar2_altfire1")
 local wavedisplay_bg2 = Material("effects/splashwake1")
 local wavedisplay_bg3 = Material("effects/splashwake3")
 local mat_selected = Material("vgui/spawnmenu/hover")
+local mat_kill = Material("hud/killicons/default")
+local npc_ckills = 0
+local npc_lkills = 0
+npc_killcur = {}
+hook.Add("YAWDNPCKilled", "YAWD.HUD.RenderKills",function( pos, currency )
+	npc_lkills = CurTime() + 2
+	npc_ckills = npc_ckills + 1
+	local r = VectorRand()
+	r.z =math.abs(r.z)
+	r:GetNormal()
+	table.insert( npc_killcur, {CurTime() + 3, pos + Vector(math.Rand(-5,5),math.Rand(-5,5),0), currency, r * math.Rand(10,20)} )
+end)
 
 local HUD = {
 	StatusStrings = {
@@ -425,6 +444,50 @@ HUD.Wave = {
 			ty = ty + h
 		end
 	end,
+
+	RenderKills = function(ply, sw, sh)
+		if npc_ckills <= 0 then return end
+		local t = npc_lkills - CurTime() 
+		if t <= 0 then
+			npc_ckills = 0
+			return
+		else
+			local scale = math.Clamp(t , 1, 1.4) * 50
+			local a = math.min(255, t * 255)
+			surface.SetDrawColor(Color(255,255,255,a))
+			surface.SetMaterial(mat_kill)
+			surface.DrawTexturedRect(90 - scale / 2, sh / 2 - scale / 2, scale, scale)
+			draw.DrawText("x" .. npc_ckills, "HUD.WaveDisplayNumber", 120, sh / 2 - 20, Color(255,255,255,a * .8))
+		end
+	end,
+
+	RenderKillsCurrency = function(ply)
+		if #npc_killcur > 0 then
+			cam.IgnoreZ(true)
+			local eyeang = EyeAngles()
+			eyeang:RotateAroundAxis(eyeang:Right(), 90)
+			eyeang:RotateAroundAxis(eyeang:Up(), -90)
+			local r = {}
+			for k,v in ipairs( npc_killcur ) do
+				local t = v[1] - CurTime()
+				if t <= 0 then
+					table.insert(r, k)
+				else
+					local a = math.min(255, t * 255)
+					local t2 = (3 - t) 
+					local p = v[2] + t2 * v[4] + Vector(0,0,t2 * 5)
+					cam.Start3D2D(p, eyeang, 0.5)
+						draw.DrawText("$" .. (v[3] or 0), "HUD.NPCKillCurrency", 0, 0, Color(255,255,255,a),TEXT_ALIGN_CENTER)
+					cam.End3D2D()
+				end				
+			end
+			cam.IgnoreZ(false)
+			for i = #r,1,-1 do
+				table.remove(npc_killcur, r[i] )
+			end
+		end
+	end
+
 }
 
 function GM:HUDPaint()
@@ -442,6 +505,10 @@ function GM:HUDPaint()
 
 		if CanDraw("HUD.Wave.Vote") then
 			HUD.Wave.Vote(ply, sw, sh)
+		end
+
+		if CanDraw("HUD.Wave.RenderKills") then
+			HUD.Wave.RenderKills(ply, sw, sh)
 		end
 	end
 
@@ -497,3 +564,10 @@ end
 function GM:HUDShouldDraw(element)
 	return not HUD.HiddenElements[element]
 end
+
+hook.Add("PostDrawTranslucentRenderables", "YAWDRenderKillsCurrency", function(a, b)
+	if a or b then return end
+	if CanDraw("HUD.Wave.RenderKillsCurrency") then
+		HUD.Wave.RenderKillsCurrency(ply)
+	end
+end)
