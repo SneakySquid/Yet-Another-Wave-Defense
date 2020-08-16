@@ -124,6 +124,7 @@ end
 
 HUD.Status = {
 	PlayerInfo = function(ply, sw, sh)
+
 	end,
 
 	PlayerHealth = function(ply, sw, sh)
@@ -446,7 +447,7 @@ HUD.Wave = {
 	end,
 
 	RenderKills = function(ply, sw, sh)
-		if npc_ckills <= 0 then return end
+		if npc_ckills <= 1 then return end
 		local t = npc_lkills - CurTime() 
 		if t <= 0 then
 			npc_ckills = 0
