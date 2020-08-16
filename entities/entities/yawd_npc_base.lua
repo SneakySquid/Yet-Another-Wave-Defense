@@ -677,6 +677,14 @@ function ENT:OnRemove()
 end
 
 -- Gets called when the NPC dies.
+if SERVER then
+	util.AddNetworkString("YAWD.NPCKill")
+else
+	net.Receive("YAWD.NPCKILL", function()
+		local pos, currency = net.ReadVector(), net.ReadUInt( 16)
+		hook.Call( "YAWDNPCKilled", GAMEMODE, pos, currency )
+	end)
+end
 function ENT:OnKilled( dmginfo )
 	if self.Weapon then SafeRemoveEntity( self.Weapon) end
 	hook.Call( "OnNPCKilled", GAMEMODE, self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
@@ -687,7 +695,13 @@ function ENT:OnKilled( dmginfo )
 		SafeRemoveEntity( self.e_Ragdoll)
 	end
 	if not self.m_IgnoreMoney then
-		NPC.RewardCurrency( self.NPC_DATA.Currency or 3 )
+		local cost = self.NPC_DATA.Currency or 3
+		NPC.RewardCurrency( cost )
+		hook.Call( "YAWDNPCKilled", GAMEMODE, self:GetPos() + self:OBBCenter(), cost )
+		net.Start("YAWD.NPCKill", true)
+			net.WriteVector( self:GetPos() + self:OBBCenter() )
+			net.WriteUInt( math.ceil( cost ), 16)
+		net.Broadcast()
 	end
 	self:Remove()
 end
