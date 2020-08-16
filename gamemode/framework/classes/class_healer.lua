@@ -24,10 +24,6 @@ PLAYER.BaseStats = {}
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
 
-	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_MEDKIT) ~= 0 then
-		self.Player:Give("weapon_medkit")
-	end
-
 	self.Player:SwitchToDefaultWeapon()
 end
 GM:RegisterClass("yawd_healer", PLAYER)

@@ -21,15 +21,19 @@ PLAYER.StartHealth = 220
 PLAYER.Description = "The #yawd_fighter is a close range all-rounder that excels at ambushing and flanking enemies."
 PLAYER.BaseStats = {}
 
+local function SpawnBot( ply, ent_class )
+	local var = "m_" .. ent_class
+	if IsValid( ply[var] ) then print("BOT THERE") return end
+	local e = ents.Create(ent_class)
+	if not IsValid(e) then return end
+	e:SetPos( ply:GetPos() )
+	e:SetAngles( ply:GetAngles() )
+	e:Spawn()
+	ply[var] = e
+end
+
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
-
-	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_SHOTGUN) ~= 0 then
-		self.Player:SetAmmo(164, "Buckshot")
-		self.Player.m_StartingAmmo["Buckshot"] = 164
-
-		self.Player:Give("yawd_shotgun")
-	end
 
 	self.Player:SwitchToDefaultWeapon()
 end

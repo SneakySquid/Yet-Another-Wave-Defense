@@ -28,13 +28,6 @@ function PLAYER:Loadout(...)
 
 	self.Player:Give("yawd_fists_extreme")
 
-	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_LMG) ~= 0 then
-		self.Player:SetAmmo(500, "AR2")
-		self.Player.m_StartingAmmo["AR2"] = 500
-
-		self.Player:Give("yawd_lmg")
-	end
-
 	self.Player:SwitchToDefaultWeapon()
 end
 

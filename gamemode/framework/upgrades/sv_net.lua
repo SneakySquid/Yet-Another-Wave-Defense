@@ -46,6 +46,10 @@ net.Receive("yawd.upgrades.purchase", function(len, ply)
 					upgrade.on_purchase(ply, tier_owned, tier_new)
 				end
 
+				if isfunction(upgrade.on_equip) then
+					upgrade.on_equip(ply, tier_owned, tier_new)
+				end
+
 				DebugMessage(string.format("%s purchased upgrade '%s':%d for %d",
 					ply:Nick(), upgrade.name, tier_new, upgrade_price))
 			end
@@ -64,6 +68,10 @@ net.Receive("yawd.upgrades.sell", function(len, ply)
 			local refund_amount = GAMEMODE:GetUpgradeRefundAmount(upgrade.k, tier_new, tier_owned)
 			ply:AddCurrency(refund_amount)
 			GAMEMODE:PlayerSetUpgradeTier(ply, upgrade.k, tier_new)
+
+			if isfunction(upgrade.on_unequip) then
+				upgrade.on_unequip(ply, tier_new)
+			end
 
 			if isfunction(upgrade.on_sell) then
 				upgrade.on_sell(ply, tier_owned, tier_new)

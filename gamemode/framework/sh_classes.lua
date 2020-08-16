@@ -73,6 +73,12 @@ if SERVER then
 
 		ply:Spawn()
 
+		hook.Run("YAWDApplyUpgrades", ply)
+
+		for k,v in pairs(ply.m_StartingAmmo or {}) do
+			ply:SetAmmo(v, k)
+		end
+
 		return true
 	end
 end
@@ -86,6 +92,23 @@ include("classes/class_healer.lua")
 include("classes/class_juggernaut.lua")
 include("classes/class_runner.lua")
 
+local function SpawnBot( ply, ent_class )
+	local var = "m_" .. ent_class
+	if IsValid( ply[var] ) then print("BOT THERE") return end
+	local e = ents.Create(ent_class)
+	if not IsValid(e) then return end
+	e:SetPos( ply:GetPos() )
+	e:SetAngles( ply:GetAngles() )
+	e:Spawn()
+	ply[var] = e
+end
+local function RemoveBot( ply, ent_class)
+	local var = "m_" .. ent_class
+	if not IsValid( ply[var] ) then return end
+	ply[var]:Remove()
+	ply[var] = nil
+end
+
 hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 	do -- Base class weapons
 		YAWD_UPGRADE_CROWBAR = GM:RegisterUpgrade({
@@ -93,21 +116,17 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			icon = Material("entities/weapon_crowbar.png"),
 			price = 50,
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
+					ply:StripWeapon("yawd_fists")
 					ply:Give("weapon_crowbar")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("weapon_crowbar")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply:Give("yawd_fists")
 				end
 			end,
 		})
@@ -117,22 +136,17 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			price = 200,
 			icon = Material("entities/yawd_pistol.png"),
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["Pistol"] = 50
 					ply:Give("yawd_pistol")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_pistol")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply.m_StartingAmmo["Pistol"] = nil
 				end
 			end,
 		})
@@ -142,27 +156,21 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			price = 400,
 			icon = Material("entities/weapon_smg1.png"),
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["SMG1"] = 256
-
 					if ply:GetPlayerClass() == CLASS_BOMBER then
 						ply.m_StartingAmmo["SMG1_Grenade"] = 5
 					end
-
 					ply:Give("weapon_smg1")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_pistol")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply.m_StartingAmmo["SMG1"] = nil
+					ply.m_StartingAmmo["SMG1_Grenade"] = nil
 				end
 			end,
 		})
@@ -179,22 +187,17 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			end,
 			can_purchase_class = { CLASS_BOMBER },
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["grenade"] = 15
 					ply:Give("weapon_frag")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
-					ply:StripWeapon("grenade_frag")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply:StripWeapon("weapon_frag")
+					ply.m_StartingAmmo["grenade"] = nil
 				end
 			end,
 		})
@@ -209,22 +212,17 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			end,
 			can_purchase_class = { CLASS_BOMBER },
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["RPG_Round"] = 15
 					ply:Give("weapon_rpg")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("weapon_rpg")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply.m_StartingAmmo["RPG_Round"] = nil
 				end
 			end,
 		})
@@ -242,22 +240,40 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			end,
 			can_purchase_class = { CLASS_FIGHTER, CLASS_GUNNER },
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["Buckshot"] = 164
 					ply:Give("yawd_shotgun")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_shotgun")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply.m_StartingAmmo["Buckshot"] = nil
+				end
+			end,
+		})
+
+		YAWD_UPGRADE_Zerobot = GM:RegisterUpgrade({
+			name = "ZeroBot",
+			price = 350,
+			icon = Material("entities/weapon_medkit.png"),
+
+			can_purchase = function(ply)
+				return ply:GetPlayerClass() == CLASS_GUNNER
+			end,
+			can_purchase_class = { CLASS_GUNNER },
+
+			on_equip = function(ply)
+				if SERVER then
+					SpawnBot(ply, "yawd_zerobot")
+				end
+			end,
+
+			on_unequip = function(ply)
+				if SERVER then
+					RemoveBot(ply, "yawd_zerobot")
 				end
 			end,
 		})
@@ -274,22 +290,17 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			end,
 			can_purchase_class = { CLASS_GUNNER },
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["AR2"] = 300
 					ply:Give("yawd_rifle")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_rifle")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply.m_StartingAmmo["AR2"] = nil
 				end
 			end,
 		})
@@ -306,21 +317,38 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			end,
 			can_purchase_class = { CLASS_HEALER },
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply:Give("weapon_medkit")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("weapon_medkit")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+				end
+			end,
+		})
+
+		YAWD_UPGRADE_J0shBot = GM:RegisterUpgrade({
+			name = "J0shBot",
+			price = 350,
+			icon = Material("entities/weapon_medkit.png"),
+
+			can_purchase = function(ply)
+				return ply:GetPlayerClass() == CLASS_HEALER
+			end,
+			can_purchase_class = { CLASS_HEALER },
+
+			on_equip = function(ply)
+				if SERVER then
+					SpawnBot(ply, "yawd_j0shbot")
+				end
+			end,
+
+			on_unequip = function(ply)
+				if SERVER then
+					RemoveBot(ply, "yawd_j0shbot")
 				end
 			end,
 		})
@@ -337,22 +365,17 @@ hook.Add("YAWDPlayerUpgradesLoaded", "Classes.PlayerUpgradesLoaded", function()
 			end,
 			can_purchase_class = { CLASS_JUGGERNAUT, CLASS_GUNNER },
 
-			on_purchase = function(ply)
+			on_equip = function(ply)
 				if SERVER then
 					ply.m_StartingAmmo["AR2"] = 500
 					ply:Give("yawd_lmg")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
 				end
 			end,
 
-			on_sell = function(ply)
+			on_unequip = function(ply)
 				if SERVER then
 					ply:StripWeapon("yawd_lmg")
-					ply:Spawn()
-				else
-					GAMEMODE:PrecacheSlots()
+					ply.m_StartingAmmo["AR2"] = nil
 				end
 			end,
 		})

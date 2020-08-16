@@ -24,20 +24,6 @@ PLAYER.BaseStats = {}
 function PLAYER:Loadout(...)
 	BaseClass.Loadout(self, ...)
 
-	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_GRENADE) ~= 0 then
-		self.Player:SetAmmo(15, "grenade")
-		self.Player.m_StartingAmmo["grenade"] = 15
-
-		self.Player:Give("weapon_frag")
-	end
-
-	if GAMEMODE:GetPlayerUpgradeTier(self.Player, YAWD_UPGRADE_RPG) ~= 0 then
-		self.Player:SetAmmo(15, "RPG_Round")
-		self.Player.m_StartingAmmo["RPG_Round"] = 15
-
-		self.Player:Give("weapon_rpg")
-	end
-
 	self.Player:SwitchToDefaultWeapon()
 end
 

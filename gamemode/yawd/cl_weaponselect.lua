@@ -32,10 +32,13 @@ local function SwitchWeapon()
 	end
 end
 
-function GM:PrecacheSlots()
+function GM:PrecacheSlots( wep_class )
+	-- We cant set a trap
+	if wep_class == "wep_build" then
+		wep_class = nil
+	end
 	local ply = LocalPlayer()
 	local class = ply:GetPlayerClass()
-
 	slot_cache = {}
 	slot_count = 0
 
@@ -43,6 +46,9 @@ function GM:PrecacheSlots()
 		if wep:GetClass() ~= "wep_build" then
 			slot_count = slot_count + 1
 			slot_cache[slot_count] = {wep, true}
+		end
+		if wep_class and wep_class == wep:GetClass() then
+			current_slot = slot_count
 		end
 	end
 
@@ -71,6 +77,27 @@ function GM:PrecacheSlots()
 
 	SwitchWeapon()
 end
+
+net.Receive("YAWD.WeaponSlotUpdate", function()
+	local bool = net.ReadBool()
+	local wep = net.ReadString()
+	if bool then -- Full update
+		timer.Simple(.5, function()
+			GAMEMODE:PrecacheSlots( wep )
+		end)
+	else -- Select weapon
+		for slot,tab in ipairs( slot_cache ) do
+			local s_class = tab[1]
+			if tab[2] then -- wep
+				s_class = tab[1]:GetClass()
+			end
+			if wep == s_class then
+				current_slot = slot
+				break
+			end
+		end
+	end
+end)
 
 local last_alive = false
 local last_class = 0

@@ -10,8 +10,11 @@ name,			required. upgrade name.
 price,			required. can either be a number or a table for prices of each tier.
 hooks,			optional. hook table: { { event, realm, callback }, ... } (realm="client/server/shared")
 can_purchase, 	optional function for upgrades that aren't just restricted by price. args: ply, tier
-on_purchase,	optional function. args: ply, tier_old, tier_new
-on_sell,		optional function. args: ply, tier_old, tier_new
+on_equip,		optional function. args: ply, tier
+on_unequip,		optional function. args: ply, tier
+on_kill,		optional function. args: ply, attacker, tier
+on_purchase, 	optional function. args: ply, tier_old, tier_new
+on_sell			optional function. args: ply, tier_old, tier_new
 --]]
 function GM:RegisterUpgrade(t)
 	local function _assert(cond, key)
@@ -22,6 +25,9 @@ function GM:RegisterUpgrade(t)
 	_assert(isnumber(t.price) or istable(t.price), "price")
 	_assert(t.hooks == nil or istable(t.hooks), "hooks")
 	_assert(t.can_purchase == nil or isfunction(t.can_purchase), "can_purchase")
+	_assert(t.on_equip == nil or isfunction(t.on_equip), "on_equip")
+	_assert(t.on_unequip == nil or isfunction(t.on_unequip), "on_unequip")
+	_assert(t.on_kill == nil or isfunction(t.on_kill), "on_kill")
 	_assert(t.on_purchase == nil or isfunction(t.on_purchase), "on_purchase")
 	_assert(t.on_sell == nil or isfunction(t.on_sell), "on_sell")
 
@@ -143,6 +149,7 @@ if SERVER then
 	AddCSLuaFile("upgrades/cl_menu.lua")
 
 	include("upgrades/sv_net.lua")
+	include("upgrades/sv_apply.lua")
 else
 	include("upgrades/cl_net.lua")
 	include("upgrades/cl_menu.lua")
