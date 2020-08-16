@@ -594,7 +594,7 @@ function ENT:Think()
 	else
 		self:CalculateGoal( )
 		--self:SetVelocity(velocity)
-		self:NextThink(CurTime())
+		self:NextThink(CurTime() + 1)
 		self.BaseClass.Think(self)
 		return true
 	end

@@ -132,8 +132,9 @@ if SERVER then
 	end
 	function ENT:HasEnemiesOn()
 		if not self.OnTrap then self.OnTrap = {} end
+		if next( self.OnTrap ) == nil then return false end
 		ClearTouch(self)
-		return next( self.OnTrap ) ~= nil
+		return true
 	end
 	function ENT:GetEnemiesOn()
 		ClearTouch(self)
