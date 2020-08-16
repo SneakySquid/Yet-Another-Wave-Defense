@@ -476,7 +476,6 @@ end
 function ENT:GetRunInterval()
 	return self.m_fInterval or 0
 end
-
 -- NPC's runbehaviour. We make our own to limit it.
 function ENT:RunBehaviour()
 	if CLIENT then return end
@@ -550,53 +549,55 @@ function ENT:IsOnGround()
 end
 
 -- Handles Ragdoll and forcemove
-function ENT:Think()
-	if self:GetRagdolled() then
-		self:NextThink(CurTime() + 1)
-		return true
-	elseif self.m_ForceMoving then
-		if (self.m_ForceMovingt or 0) <= CurTime() then
-			self:SetPos(self.m_ForceMoving) -- Set the position.
-			self.m_ForceMoving = nil
-			self.m_ForceMovingt = nil
-			self.m_ForceMovingd = nil
-			self.loco:SetGravity(self.m_ForceMovingg or 1000)
-			self.m_ForceMovingg = nil
-			self.m_ForceMovinga = nil
-			self:SetSpeedMultTemp()
-		else
-			local delta = (self.m_ForceMoving - self:GetPos())
-			local len = delta:Length()
-			-- self.m_ForceMovings 		Distance / time
-			if len >= 20 then
-				self.loco:SetVelocity( delta:GetNormalized() * math.min(len * 1.5, self.m_ForceMovings) )
-				self:NextThink(CurTime())
-				self.BaseClass.Think(self)
-				if self.m_ForceMovinga then
-					self:ResetSequence( self.m_ForceMovinga )
-				end
-			else
-				self.m_ForceMovinga = nil
+if SERVER then
+	function ENT:Think()
+		if self:GetRagdolled() then
+			self:NextThink(CurTime() + 1)
+			return true
+		elseif self.m_ForceMoving then
+			if (self.m_ForceMovingt or 0) <= CurTime() then
+				self:SetPos(self.m_ForceMoving) -- Set the position.
 				self.m_ForceMoving = nil
 				self.m_ForceMovingt = nil
 				self.m_ForceMovingd = nil
 				self.loco:SetGravity(self.m_ForceMovingg or 1000)
 				self.m_ForceMovingg = nil
+				self.m_ForceMovinga = nil
 				self:SetSpeedMultTemp()
+			else
+				local delta = (self.m_ForceMoving - self:GetPos())
+				local len = delta:Length()
+				-- self.m_ForceMovings 		Distance / time
+				if len >= 20 then
+					self.loco:SetVelocity( delta:GetNormalized() * math.min(len * 1.5, self.m_ForceMovings) )
+					self:NextThink(CurTime())
+					self.BaseClass.Think(self)
+					if self.m_ForceMovinga then
+						self:ResetSequence( self.m_ForceMovinga )
+					end
+				else
+					self.m_ForceMovinga = nil
+					self.m_ForceMoving = nil
+					self.m_ForceMovingt = nil
+					self.m_ForceMovingd = nil
+					self.loco:SetGravity(self.m_ForceMovingg or 1000)
+					self.m_ForceMovingg = nil
+					self:SetSpeedMultTemp()
+				end
+				local cur = self:GetAngles()
+				local ang = delta:Angle()
+				if ang.y ~= cur.y then
+					local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -4, 4)
+					self:SetAngles(Angle(0,cur.y + a,0))
+				end
 			end
-			local cur = self:GetAngles()
-			local ang = delta:Angle()
-			if ang.y ~= cur.y then
-				local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -4, 4)
-				self:SetAngles(Angle(0,cur.y + a,0))
-			end
+			return
+		else
+			self:CalculateGoal( )
+			--self:SetVelocity(velocity)
+			self.BaseClass.Think(self)
+			return
 		end
-		return
-	else
-		self:CalculateGoal( )
-		--self:SetVelocity(velocity)
-		self.BaseClass.Think(self)
-		return
 	end
 end
 -- Draws the NPC
