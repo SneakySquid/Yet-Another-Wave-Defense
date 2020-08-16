@@ -99,7 +99,9 @@ function Building.CanClassBuild(BuildingName, CLASS)
 	return isClassAllowed(BuildingName, CLASS)
 end
 function Building.CanPlayerBuild( ply, BuildingName )
+	if not BuildingName then return false end
 	local bd = Building.GetData( BuildingName )
+	if not bd then return false end
 	// Check cost
 	local cost = bd.Cost
 	if cost < 0 then return false end
