@@ -326,6 +326,9 @@ function ENT:CalculateGoal( )
 	if CLIENT then return end
 	local controller = self:GetController()
 	if not controller then return false end
+	-- Can only call this every second tops
+	if (self.m_nGUpdate or 0) > CurTime() then return end
+	self.m_nGUpdate = CurTime() + 1
 
 	-- Hunt for players
 	if self.NPC_DATA.HuntPlayer then
@@ -357,16 +360,6 @@ function ENT:CalculateGoal( )
 			end
 			return false
 		end
-	end
-	if SERVER then
-		local desired = (self.m_lastpos or goal) - self:GetPos()
-		if IsValid(self:GetTarget()) then
-			desired = self:GetTarget():GetPos() - self:GetPos()
-		end
-		local cur = self:GetAngles()
-		local ang = desired:Angle()
-		local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -4, 4)
-		self:SetAngles(Angle(0,cur.y + a,0))
 	end
 end
 -- Handles the animation
@@ -429,6 +422,12 @@ function ENT:MoveTowards( pos, ignoreAnimation )
 		self.m_StepDur = CurTime() + (self.NPC_DATA.OnStep(self) or 40 / mov_speed)
 	end
 	self.m_lastpos = pos
+	local cur = self:GetAngles()
+	local ang = delta:Angle()
+	if ang.y ~= cur.y then
+		local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -8, 8)
+		self:SetAngles(Angle(0,cur.y + a,0))
+	end
 	if l < 60 then return true end
 	if not self:IsOnGround() and not self:GetInJump() then return false end
 	self.loco:SetVelocity(vel)
@@ -587,16 +586,17 @@ function ENT:Think()
 			end
 			local cur = self:GetAngles()
 			local ang = delta:Angle()
-			local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -4, 4)
-			self:SetAngles(Angle(0,cur.y + a,0))
+			if ang.y ~= cur.y then
+				local a = math.Clamp(math.AngleDifference(ang.y, cur.y), -4, 4)
+				self:SetAngles(Angle(0,cur.y + a,0))
+			end
 		end
 		return
 	else
 		self:CalculateGoal( )
 		--self:SetVelocity(velocity)
-		self:NextThink(CurTime() + 1)
 		self.BaseClass.Think(self)
-		return true
+		return
 	end
 end
 -- Draws the NPC
