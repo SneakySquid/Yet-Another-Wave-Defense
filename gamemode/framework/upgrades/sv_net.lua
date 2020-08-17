@@ -31,7 +31,7 @@ end
 net.Receive("yawd.upgrades.purchase", function(len, ply)
 	local upgrade = read_upgrade()
 	local tier_new = net.ReadUInt(8)
-
+	ply.m_StartingAmmo = ply.m_StartingAmmo or {}
 	if upgrade and tier_new > 0 then
 		local tier_owned = GAMEMODE:GetPlayerUpgradeTier(ply, upgrade.k)
 
