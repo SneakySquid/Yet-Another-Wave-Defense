@@ -2,7 +2,7 @@
 local function UpdateUpgrades( ply )
 	local apply = {}
 	-- First remove
-	for k,v in ipairs( ply.yawd_upgrades ) do
+	for k,v in ipairs( ply.yawd_upgrades or {} ) do
 		local upgrade = v.upgrade
 		if upgrade then
 			if upgrade.can_purchase and not upgrade.can_purchase( ply ) then
@@ -30,7 +30,7 @@ end
 hook.Add("YAWDApplyUpgrades", "YAWDUpdateUpgrades", UpdateUpgrades)
 
 hook.Add("PlayerDeath", "YAWDDeathUpgrade", function(ply, _, attacker)
-	for k,v in ipairs( ply.yawd_upgrades ) do
+	for k,v in ipairs( ply.yawd_upgrades or {} ) do
 		local upgrade = v.upgrade
 		if not upgrade then continue end
 		if not upgrade.on_kill then continue end
